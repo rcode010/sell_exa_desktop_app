@@ -1,4 +1,3 @@
-import React from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useUserStore } from "./stores/useUserStore.ts";
 import LoginPage from "./pages/LoginPage.tsx";
@@ -15,7 +14,7 @@ const App = () => {
   const { user } = useUserStore() as { user: User };
 
   return (
-    <>
+     <div className="min-h-screen  flex items-center justify-center ">
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route
@@ -23,7 +22,7 @@ const App = () => {
           element={user ? <HomePage /> : <Navigate to={"/"} replace />}
         />
       </Routes>
-    </>
+    </div>
   );
 };
 
