@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Plus, Search, Eye, Mail, Phone } from "lucide-react";
 
 // --- Global Mock Data ---
@@ -72,6 +72,24 @@ const SELLERS_DATA = [
 ];
 
 const SellersPage = () => {
+  const [search, setSearch] = useState("");
+
+  const filteredSellers = useMemo(() => {
+    const value = search.toLowerCase();
+
+    return SELLERS_DATA.filter((seller) => {
+      return (
+        seller.name.toLowerCase().includes(value) ||
+        seller.company.toLowerCase().includes(value) ||
+        seller.email.toLowerCase().includes(value) ||
+        seller.phone.toLowerCase().includes(value) ||
+        seller.sales.toLowerCase().includes(value) ||
+        seller.status.toLowerCase().includes(value) ||
+        seller.joined.toLowerCase().includes(value)
+      );
+    });
+  }, [search]);
+
   // Helper to get status badge styles
   const getStatusStyles = (status: string) => {
     switch (status) {
@@ -137,6 +155,8 @@ const SellersPage = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
               type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value.toLowerCase())}
               placeholder="Search sellers..."
               className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
             />
@@ -158,7 +178,7 @@ const SellersPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {SELLERS_DATA.map((seller) => (
+              {filteredSellers.map((seller) => (
                 <tr
                   key={seller.id}
                   className="hover:bg-gray-50 transition-colors"
