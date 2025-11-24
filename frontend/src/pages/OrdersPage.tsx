@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Package, Eye, Search } from "lucide-react";
 
 interface Order {
@@ -171,16 +171,28 @@ const OrdersPage = () => {
   const [search, setSearch] = useState("");
 
   // Filtering doesn't mutate the original data but derives a new one from it
-  const filteredOrders = orders.filter((order) => {
-    const value = search.toLowerCase();
 
-    return (
-      order.orderId.toString().includes(value) ||
-      order.buyer.toLowerCase().includes(value) ||
-      order.seller.toLowerCase().includes(value) ||
-      order.status.toLowerCase().includes(value)
-    );
-  });
+  /**
+   *
+   * Memoization: The process of reusing previously computed results to avoid unnecessary re-computations. Similar to caching but for react components
+   *
+   * With useMemo we tell react to re-render the table of orders only when the search input changes.
+   *
+   * @see https://react.dev/reference/react/useMemo
+   */
+  const filteredOrders = useMemo(() => {
+    const value = search.toLowerCase(); // The searched value
+
+    // If either orderId, buyer, seller, or status has the value, return the order
+    return orders.filter((order) => {
+      return (
+        order.orderId.toString().includes(value) ||
+        order.buyer.toLowerCase().includes(value) ||
+        order.seller.toLowerCase().includes(value) ||
+        order.status.toLowerCase().includes(value)
+      );
+    });
+  }, [search]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
