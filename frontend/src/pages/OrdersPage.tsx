@@ -176,7 +176,7 @@ const OrdersPage = () => {
    *
    * Memoization: The process of reusing previously computed results to avoid unnecessary re-computations. Similar to caching but for react components
    *
-   * With useMemo we tell react to re-render the table of orders only when the search input changes.
+   * With useMemo we tell react to re-render the table of orders only when the 'search' variable changes (when user types something).
    *
    * @see https://react.dev/reference/react/useMemo
    */
