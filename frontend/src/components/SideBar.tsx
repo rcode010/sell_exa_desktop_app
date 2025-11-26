@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  LayoutDashboard,
   ShoppingCart,
   Users,
   Building2,
@@ -18,16 +17,10 @@ const SideBar = () => {
 
   const menuItems = [
     {
-      icon: LayoutDashboard,
-      label: "Dashboard",
-      path: "/",
-      active: location.pathname === "/",
-    },
-    {
       icon: ShoppingCart,
       label: "Orders",
-      path: "/orders",
-      active: location.pathname === "/orders",
+      path: "/",
+      active: location.pathname === "/",
     },
     {
       icon: Users,

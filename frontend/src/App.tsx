@@ -3,7 +3,6 @@ import { useUserStore } from "./stores/useUserStore.ts";
 import LoginPage from "./pages/LoginPage.tsx";
 import { Toaster } from "react-hot-toast";
 import { motion } from "framer-motion";
-import HomePage from "./pages/HomePage.tsx";
 import SideBar from "./components/SideBar.tsx";
 import SelfActionPage from "./pages/SelfActionPage.tsx";
 import ProductsPage from "./pages/ProductsPage.tsx";
@@ -64,7 +63,7 @@ const App = () => {
       >
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={user ? <HomePage /> : <LoginPage />} />
+          <Route path="/" element={user ? <OrdersPage /> : <LoginPage />} />
           <Route
             path="/self-actions"
             element={user ? <SelfActionPage /> : <LoginPage />}
@@ -76,10 +75,6 @@ const App = () => {
           <Route
             path="/sellers"
             element={user ? <SellersPage /> : <LoginPage />}
-          />
-          <Route
-            path="/orders"
-            element={user ? <OrdersPage /> : <LoginPage />}
           />
           <Route
             path="/companies"
