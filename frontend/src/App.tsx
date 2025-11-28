@@ -18,6 +18,18 @@ interface User {
   role: string;
 }
 
+/**
+ * 
+ * Hooks
+ *  
+ * useRef => Keeping the state safe from refreshing (timers)
+ * useState => Storing state
+ * useEffect => Performing side effects 
+ * useCallback => producing stable functions (functions with one identity)
+ * useMemo => used to calculate the result of a heavy computation and reusing it later witout re-calculating it again 
+ * 
+ */
+
 const App = () => {
   const { user } = useUserStore() as { user: User };
 
