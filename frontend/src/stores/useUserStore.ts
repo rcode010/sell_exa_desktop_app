@@ -35,7 +35,7 @@ export const useUserStore = create(
           }
 
           const response = await axois.post("/api/auth/login", {
-            phone,
+            phoneNo: phone,
             password,
           });
 
