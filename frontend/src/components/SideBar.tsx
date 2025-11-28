@@ -4,7 +4,6 @@ import {
   Users,
   Building2,
   Package,
-  UserCircle,
   LogOut,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -39,13 +38,7 @@ const SideBar = () => {
       label: "Products",
       path: "/products",
       active: location.pathname === "/products",
-    },
-    {
-      icon: UserCircle,
-      label: "Self Actions",
-      path: "/self-actions",
-      active: location.pathname === "/self-actions",
-    },
+    }
   ];
 
   return (
