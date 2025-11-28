@@ -171,7 +171,6 @@ const OrdersPage = () => {
   const [search, setSearch] = useState("");
 
   // Filtering doesn't mutate the original data but derives a new one from it
-
   /**
    *
    * Memoization: The process of reusing previously computed results to avoid unnecessary re-computations. Similar to caching but for react components

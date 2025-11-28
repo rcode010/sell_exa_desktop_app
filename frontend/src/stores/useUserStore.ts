@@ -1,64 +1,66 @@
+// import Store from "electron-store";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import axois from "../lib/axios";
-import { User } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface User {
   id: string;
   name: string;
-  phone: string;
+  email: string;
   role: string;
 }
 
-export const useUserStore = create((set,get:any) => ({
-  user: null,
-  loading: false,
-  setUser: (user: User) => set({ user }),
+// Initializing an object of electron's filesystem
+// const electronStore = new Store();
 
-  login: async (phone: string, password: string) => {
-    set({ loading: true });
+export const useUserStore = create(
+  persist(
+    (set) => ({
+      // States
+      user: null,
+      loading: false,
+      setUser: (user: User) => {
+        set({ user });
+        // electronStore.set("user", user);
+      },
 
-    try {
-      if (!phone || !password) {
-        throw new Error("Phone and password are required");
-      }
+      // Actions
+      login: async (phone: string, password: string) => {
+        set({ loading: true });
+        try {
+          if (!phone || !password) {
+            toast.error("Please enter phone and password");
+            return;
+          }
 
-      const response = await axois.post("/api/admin/login", {
-        phoneNo: phone,
-        password,
-      });
-      console.log(response.data)
-      const user = response.data.data;
-      console.log("User: " + user);
-      toast.success("Logged in successfuly")
+          const response = await axois.post("/api/auth/login", {
+            phone,
+            password,
+          });
 
-      set({ user, loading: false });
-    } catch (error) {
-      console.error(error);
-      set({ loading: false });
-    }
-  },
+          const user = response.data.data;
 
-  logout: async () => {
-    set({loading: true})
-    try {
-      const res = await axois.post(
-        "/api/admin/logout",
-        {},
-        {
-          headers: {
-            // get the token from credential manager 
-            'refresh-token': get().user.tokens.refreshToken,
-          },
+          set({ user, loading: false });
+          // electronStore.set("user", user);
+          toast.success("Logged in successfully");
+        } catch (error: unknown) {
+          console.log("Error: " + error);
+          set({ loading: false });
+          toast.error("Login failed");
         }
-        );
-      toast.success("Logged Out Successfuly")
+      },
 
-
-      set({loading:false, user:null});
-    } catch (error) {
-       console.error(error);
-      set({ loading: false });
+      logout: () => {
+        set({ user: null });
+        // electronStore.delete("user");
+        toast.success("Logged out successfully");
+      },
+    }),
+    {
+      name: "user-storage",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      partialize: (state: any) => ({ user: state.user }),
     }
-  },
-}));
+  )
+);
