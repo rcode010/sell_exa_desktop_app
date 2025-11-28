@@ -1,7 +1,7 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useUserStore } from "./stores/useUserStore.ts";
 import { Toaster } from "react-hot-toast";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
 
 const SideBar = lazy(() => import("./components/SideBar.tsx"));
@@ -62,7 +62,10 @@ const App = () => {
       {/* Show the sidebar if the user is logged in */}
       {user && (
         <div className="fixed left-0 top-0 h-full z-20">
-          <SideBar />
+          {/* Suspense added for lazy-loaded component */}
+          <Suspense fallback={<div>Loading sidebar...</div>}>
+            <SideBar />
+          </Suspense>
         </div>
       )}
 
@@ -72,40 +75,43 @@ const App = () => {
           user ? "ml-80" : "ml-0"
         }`}
       >
-        <Routes>
-          {/* Public Route */}
-          <Route path="/login" element={<LoginPage />} />
+        {/* Suspense added for lazy-loaded pages */}
+        <Suspense fallback={<div>Loading page...</div>}>
+          <Routes>
+            {/* Public Route */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={user ? <OrdersPage /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/self-actions"
-            element={
-              user ? <SelfActionPage /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="/products"
-            element={user ? <ProductsPage /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/sellers"
-            element={user ? <SellersPage /> : <Navigate to="/login" replace />}
-          />
-          <Route
-            path="/companies"
-            element={
-              user ? <CompaniesPage /> : <Navigate to="/login" replace />
-            }
-          />
-          <Route
-            path="*"
-            element={<Navigate to={user ? "/" : "/login"} replace />}
-          />
-        </Routes>
+            {/* Protected Routes */}
+            <Route
+              path="/"
+              element={user ? <OrdersPage /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/self-actions"
+              element={
+                user ? <SelfActionPage /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/products"
+              element={user ? <ProductsPage /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/sellers"
+              element={user ? <SellersPage /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/companies"
+              element={
+                user ? <CompaniesPage /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="*"
+              element={<Navigate to={user ? "/" : "/login"} replace />}
+            />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   );
