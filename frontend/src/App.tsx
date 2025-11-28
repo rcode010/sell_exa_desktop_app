@@ -1,14 +1,15 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useUserStore } from "./stores/useUserStore.ts";
-import LoginPage from "./pages/LoginPage.tsx";
 import { Toaster } from "react-hot-toast";
-import { motion } from "framer-motion";
-import SideBar from "./components/SideBar.tsx";
-import SelfActionPage from "./pages/SelfActionPage.tsx";
-import ProductsPage from "./pages/ProductsPage.tsx";
-import SellersPage from "./pages/SellersPage.tsx";
-import OrdersPage from "./pages/OrdersPage.tsx";
-import CompaniesPage from "./pages/CompaniesPage.tsx";
+import { lazy } from "react";
+import LoginPage from "./pages/LoginPage.tsx";
+
+const SideBar = lazy(() => import("./components/SideBar.tsx"));
+const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
+const SelfActionPage = lazy(() => import("./pages/SelfActionPage.tsx"));
+const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
+const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
+const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 
 interface User {
   id: string;
@@ -54,35 +55,46 @@ const App = () => {
       )}
 
       {/* Main content */}
-      <motion.div
+      <div
         className={`flex-1 min-h-screen transition-all duration-300 ${
           user ? "ml-80" : "ml-0"
         }`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
       >
         <Routes>
+          {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={user ? <OrdersPage /> : <LoginPage />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={user ? <OrdersPage /> : <Navigate to="/login" replace />}
+          />
           <Route
             path="/self-actions"
-            element={user ? <SelfActionPage /> : <LoginPage />}
+            element={
+              user ? <SelfActionPage /> : <Navigate to="/login" replace />
+            }
           />
           <Route
             path="/products"
-            element={user ? <ProductsPage /> : <LoginPage />}
+            element={user ? <ProductsPage /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/sellers"
-            element={user ? <SellersPage /> : <LoginPage />}
+            element={user ? <SellersPage /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/companies"
-            element={user ? <CompaniesPage /> : <LoginPage />}
+            element={
+              user ? <CompaniesPage /> : <Navigate to="/login" replace />
+            }
           />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route
+            path="*"
+            element={<Navigate to={user ? "/" : "/login"} replace />}
+          />
         </Routes>
-      </motion.div>
+      </div>
     </div>
   );
 };
