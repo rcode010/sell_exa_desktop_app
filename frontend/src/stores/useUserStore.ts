@@ -60,7 +60,7 @@ export const useUserStore = create(
     {
       name: "user-storage",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      partialize: (state: any) => ({ user: state.user }),
+      partialize: (state: any) => ({ user: state.user }), // only persists user and not loading state
     }
   )
 );
