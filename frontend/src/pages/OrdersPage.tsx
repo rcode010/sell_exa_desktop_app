@@ -177,7 +177,7 @@ const OrdersPage = () => {
   const filteredOrders = useMemo(() => {
     const value = search.toLowerCase(); // The searched value
 
-    // If either orderId, buyer, seller, or status has the value, return the order
+    // If either orderId, buyer, seller, or status has the value searched, return the order
     return orders.filter((order) => {
       return (
         order.orderId.toString().includes(value) ||
