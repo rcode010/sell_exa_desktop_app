@@ -5,6 +5,8 @@ import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
+import { useUserStore } from "./stores/useUserStore.ts";
+import { User } from "./types/user.ts";
 
 const SideBar = lazy(() => import("./components/SideBar.tsx"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
@@ -26,8 +28,7 @@ const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
  */
 
 const App = () => {
-  // const { user } = useUserStore() as { user: User };
-  const user = true;
+  const { user } = useUserStore() as { user: User };
 
   return (
     <div className="min-h-screen w-full flex bg-gray-50">
