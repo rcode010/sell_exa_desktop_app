@@ -39,13 +39,7 @@ const SideBar = () => {
       label: "Products",
       path: "/products",
       active: location.pathname === "/products",
-    },
-    {
-      icon: UserCircle,
-      label: "Self Actions",
-      path: "/self-actions",
-      active: location.pathname === "/self-actions",
-    },
+    }
   ];
 
   return (
@@ -100,8 +94,10 @@ const SideBar = () => {
             <span className="text-gray-700 font-semibold">AU</span>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-900">Admin User</p>
-            <p className="text-xs text-gray-500">Admin</p>
+            <a href="/profile">
+              <p className="text-sm font-medium text-gray-900">Admin User</p>
+              <p className="text-xs text-gray-500">Admin</p>
+            </a>
           </div>
         </div>
 
