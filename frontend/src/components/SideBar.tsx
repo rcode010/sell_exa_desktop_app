@@ -4,7 +4,6 @@ import {
   Users,
   Building2,
   Package,
-  UserCircle,
   LogOut,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
