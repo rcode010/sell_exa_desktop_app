@@ -1,22 +1,18 @@
 import React, { useState, useMemo } from "react";
-import { Plus, Search, Eye, Mail, Phone } from "lucide-react";
+import { Plus, Search, Eye, Mail, Phone, Users } from "lucide-react";
+import { Seller } from "../types/seller";
+import AddSellerModal from "../components/AddSellerModal";
+import EditSellerModal from "../components/EditSellerModal";
 
-// --- Global Mock Data ---
-const STATS_DATA = {
-  totalSellers: 6,
-  activeSellers: 4,
-  pendingApproval: 1,
-};
-
-const SELLERS_DATA = [
+// Mock data
+const SELLERS_DATA: Seller[] = [
   {
     id: 1,
     name: "Michael Johnson",
     company: "AutoParts Inc",
     email: "michael@autoparts.com",
-    phone: "(555) 123-4567",
+    phone: "07501234567",
     sales: "$125,000",
-    status: "active",
     joined: "1/15/2024",
   },
   {
@@ -24,9 +20,8 @@ const SELLERS_DATA = [
     name: "Sarah Williams",
     company: "CarPro Supply",
     email: "sarah@carpro.com",
-    phone: "(555) 234-5678",
+    phone: "07501234567",
     sales: "$98,000",
-    status: "active",
     joined: "3/22/2024",
   },
   {
@@ -34,9 +29,8 @@ const SELLERS_DATA = [
     name: "David Chen",
     company: "PartsWorld",
     email: "david@partsworld.com",
-    phone: "(555) 345-6789",
+    phone: "07501234567",
     sales: "$156,000",
-    status: "active",
     joined: "11/10/2023",
   },
   {
@@ -44,9 +38,8 @@ const SELLERS_DATA = [
     name: "Emily Rodriguez",
     company: "Quality Auto",
     email: "emily@qualityauto.com",
-    phone: "(555) 456-7890",
+    phone: "07501234567",
     sales: "$45,000",
-    status: "pending",
     joined: "11/1/2025",
   },
   {
@@ -54,9 +47,8 @@ const SELLERS_DATA = [
     name: "James Taylor",
     company: "Speed Parts Co",
     email: "james@speedparts.com",
-    phone: "(555) 567-8901",
+    phone: "07501234567",
     sales: "$87,000",
-    status: "active",
     joined: "6/18/2024",
   },
   {
@@ -64,15 +56,17 @@ const SELLERS_DATA = [
     name: "Lisa Anderson",
     company: "Premium Parts",
     email: "lisa@premiumparts.com",
-    phone: "(555) 678-9012",
+    phone: "07501234567",
     sales: "$12,000",
-    status: "inactive",
     joined: "9/5/2024",
   },
 ];
 
 const SellersPage = () => {
   const [search, setSearch] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
 
   const filteredSellers = useMemo(() => {
     const value = search.toLowerCase();
@@ -84,25 +78,10 @@ const SellersPage = () => {
         seller.email.toLowerCase().includes(value) ||
         seller.phone.toLowerCase().includes(value) ||
         seller.sales.toLowerCase().includes(value) ||
-        seller.status.toLowerCase().includes(value) ||
         seller.joined.toLowerCase().includes(value)
       );
     });
   }, [search]);
-
-  // Helper to get status badge styles
-  const getStatusStyles = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-700";
-      case "pending":
-        return "bg-yellow-100 text-yellow-700";
-      case "inactive":
-        return "bg-gray-100 text-gray-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
@@ -114,7 +93,10 @@ const SellersPage = () => {
             Manage seller accounts and performance
           </p>
         </div>
-        <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+        <button
+          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus size={20} />
           <span>Add Seller</span>
         </button>
@@ -126,21 +108,7 @@ const SellersPage = () => {
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Sellers</p>
           <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {STATS_DATA.totalSellers}
-          </h3>
-        </div>
-        {/* Card 2 */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Active Sellers</p>
-          <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {STATS_DATA.activeSellers}
-          </h3>
-        </div>
-        {/* Card 3 */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Pending Approval</p>
-          <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {STATS_DATA.pendingApproval}
+            {SELLERS_DATA.length}
           </h3>
         </div>
       </div>
@@ -172,7 +140,6 @@ const SellersPage = () => {
                 <th className="px-6 py-4">Company</th>
                 <th className="px-6 py-4">Contact</th>
                 <th className="px-6 py-4">Total Sales</th>
-                <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Joined</th>
                 <th className="px-6 py-4">Actions</th>
               </tr>
@@ -204,20 +171,17 @@ const SellersPage = () => {
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                     {seller.sales}
                   </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusStyles(
-                        seller.status
-                      )}`}
-                    >
-                      {seller.status}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 text-sm text-gray-600">
                     {seller.joined}
                   </td>
                   <td className="px-6 py-4">
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button
+                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setIsEditModalOpen(true);
+                        setSelectedSeller(seller);
+                      }}
+                    >
                       <Eye size={18} />
                     </button>
                   </td>
@@ -226,7 +190,28 @@ const SellersPage = () => {
             </tbody>
           </table>
         </div>
+        {filteredSellers.length === 0 && (
+          <div className="py-12 text-center">
+            <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">
+              No sellers found matching your search.
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Show add seller modal when open */}
+      {isAddModalOpen && (
+        <AddSellerModal onClose={() => setIsAddModalOpen(false)} />
+      )}
+
+      {/* Show edit seller modal when open */}
+      {isEditModalOpen && selectedSeller && (
+        <EditSellerModal
+          seller={selectedSeller}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
