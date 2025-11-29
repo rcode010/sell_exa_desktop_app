@@ -6,117 +6,64 @@ import { Product } from "../types/product";
 const PRODUCTS_DATA: Product[] = [
   {
     id: 1,
-    sku: "ENG-001",
     name: "Engine Oil Filter",
     category: "Engine Parts",
     price: 45,
-    stock: 150,
     seller: "AutoParts Inc",
-    status: "in-stock",
   },
   {
     id: 2,
-    sku: "BRK-012",
     name: "Brake Pads Set",
     category: "Brakes",
     price: 89,
-    stock: 45,
     seller: "CarPro Supply",
-    status: "in-stock",
   },
   {
     id: 3,
-    sku: "SUS-008",
     name: "Shock Absorber",
     category: "Suspension",
     price: 125,
-    stock: 12,
     seller: "PartsWorld",
-    status: "low-stock",
   },
   {
     id: 4,
-    sku: "ELC-045",
     name: "Spark Plugs (Set of 4)",
     category: "Electrical",
     price: 32,
-    stock: 0,
     seller: "AutoParts Inc",
-    status: "out-of-stock",
   },
   {
     id: 5,
-    sku: "ENG-022",
     name: "Air Filter",
     category: "Engine Parts",
     price: 28,
-    stock: 200,
     seller: "CarPro Supply",
-    status: "in-stock",
   },
   {
     id: 6,
-    sku: "BRK-019",
     name: "Brake Rotor",
     category: "Brakes",
     price: 95,
-    stock: 8,
     seller: "PartsWorld",
-    status: "low-stock",
   },
   {
     id: 7,
-    sku: "SUS-015",
     name: "Control Arm",
     category: "Suspension",
     price: 165,
-    stock: 35,
     seller: "AutoParts Inc",
-    status: "in-stock",
   },
   {
     id: 8,
-    sku: "ELC-052",
     name: "Alternator",
     category: "Electrical",
     price: 285,
-    stock: 18,
     seller: "CarPro Supply",
-    status: "in-stock",
   },
 ];
 
-const getStatusStyles = (status: Product["status"]) => {
-  const styles = {
-    "in-stock": "bg-green-100 text-green-700",
-    "low-stock": "bg-yellow-100 text-yellow-700",
-    "out-of-stock": "bg-red-100 text-red-700",
-  };
-  return styles[status];
-};
-
-const getStatusLabel = (status: Product["status"]) => {
-  const labels = {
-    "in-stock": "in-stock",
-    "low-stock": "low-stock",
-    "out-of-stock": "out-of-stock",
-  };
-  return labels[status];
-};
-
 const ProductsPage = () => {
   const [search, setSearch] = useState("");
-
-  // Calculate stats from data
-  const stats = useMemo(() => {
-    return {
-      total: PRODUCTS_DATA.length,
-      inStock: PRODUCTS_DATA.filter((p) => p.status === "in-stock").length,
-      lowStock: PRODUCTS_DATA.filter((p) => p.status === "low-stock").length,
-      outOfStock: PRODUCTS_DATA.filter((p) => p.status === "out-of-stock")
-        .length,
-    };
-  }, []);
 
   // Filter products based on search
   const filteredProducts = useMemo(() => {
@@ -125,7 +72,6 @@ const ProductsPage = () => {
     const value = search.toLowerCase();
     return PRODUCTS_DATA.filter((product) => {
       return (
-        product.sku.toLowerCase().includes(value) ||
         product.name.toLowerCase().includes(value) ||
         product.category.toLowerCase().includes(value) ||
         product.seller.toLowerCase().includes(value)
@@ -139,7 +85,7 @@ const ProductsPage = () => {
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-500 mt-1">Manage product inventory</p>
+          <p className="text-gray-500 mt-1">View and manage products</p>
         </div>
         <button className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium">
           <Plus className="w-5 h-5" />
@@ -152,28 +98,7 @@ const ProductsPage = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Products</p>
           <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {stats.total}
-          </h3>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">In Stock</p>
-          <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {stats.inStock}
-          </h3>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Low Stock</p>
-          <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {stats.lowStock}
-          </h3>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Out of Stock</p>
-          <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {stats.outOfStock}
+            {PRODUCTS_DATA.length}
           </h3>
         </div>
       </div>
@@ -201,9 +126,6 @@ const ProductsPage = () => {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  SKU
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -213,13 +135,7 @@ const ProductsPage = () => {
                   Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Stock
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Seller
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -232,11 +148,6 @@ const ProductsPage = () => {
                   key={product.id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-900">
-                      {product.sku}
-                    </span>
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-900">
                       {product.name}
@@ -254,21 +165,7 @@ const ProductsPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-900">
-                      {product.stock}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
                       {product.seller}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusStyles(
-                        product.status
-                      )}`}
-                    >
-                      {getStatusLabel(product.status)}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

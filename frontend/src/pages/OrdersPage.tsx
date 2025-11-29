@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Eye, Search } from "lucide-react";
+import { Eye, Package, Search } from "lucide-react";
 import OrderDetailsModal from "../components/OrderDetailsModal";
 import { Order } from "../types/order";
 
@@ -177,7 +177,7 @@ const OrdersPage = () => {
   const filteredOrders = useMemo(() => {
     const value = search.toLowerCase(); // The searched value
 
-    // If either orderId, buyer, seller, or status has the value, return the order
+    // If either orderId, buyer, seller, or status has the value searched, return the order
     return orders.filter((order) => {
       return (
         order.orderId.toString().includes(value) ||
@@ -306,6 +306,14 @@ const OrdersPage = () => {
             </tbody>
           </table>
         </div>
+        {filteredOrders.length === 0 && (
+          <div className="py-12 text-center">
+            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">
+              No orders found matching your search.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Modal rendered as an overlay on top of the page | only when open*/}
