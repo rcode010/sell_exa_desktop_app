@@ -1,15 +1,7 @@
 import React, { useState, useMemo } from "react";
-import { Package, Eye, Search } from "lucide-react";
-
-interface Order {
-  orderId: number;
-  buyer: string;
-  seller: string;
-  date: string;
-  products: { productId: number; quantity: number }[];
-  total: number;
-  status: "delivered" | "shipped" | "processing" | "pending" | "cancelled";
-}
+import { Eye, Search } from "lucide-react";
+import OrderDetailsModal from "../components/OrderDetailsModal";
+import { Order } from "../types/order";
 
 // Mock data
 const orders: Order[] = [
@@ -169,6 +161,8 @@ const getStatusStyles = (status: Order["status"]) => {
 
 const OrdersPage = () => {
   const [search, setSearch] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filtering doesn't mutate the original data but derives a new one from it
   /**
@@ -179,6 +173,7 @@ const OrdersPage = () => {
    *
    * @see https://react.dev/reference/react/useMemo
    */
+
   const filteredOrders = useMemo(() => {
     const value = search.toLowerCase(); // The searched value
 
@@ -201,11 +196,6 @@ const OrdersPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
           <p className="text-gray-500 mt-1">Manage buyer orders</p>
         </div>
-
-        <button className="bg-black hover:bg-gray-800 text-white flex items-center gap-2 px-6 py-3 rounded-lg transition-colors font-medium cursor-pointer">
-          <Package className="w-5 h-5" />
-          <span>New Order</span>
-        </button>
       </div>
 
       {/* Orders Table Card */}
@@ -300,7 +290,13 @@ const OrdersPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
+                      <button
+                        className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setSelectedOrder(order);
+                          setIsModalOpen(true);
+                        }}
+                      >
                         <Eye className="w-5 h-5" />
                       </button>
                     </td>
@@ -311,6 +307,17 @@ const OrdersPage = () => {
           </table>
         </div>
       </div>
+
+      {/* Modal rendered as an overlay on top of the page | only when open*/}
+      {isModalOpen && selectedOrder && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedOrder(null);
+          }}
+        />
+      )}
     </div>
   );
 };
