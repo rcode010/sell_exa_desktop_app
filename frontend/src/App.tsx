@@ -1,5 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-import { useUserStore } from "./stores/useUserStore.ts";
+// import { useUserStore } from "./stores/useUserStore.ts";
+// import { User } from "./types/user.ts";
 import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
@@ -10,13 +11,6 @@ const SelfActionPage = lazy(() => import("./pages/SelfActionPage.tsx"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
 const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
 
 /**
  *
@@ -31,7 +25,8 @@ interface User {
  */
 
 const App = () => {
-  const { user } = useUserStore() as { user: User };
+  // const { user } = useUserStore() as { user: User };
+  const user = true;
 
   return (
     <div className="min-h-screen w-full flex bg-gray-50">
@@ -94,11 +89,15 @@ const App = () => {
             />
             <Route
               path="/products"
-              element={user ? <ProductsPage /> : <Navigate to="/login" replace />}
+              element={
+                user ? <ProductsPage /> : <Navigate to="/login" replace />
+              }
             />
             <Route
               path="/sellers"
-              element={user ? <SellersPage /> : <Navigate to="/login" replace />}
+              element={
+                user ? <SellersPage /> : <Navigate to="/login" replace />
+              }
             />
             <Route
               path="/companies"

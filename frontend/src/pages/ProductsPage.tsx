@@ -1,16 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Search, Eye, Package } from "lucide-react";
-
-interface Product {
-  id: number;
-  sku: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  seller: string;
-  status: "in-stock" | "low-stock" | "out-of-stock";
-}
+import { Product } from "../types/product";
 
 // Mock data matching the design
 const PRODUCTS_DATA: Product[] = [
