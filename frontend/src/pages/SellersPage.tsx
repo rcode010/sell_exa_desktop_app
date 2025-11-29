@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Plus, Search, Eye, Mail, Phone, User } from "lucide-react";
+import { Plus, Search, Eye, Mail, Phone, Users } from "lucide-react";
 import { Seller } from "../types/seller";
 import AddSellerModal from "../components/AddSellerModal";
 import EditSellerModal from "../components/EditSellerModal";
@@ -190,16 +190,15 @@ const SellersPage = () => {
             </tbody>
           </table>
         </div>
+        {filteredSellers.length === 0 && (
+          <div className="py-12 text-center">
+            <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">
+              No sellers found matching your search.
+            </p>
+          </div>
+        )}
       </div>
-
-      {filteredSellers.length === 0 && (
-        <div className="py-12 text-center">
-          <User className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">
-            No sellers found matching your search.
-          </p>
-        </div>
-      )}
 
       {/* Show add seller modal when open */}
       {isAddModalOpen && (
