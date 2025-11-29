@@ -4,10 +4,11 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
+import ProfilePage from "./pages/ProfilePage.tsx";
 
 const SideBar = lazy(() => import("./components/SideBar.tsx"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
-const SelfActionPage = lazy(() => import("./pages/SelfActionPage.tsx"));
+const SelfActionPage = lazy(() => import("./pages/ProfilePage.tsx"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
 const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
@@ -103,6 +104,12 @@ const App = () => {
               path="/companies"
               element={
                 user ? <CompaniesPage /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                user ? <ProfilePage /> : <Navigate to="/login" replace />
               }
             />
             <Route
