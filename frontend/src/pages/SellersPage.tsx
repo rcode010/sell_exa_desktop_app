@@ -1,16 +1,10 @@
 import React, { useState, useMemo } from "react";
-import { Plus, Search, Eye, Mail, Phone } from "lucide-react";
+import { Plus, Search, Eye, Mail, Phone, User } from "lucide-react";
 import { Seller } from "../types/seller";
 import AddSellerModal from "../components/AddSellerModal";
 import EditSellerModal from "../components/EditSellerModal";
 
-// --- Global Mock Data ---
-const STATS_DATA = {
-  totalSellers: 6,
-  activeSellers: 4,
-  pendingApproval: 1,
-};
-
+// Mock data
 const SELLERS_DATA: Seller[] = [
   {
     id: 1,
@@ -114,21 +108,7 @@ const SellersPage = () => {
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Sellers</p>
           <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {STATS_DATA.totalSellers}
-          </h3>
-        </div>
-        {/* Card 2 */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Active Sellers</p>
-          <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {STATS_DATA.activeSellers}
-          </h3>
-        </div>
-        {/* Card 3 */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Pending Approval</p>
-          <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {STATS_DATA.pendingApproval}
+            {SELLERS_DATA.length}
           </h3>
         </div>
       </div>
@@ -211,6 +191,15 @@ const SellersPage = () => {
           </table>
         </div>
       </div>
+
+      {filteredSellers.length === 0 && (
+        <div className="py-12 text-center">
+          <User className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">
+            No sellers found matching your search.
+          </p>
+        </div>
+      )}
 
       {/* Show add seller modal when open */}
       {isAddModalOpen && (

@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Eye, Search } from "lucide-react";
+import { Eye, Package, Search } from "lucide-react";
 import OrderDetailsModal from "../components/OrderDetailsModal";
 import { Order } from "../types/order";
 
@@ -307,6 +307,13 @@ const OrdersPage = () => {
           </table>
         </div>
       </div>
+
+      {filteredOrders.length === 0 && (
+        <div className="py-12 text-center">
+          <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <p className="text-gray-500">No orders found matching your search.</p>
+        </div>
+      )}
 
       {/* Modal rendered as an overlay on top of the page | only when open*/}
       {isModalOpen && selectedOrder && (
