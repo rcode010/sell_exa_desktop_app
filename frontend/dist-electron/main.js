@@ -1,9 +1,12 @@
-import { app, BrowserWindow } from "electron";
+import { ipcMain, app, BrowserWindow } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-createRequire(import.meta.url);
+const require$1 = createRequire(import.meta.url);
 const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
+const keytar = require$1("keytar");
+const SERVICE_NAME = "SellExa";
+const ACCOUNT_NAME = "auth-token";
 process.env.APP_ROOT = path.join(__dirname$1, "..");
 const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
 const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
@@ -26,6 +29,33 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 }
+ipcMain.handle("store-token", async (_event, token) => {
+  try {
+    await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, token);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to save token:", error);
+    return { success: false, error };
+  }
+});
+ipcMain.handle("get-token", async () => {
+  try {
+    const token = await keytar.getPassword(SERVICE_NAME, ACCOUNT_NAME);
+    return token;
+  } catch (error) {
+    console.error("Failed to get token:", error);
+    return null;
+  }
+});
+ipcMain.handle("delete-token", async () => {
+  try {
+    const deleted = await keytar.deletePassword(SERVICE_NAME, ACCOUNT_NAME);
+    return deleted;
+  } catch (error) {
+    console.error("Failed to delete token:", error);
+    return false;
+  }
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();

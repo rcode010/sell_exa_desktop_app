@@ -14,6 +14,7 @@ export const useUserStore = create(
       // States
       user: null,
       loading: false,
+      accessToken: null,
       setUser: (user: User) => {
         set({ user });
         // electronStore.set("user", user);
@@ -32,10 +33,16 @@ export const useUserStore = create(
             phoneNo: phone,
             password,
           });
-
+          
+          
           const user = response.data.data;
+          if(window.secureToken){
+              await window.secureToken.save(user.tokens.refreshToken);
+          }else{
+            toast.error("failed to store Token")
+          }
 
-          set({ user, loading: false });
+          set({ user, loading: false, accessToken: user.tokens.accessToken });
           // electronStore.set("user", user);
           toast.success("Logged in successfully");
         } catch (error: unknown) {
@@ -45,11 +52,37 @@ export const useUserStore = create(
         }
       },
 
-      logout: () => {
-        set({ user: null });
-        // electronStore.delete("user");
-        toast.success("Logged out successfully");
-      },
+      logout: async () => {
+        set({ user: null, accessToken: null });
+        try {
+          
+          if (window.secureToken) {
+            await window.secureToken.clear();
+          }
+          
+          toast.success("Logged out successfully");
+        } catch (error) {
+          console.log("ERROR: "+error)
+          set({ loading: false });
+          toast.error("Logout failed")
+        }
+        
+    },
+    checkingAuth: async()=>{
+        try {
+          let refreshToken:string = "";
+          if(window.secureToken){
+            refreshToken = await window.secureToken.get()
+          }else{
+            throw Error("failed to get token");
+          }
+
+          // currently don't have the endpoint for it 
+          
+        } catch (error) {
+          set({ loading: false });
+        }
+    }
     }),
     {
       name: "user-storage",

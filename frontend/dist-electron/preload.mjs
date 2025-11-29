@@ -17,6 +17,9 @@ electron.contextBridge.exposeInMainWorld("ipcRenderer", {
     const [channel, ...omit] = args;
     return electron.ipcRenderer.invoke(channel, ...omit);
   }
-  // You can expose other APTs you need here.
-  // ...
+});
+electron.contextBridge.exposeInMainWorld("secureToken", {
+  save: (token) => electron.ipcRenderer.invoke("store-token", token),
+  get: () => electron.ipcRenderer.invoke("get-token"),
+  clear: () => electron.ipcRenderer.invoke("delete-token")
 });

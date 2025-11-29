@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -6,18 +6,14 @@ import path from 'node:path'
 const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// The built directory structure
-//
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
-// │ │ ├── main.js
-// │ │ └── preload.mjs
-// │
+// Import keytar
+const keytar = require('keytar')
+
+const SERVICE_NAME = 'SellExa'
+const ACCOUNT_NAME = 'auth-token'
+
 process.env.APP_ROOT = path.join(__dirname, '..')
 
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 export const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 export const MAIN_DIST = path.join(process.env.APP_ROOT, 'dist-electron')
 export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
@@ -42,14 +38,41 @@ function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
   } else {
-    // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
 }
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+ipcMain.handle('store-token', async (_event, token: string) => {
+  try {
+    await keytar.setPassword(SERVICE_NAME, ACCOUNT_NAME, token)
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to save token:', error)
+    return { success: false, error }
+  }
+})
+
+ipcMain.handle('get-token', async () => {
+  try {
+    const token = await keytar.getPassword(SERVICE_NAME, ACCOUNT_NAME)
+    return token
+  } catch (error) {
+    console.error('Failed to get token:', error)
+    return null
+  }
+})
+
+ipcMain.handle('delete-token', async () => {
+  try {
+    const deleted = await keytar.deletePassword(SERVICE_NAME, ACCOUNT_NAME)
+    return deleted
+  } catch (error) {
+    console.error('Failed to delete token:', error)
+    return false
+  }
+})
+
+// Quit when all windows are closed, except on macOS
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -58,8 +81,6 @@ app.on('window-all-closed', () => {
 })
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
