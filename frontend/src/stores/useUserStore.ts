@@ -3,13 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axois from "../lib/axios";
 import toast from "react-hot-toast";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+import { User } from "../types/user";
 
 // Initializing an object of electron's filesystem
 // const electronStore = new Store();
