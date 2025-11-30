@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Plus, Search, Eye, Mail, Phone, Users } from "lucide-react";
+import { Plus, Search, Eye, Phone, Users } from "lucide-react";
 import { Seller } from "../types/seller";
 import AddSellerModal from "../components/AddSellerModal";
 import EditSellerModal from "../components/EditSellerModal";
@@ -10,7 +10,6 @@ const SELLERS_DATA: Seller[] = [
     id: 1,
     name: "Michael Johnson",
     company: "AutoParts Inc",
-    email: "michael@autoparts.com",
     phone: "07501234567",
     sales: "$125,000",
     joined: "1/15/2024",
@@ -19,7 +18,6 @@ const SELLERS_DATA: Seller[] = [
     id: 2,
     name: "Sarah Williams",
     company: "CarPro Supply",
-    email: "sarah@carpro.com",
     phone: "07501234567",
     sales: "$98,000",
     joined: "3/22/2024",
@@ -28,7 +26,6 @@ const SELLERS_DATA: Seller[] = [
     id: 3,
     name: "David Chen",
     company: "PartsWorld",
-    email: "david@partsworld.com",
     phone: "07501234567",
     sales: "$156,000",
     joined: "11/10/2023",
@@ -37,7 +34,6 @@ const SELLERS_DATA: Seller[] = [
     id: 4,
     name: "Emily Rodriguez",
     company: "Quality Auto",
-    email: "emily@qualityauto.com",
     phone: "07501234567",
     sales: "$45,000",
     joined: "11/1/2025",
@@ -46,7 +42,6 @@ const SELLERS_DATA: Seller[] = [
     id: 5,
     name: "James Taylor",
     company: "Speed Parts Co",
-    email: "james@speedparts.com",
     phone: "07501234567",
     sales: "$87,000",
     joined: "6/18/2024",
@@ -55,7 +50,6 @@ const SELLERS_DATA: Seller[] = [
     id: 6,
     name: "Lisa Anderson",
     company: "Premium Parts",
-    email: "lisa@premiumparts.com",
     phone: "07501234567",
     sales: "$12,000",
     joined: "9/5/2024",
@@ -75,7 +69,6 @@ const SellersPage = () => {
       return (
         seller.name.toLowerCase().includes(value) ||
         seller.company.toLowerCase().includes(value) ||
-        seller.email.toLowerCase().includes(value) ||
         seller.phone.toLowerCase().includes(value) ||
         seller.sales.toLowerCase().includes(value) ||
         seller.joined.toLowerCase().includes(value)
@@ -137,7 +130,6 @@ const SellersPage = () => {
             <thead>
               <tr className="bg-white text-gray-500 text-xs uppercase font-medium border-b border-gray-100">
                 <th className="px-6 py-4">Name</th>
-                <th className="px-6 py-4">Company</th>
                 <th className="px-6 py-4">Contact</th>
                 <th className="px-6 py-4">Total Sales</th>
                 <th className="px-6 py-4">Joined</th>
@@ -153,15 +145,8 @@ const SellersPage = () => {
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">
                     {seller.name}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {seller.company}
-                  </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <Mail className="w-3 h-3 text-gray-400" />
-                        {seller.email}
-                      </div>
                       <div className="flex items-center gap-2 text-xs text-gray-600">
                         <Phone className="w-3 h-3 text-gray-400" />
                         {seller.phone}
