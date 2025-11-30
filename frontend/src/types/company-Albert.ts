@@ -1,10 +1,7 @@
-import { Key } from "react";
-
 export interface Company {
-  _id: Key | null | undefined;
   id: number;
   name: string;
-  models: {name: string}[];
+  modelCount: number;
   products: number;
   revenue: number;
 }
