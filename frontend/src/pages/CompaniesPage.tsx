@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Search, Eye, Building2 } from "lucide-react";
 import { Company } from "../types/company";
+import AddCompanyModal from "../components/AddCompanyModal";
+import EditCompanyModal from "../components/EditCompanyModal";
 
 // Mock data matching the design
 const COMPANIES_DATA: Company[] = [
@@ -44,6 +46,9 @@ const COMPANIES_DATA: Company[] = [
 
 const CompaniesPage = () => {
   const [search, setSearch] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   // Filter companies based on search
   const filteredCompanies = useMemo(() => {
@@ -63,7 +68,10 @@ const CompaniesPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
           <p className="text-gray-500 mt-1">Manage companies</p>
         </div>
-        <button className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium">
+        <button
+          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="w-5 h-5" />
           Add Company
         </button>
@@ -142,7 +150,13 @@ const CompaniesPage = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button
+                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setSelectedCompany(company);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
                       <Eye className="w-5 h-5" />
                     </button>
                   </td>
@@ -162,6 +176,16 @@ const CompaniesPage = () => {
           </div>
         )}
       </div>
+
+      {isAddModalOpen && (
+        <AddCompanyModal onClose={() => setIsAddModalOpen(false)} />
+      )}
+      {isEditModalOpen && selectedCompany && (
+        <EditCompanyModal
+          company={selectedCompany}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
