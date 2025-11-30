@@ -1,14 +1,14 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-// import { useUserStore } from "./stores/useUserStore.ts";
-// import { User } from "./types/user.ts";
 import { Toaster } from "react-hot-toast";
 import { lazy, Suspense } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
-import ProfilePage from "./pages/ProfilePage.tsx";
+// import { useUserStore } from "./stores/useUserStore.ts";
+// import { User } from "./types/user.ts";
 
+// Lazy-loaded pages
 const SideBar = lazy(() => import("./components/SideBar.tsx"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
-const SelfActionPage = lazy(() => import("./pages/ProfilePage.tsx"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage.tsx"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
 const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
@@ -81,12 +81,6 @@ const App = () => {
             <Route
               path="/"
               element={user ? <OrdersPage /> : <Navigate to="/login" replace />}
-            />
-            <Route
-              path="/self-actions"
-              element={
-                user ? <SelfActionPage /> : <Navigate to="/login" replace />
-              }
             />
             <Route
               path="/products"
