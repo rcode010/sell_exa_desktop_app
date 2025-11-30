@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Search, Eye, Package } from "lucide-react";
 import { Product } from "../types/product";
+import AddProductModal from "../components/AddProductModal";
+import EditProductModal from "../components/EditProductModal";
 
 // Mock data matching the design
 const PRODUCTS_DATA: Product[] = [
@@ -64,6 +66,9 @@ const PRODUCTS_DATA: Product[] = [
 
 const ProductsPage = () => {
   const [search, setSearch] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Filter products based on search
   const filteredProducts = useMemo(() => {
@@ -87,7 +92,10 @@ const ProductsPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-500 mt-1">View and manage products</p>
         </div>
-        <button className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium">
+        <button
+          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+          onClick={() => setIsAddModalOpen(true)}
+        >
           <Plus className="w-5 h-5" />
           Add Product
         </button>
@@ -169,7 +177,13 @@ const ProductsPage = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button
+                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setSelectedProduct(product);
+                        setIsEditModalOpen(true);
+                      }}
+                    >
                       <Eye className="w-5 h-5" />
                     </button>
                   </td>
@@ -178,6 +192,17 @@ const ProductsPage = () => {
             </tbody>
           </table>
         </div>
+
+        {isAddModalOpen && (
+          <AddProductModal onClose={() => setIsAddModalOpen(false)} />
+        )}
+
+        {isEditModalOpen && selectedProduct && (
+          <EditProductModal
+            product={selectedProduct}
+            onClose={() => setIsEditModalOpen(false)}
+          />
+        )}
 
         {/* Empty State */}
         {filteredProducts.length === 0 && (
