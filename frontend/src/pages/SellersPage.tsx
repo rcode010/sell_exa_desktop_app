@@ -1,62 +1,18 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Plus, Search, Eye, Phone, Users } from "lucide-react";
 import { Seller } from "../types/seller";
 import AddSellerModal from "../components/AddSellerModal";
 import EditSellerModal from "../components/EditSellerModal";
-
-// Mock data
-const SELLERS_DATA: Seller[] = [
-  {
-    id: 1,
-    name: "Michael Johnson",
-    company: "AutoParts Inc",
-    phone: "07501234567",
-    sales: "$125,000",
-    joined: "1/15/2024",
-  },
-  {
-    id: 2,
-    name: "Sarah Williams",
-    company: "CarPro Supply",
-    phone: "07501234567",
-    sales: "$98,000",
-    joined: "3/22/2024",
-  },
-  {
-    id: 3,
-    name: "David Chen",
-    company: "PartsWorld",
-    phone: "07501234567",
-    sales: "$156,000",
-    joined: "11/10/2023",
-  },
-  {
-    id: 4,
-    name: "Emily Rodriguez",
-    company: "Quality Auto",
-    phone: "07501234567",
-    sales: "$45,000",
-    joined: "11/1/2025",
-  },
-  {
-    id: 5,
-    name: "James Taylor",
-    company: "Speed Parts Co",
-    phone: "07501234567",
-    sales: "$87,000",
-    joined: "6/18/2024",
-  },
-  {
-    id: 6,
-    name: "Lisa Anderson",
-    company: "Premium Parts",
-    phone: "07501234567",
-    sales: "$12,000",
-    joined: "9/5/2024",
-  },
-];
+import { useSellerStore } from "../stores/useSellerStore";
+import Loader from "../components/Loader";
 
 const SellersPage = () => {
+  const { sellers, loading, getAllSellers } = useSellerStore() as {
+    sellers: Seller[];
+    loading: boolean;
+    getAllSellers: () => void;
+  };
+
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -65,7 +21,7 @@ const SellersPage = () => {
   const filteredSellers = useMemo(() => {
     const value = search.toLowerCase();
 
-    return SELLERS_DATA.filter((seller) => {
+    return sellers.filter((seller) => {
       return (
         seller.name.toLowerCase().includes(value) ||
         seller.company.toLowerCase().includes(value) ||
@@ -74,7 +30,11 @@ const SellersPage = () => {
         seller.joined.toLowerCase().includes(value)
       );
     });
-  }, [search]);
+  }, [search, sellers]);
+
+  useEffect(() => {
+    getAllSellers();
+  }, [getAllSellers]);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
@@ -101,7 +61,7 @@ const SellersPage = () => {
         <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Sellers</p>
           <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {SELLERS_DATA.length}
+            {sellers.length}
           </h3>
         </div>
       </div>
@@ -127,55 +87,63 @@ const SellersPage = () => {
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-white text-gray-500 text-xs uppercase font-medium border-b border-gray-100">
-                <th className="px-6 py-4">Name</th>
-                <th className="px-6 py-4">Contact</th>
-                <th className="px-6 py-4">Total Sales</th>
-                <th className="px-6 py-4">Joined</th>
-                <th className="px-6 py-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filteredSellers.map((seller) => (
-                <tr
-                  key={seller.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    {seller.name}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <Phone className="w-3 h-3 text-gray-400" />
-                        {seller.phone}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                    {seller.sales}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {seller.joined}
-                  </td>
-                  <td className="px-6 py-4">
-                    <button
-                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setIsEditModalOpen(true);
-                        setSelectedSeller(seller);
-                      }}
+            {loading ? (
+              <div className="overflow-hidden">
+                <Loader />
+              </div>
+            ) : (
+              <>
+                <thead>
+                  <tr className="bg-gray-50 text-gray-500 text-xs uppercase font-medium border-b border-gray-100">
+                    <th className="px-6 py-4">Name</th>
+                    <th className="px-6 py-4">Contact</th>
+                    <th className="px-6 py-4">Total Sales</th>
+                    <th className="px-6 py-4">Joined</th>
+                    <th className="px-6 py-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredSellers.map((seller) => (
+                    <tr
+                      key={seller.id}
+                      className="hover:bg-gray-50 transition-colors"
                     >
-                      <Eye size={18} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                        {seller.name}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                            <Phone className="w-3 h-3 text-gray-400" />
+                            {seller.phone}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                        {seller.sales}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {seller.joined}
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                          onClick={() => {
+                            setIsEditModalOpen(true);
+                            setSelectedSeller(seller);
+                          }}
+                        >
+                          <Eye size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </>
+            )}
           </table>
         </div>
-        {filteredSellers.length === 0 && (
+        {filteredSellers.length === 0 && !loading && (
           <div className="py-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

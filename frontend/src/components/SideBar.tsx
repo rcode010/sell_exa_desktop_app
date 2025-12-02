@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  ShoppingCart,
-  Users,
-  Building2,
-  Package,
-  LogOut,
-} from "lucide-react";
+import { ShoppingCart, Users, Building2, Package, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore.ts";
+import MenuLink from "./MenuLink.tsx";
 
 const SideBar = () => {
   const location = useLocation();
@@ -38,7 +33,7 @@ const SideBar = () => {
       label: "Products",
       path: "/products",
       active: location.pathname === "/products",
-    }
+    },
   ];
 
   return (
@@ -66,22 +61,7 @@ const SideBar = () => {
       <nav className="flex-1 p-4">
         <ul className="space-y-1">
           {menuItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <li key={index}>
-                <button
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors cursor-pointer ${
-                    item.active
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                  onClick={() => navigate(item.path)}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              </li>
-            );
+            return <MenuLink key={index} item={item} />;
           })}
         </ul>
       </nav>

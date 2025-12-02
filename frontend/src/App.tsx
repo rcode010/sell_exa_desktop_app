@@ -13,18 +13,6 @@ const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
 const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 
-/**
- *
- * Hooks
- *
- * useRef => Keeping the state safe from refreshing (timers)
- * useState => Storing state
- * useEffect => Performing side effects
- * useCallback => producing stable functions (functions with one identity)
- * useMemo => used to calculate the result of a heavy computation and reusing it later witout re-calculating it again
- *
- */
-
 const App = () => {
   // const { user } = useUserStore() as { user: User };
   const user = true;
@@ -118,3 +106,15 @@ const App = () => {
 };
 
 export default App;
+
+/**
+ *
+ * Hooks
+ *
+ * useRef => Keeping the state safe from refreshing (timers)
+ * useState => Storing state
+ * useEffect => Performing side effects
+ * useCallback => producing stable functions (functions with one identity)
+ * useMemo => used to calculate the result of a heavy computation and reusing it later witout re-calculating it again
+ *
+ */

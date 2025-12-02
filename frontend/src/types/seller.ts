@@ -1,8 +1,8 @@
 export interface Seller {
-  id: number;
-  name: string;
-  company: string;
   phone: string;
-  sales: string;
+  password: string;
+  name: string;
+  location?: string;
+  profile_pic?: string;
   joined: string;
 }
