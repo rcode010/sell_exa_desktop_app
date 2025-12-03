@@ -23,6 +23,9 @@ export const useSellerStore = create((set) => ({
     try {
       set({ loading: true });
 
+      // Sanitize input
+      // if (seller) {}
+
       const response = await axiosInstance.post("/api/seller/create", seller);
 
       if (response.status !== 201) {
