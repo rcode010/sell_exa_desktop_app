@@ -1,40 +1,30 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { Plus, Search, Eye, Phone, Users } from "lucide-react";
-import { Seller } from "../types/seller";
+import React from "react";
+import { Plus, Search, Users } from "lucide-react";
 import AddSellerModal from "../components/AddSellerModal";
 import EditSellerModal from "../components/EditSellerModal";
 import { useSellerStore } from "../stores/useSellerStore";
 import Loader from "../components/Loader";
+import { useSearch } from "../hooks/useSearch";
+import { useSeller } from "../hooks/useSeller";
+import SellerInstance from "../components/SellerInstance";
+import StatsCard from "../components/StatsCard";
+import { Seller } from "../types/seller";
 
 const SellersPage = () => {
-  const { sellers, loading, getAllSellers } = useSellerStore() as {
-    sellers: Seller[];
+  const { loading, sellers } = useSellerStore() as {
     loading: boolean;
-    getAllSellers: () => void;
+    sellers: Seller[];
   };
 
-  const [search, setSearch] = useState("");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
-
-  const filteredSellers = useMemo(() => {
-    const value = search.toLowerCase();
-
-    return sellers.filter((seller) => {
-      return (
-        seller.name.toLowerCase().includes(value) ||
-        seller.company.toLowerCase().includes(value) ||
-        seller.phone.toLowerCase().includes(value) ||
-        seller.sales.toLowerCase().includes(value) ||
-        seller.joined.toLowerCase().includes(value)
-      );
-    });
-  }, [search, sellers]);
-
-  useEffect(() => {
-    getAllSellers();
-  }, [getAllSellers]);
+  const { search, setSearch } = useSearch();
+  const {
+    isAddModalOpen,
+    isEditModalOpen,
+    setIsEditModalOpen,
+    setIsAddModalOpen,
+    filteredSellers,
+    selectedSeller,
+  } = useSeller();
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
@@ -58,12 +48,7 @@ const SellersPage = () => {
       {/* --- Stats Cards --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {/* Card 1 */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Total Sellers</p>
-          <h3 className="text-3xl font-semibold mt-2 text-gray-900">
-            {sellers.length}
-          </h3>
-        </div>
+        <StatsCard statsTitle="Total Sellers" statsValue={sellers.length} />
       </div>
 
       {/* --- Sellers Table Section --- */}
@@ -97,52 +82,21 @@ const SellersPage = () => {
                   <tr className="bg-gray-50 text-gray-500 text-xs uppercase font-medium border-b border-gray-100">
                     <th className="px-6 py-4">Name</th>
                     <th className="px-6 py-4">Contact</th>
-                    <th className="px-6 py-4">Total Sales</th>
                     <th className="px-6 py-4">Joined</th>
                     <th className="px-6 py-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filteredSellers.map((seller) => (
-                    <tr
-                      key={seller.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                        {seller.name}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2 text-xs text-gray-600">
-                            <Phone className="w-3 h-3 text-gray-400" />
-                            {seller.phone}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                        {seller.sales}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {seller.joined}
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                          onClick={() => {
-                            setIsEditModalOpen(true);
-                            setSelectedSeller(seller);
-                          }}
-                        >
-                          <Eye size={18} />
-                        </button>
-                      </td>
-                    </tr>
+                  {filteredSellers.map((seller, index) => (
+                    <SellerInstance key={index} seller={seller} />
                   ))}
                 </tbody>
               </>
             )}
           </table>
         </div>
+
+        {/* No sellers found message */}
         {filteredSellers.length === 0 && !loading && (
           <div className="py-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />

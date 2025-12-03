@@ -21,24 +21,20 @@ export const useSellerStore = create((set) => ({
 
   createSeller: async (seller: Seller) => {
     try {
-      set({loading: true});
+      set({ loading: true });
 
-      if (seller.) {
-
-      }
-
-      const response = await axiosInstance.post('/api/seller/create', seller);
+      const response = await axiosInstance.post("/api/seller/create", seller);
 
       if (response.status !== 201) {
         throw new Error("Failed to create seller");
       }
 
       toast.success("Seller created successfully!");
-      set({loading: false});
+      set({ loading: false });
     } catch (error) {
       toast.error("Failed to create seller");
       console.error("Error: " + error);
-      set({loading: false}); 
+      set({ loading: false });
     }
-  }
+  },
 }));
