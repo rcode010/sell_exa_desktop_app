@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { X, User, Building2, Calendar, DollarSign } from "lucide-react";
-import { Order } from "../types/order";
+import { Order } from "../../types/order";
 
 // Helper to get status badge styles
 const getStatusStyles = (status: Order["status"]) => {

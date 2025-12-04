@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Search, Eye, Package } from "lucide-react";
 import { Product } from "../types/product";
-import AddProductModal from "../components/AddProductModal";
-import EditProductModal from "../components/EditProductModal";
+import AddProductModal from "../components/product/AddProductModal";
+import EditProductModal from "../components/product/EditProductModal";
 
 // Mock data matching the design
 const PRODUCTS_DATA: Product[] = [

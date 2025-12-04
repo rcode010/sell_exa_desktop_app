@@ -1,7 +1,7 @@
 import React from "react";
 import { ShoppingCart, Users, Building2, Package, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useUserStore } from "../stores/useUserStore.ts";
+import { useUserStore } from "../../stores/useUserStore.ts";
 import MenuLink from "./MenuLink.tsx";
 
 const SideBar = () => {

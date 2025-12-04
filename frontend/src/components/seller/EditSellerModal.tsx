@@ -1,15 +1,6 @@
 import React, { useState } from "react";
-import { Seller } from "../types/seller";
-import {
-  Building2,
-  Calendar,
-  DollarSign,
-  Mail,
-  Phone,
-  Trash2,
-  User,
-  X,
-} from "lucide-react";
+import { Seller } from "../../types/seller";
+import { Phone, Trash2, User, X } from "lucide-react";
 
 const EditSellerModal = ({
   seller,
@@ -19,13 +10,9 @@ const EditSellerModal = ({
   onClose: () => void;
 }) => {
   const [formData, setFormData] = useState<Seller>({
-    id: seller.id,
     name: seller.name,
-    company: seller.company,
-    email: seller.email,
     phone: seller.phone,
-    sales: seller.sales,
-    joined: seller.joined,
+    products: seller.products,
   });
 
   const handleUpdate = () => {
@@ -60,37 +47,6 @@ const EditSellerModal = ({
 
         {/* Modal Body - Scrollable */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Seller Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {/* Total Sales */}
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <DollarSign className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">Total Sales</p>
-                <p className="text-lg font-semibold text-gray-900">
-                  {seller.sales}
-                </p>
-              </div>
-            </div>
-
-            {/* Joined Date */}
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Calendar className="w-5 h-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">
-                  Member Since
-                </p>
-                <p className="text-lg font-semibold text-gray-900">
-                  {seller.joined}
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Edit Form */}
           <div className="space-y-5">
             {/* Name Field */}
@@ -107,46 +63,6 @@ const EditSellerModal = ({
                     setFormData({ ...formData, name: e.target.value })
                   }
                   placeholder="Enter seller's full name"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Company Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Name *
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company: e.target.value })
-                  }
-                  placeholder="Enter company name"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="seller@company.com"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />

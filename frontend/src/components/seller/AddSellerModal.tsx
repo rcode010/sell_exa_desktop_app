@@ -1,16 +1,12 @@
 import React, { useState } from "react";
-import { Seller } from "../types/seller";
-import { Building2, Mail, Phone, User, X } from "lucide-react";
+import { Seller } from "../../types/seller";
+import { Phone, User, X } from "lucide-react";
 
 const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState<Seller>({
-    id: 0,
     name: "",
-    company: "",
-    email: "",
     phone: "",
-    sales: "",
-    joined: "",
+    products: [],
   });
 
   const handleSubmit = () => {
@@ -56,46 +52,6 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   placeholder="Enter seller's full name"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Company Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Name *
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={formData.company}
-                  onChange={(e) =>
-                    setFormData({ ...formData, company: e.target.value })
-                  }
-                  placeholder="Enter company name"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Email Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address *
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="seller@company.com"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />

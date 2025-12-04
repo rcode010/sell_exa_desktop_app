@@ -6,7 +6,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 // import { User } from "./types/user.ts";
 
 // Lazy-loaded pages
-const SideBar = lazy(() => import("./components/SideBar.tsx"));
+const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage.tsx"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
