@@ -1,15 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Eye, Building2 } from "lucide-react";
 import { Company } from "../types/company";
-import AddCompanyModal from "../components/AddCompanyModal";
-import EditCompanyModal from "../components/EditCompanyModal";
+import AddCompanyModal from "../components/company/AddCompanyModal";
+import EditCompanyModal from "../components/company/EditCompanyModal";
 import { useCompanyStore } from "../stores/useCompanyStore";
-import Loader from "../components/Loader";
+import Loader from "../components/ui/Loader";
 
 // Mock data matching the design
 
 const CompaniesPage = () => {
-  const { getCompanies, companies, loading } = useCompanyStore() as { getCompanies: () => void, companies: Company[], loading: boolean };
+  const { getCompanies, companies, loading } = useCompanyStore() as {
+    getCompanies: () => void;
+    companies: Company[];
+    loading: boolean;
+  };
 
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -130,8 +134,7 @@ const CompaniesPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                      </span>
+                      <span className="text-sm font-medium text-gray-900"></span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <button

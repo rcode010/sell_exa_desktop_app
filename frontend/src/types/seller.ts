@@ -6,3 +6,5 @@ export interface Seller {
   location?: { locationName: string; longitude: string; latitude: string };
   products: Product[];
 }
+
+// TODO: Show seller products inside edit seller modal / seller page details modal

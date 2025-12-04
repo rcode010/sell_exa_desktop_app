@@ -1,7 +1,7 @@
 import React from "react";
-import { Seller } from "../types/seller";
+import { Seller } from "../../types/seller";
 import { Eye, Phone } from "lucide-react";
-import { useSeller } from "../hooks/useSeller";
+import { useSeller } from "../../hooks/useSeller";
 
 const SellerInstance = ({ seller }: { seller: Seller }) => {
   const { setIsEditModalOpen, setSelectedSeller } = useSeller();

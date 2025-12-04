@@ -1,13 +1,13 @@
 import React from "react";
 import { Plus, Search, Users } from "lucide-react";
-import AddSellerModal from "../components/AddSellerModal";
-import EditSellerModal from "../components/EditSellerModal";
+import AddSellerModal from "../components/seller/AddSellerModal";
+import EditSellerModal from "../components/seller/EditSellerModal";
 import { useSellerStore } from "../stores/useSellerStore";
-import Loader from "../components/Loader";
+import Loader from "../components/ui/Loader";
 import { useSearch } from "../hooks/useSearch";
 import { useSeller } from "../hooks/useSeller";
-import SellerInstance from "../components/SellerInstance";
-import StatsCard from "../components/StatsCard";
+import SellerInstance from "../components/seller/SellerInstance";
+import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
 
 const SellersPage = () => {

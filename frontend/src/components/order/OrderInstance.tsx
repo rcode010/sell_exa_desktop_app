@@ -1,6 +1,6 @@
 import React from "react";
-import { Order } from "../types/order";
-import { useOrder } from "../hooks/useOrder";
+import { Order } from "../../types/order";
+import { useOrder } from "../../hooks/useOrder";
 import { Eye } from "lucide-react";
 
 // Helper | Get styles for given status
