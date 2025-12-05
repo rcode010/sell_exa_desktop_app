@@ -1,7 +1,7 @@
 import React from "react";
 import { Package, Search } from "lucide-react";
-import OrderDetailsModal from "../components/OrderDetailsModal";
-import OrderInstance from "../components/OrderInstance";
+import OrderDetailsModal from "../components/order/OrderDetailsModal";
+import OrderInstance from "../components/order/OrderInstance";
 import { useSearch } from "../hooks/useSearch";
 import { useOrder } from "../hooks/useOrder";
 
