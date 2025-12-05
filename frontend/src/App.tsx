@@ -14,14 +14,16 @@ const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 
 const App = () => {
-  const { user, checkAuth } = useUserStore() as {
-    user: User;
-    checkAuth: () => void;
-  };
+  // const { user, checkAuth } = useUserStore() as {
+  //   user: User;
+  //   checkAuth: () => void;
+  // };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // useEffect(() => {
+  //   checkAuth();
+  // }, [checkAuth]);
+
+  const user = true;
 
   return (
     <div className="min-h-screen w-full flex bg-gray-50">

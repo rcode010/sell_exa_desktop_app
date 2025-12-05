@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Building2 } from "lucide-react";
 import { Company } from "../types/company";
 import AddCompanyModal from "../components/company/AddCompanyModal";
@@ -6,8 +6,6 @@ import EditCompanyModal from "../components/company/EditCompanyModal";
 import { useCompanyStore } from "../stores/useCompanyStore";
 import Loader from "../components/ui/Loader";
 import CompanyInstance from "../components/company/CompanyInstance";
-import { useSearch } from "../hooks/useSearch";
-import { useCompany } from "../hooks/useCompany";
 
 const CompaniesPage = () => {
   const { companies, loading, getCompanies } = useCompanyStore() as {
@@ -16,15 +14,20 @@ const CompaniesPage = () => {
     getCompanies: () => void;
   };
 
-  const { search, setSearch } = useSearch();
-  const {
-    filteredCompanies,
-    isAddModalOpen,
-    setIsAddModalOpen,
-    isEditModalOpen,
-    setIsEditModalOpen,
-    selectedCompany,
-  } = useCompany(companies);
+  const [search, setSearch] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+
+  // Filter companies based on search
+  const filteredCompanies = useMemo(() => {
+    if (!search) return companies;
+
+    const value = search.toLowerCase();
+    return companies?.filter((company: Company) => {
+      return company.name.toLowerCase().includes(value);
+    });
+  }, [search, companies]);
 
   useEffect(() => {
     getCompanies();
@@ -101,7 +104,14 @@ const CompaniesPage = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredCompanies.map((company, index) => (
-                  <CompanyInstance key={index} company={company} />
+                  <CompanyInstance
+                    key={index}
+                    company={company}
+                    onViewDetails={() => {
+                      setSelectedCompany(company);
+                      setIsEditModalOpen(true);
+                    }}
+                  />
                 ))}
               </tbody>
             </table>

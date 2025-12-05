@@ -1,10 +1,9 @@
-import React from "react";
-import { Plus, Search, Users } from "lucide-react";
+import React, { useState } from "react";
+import { Package, Plus, Search, Users } from "lucide-react";
 import AddSellerModal from "../components/seller/AddSellerModal";
 import EditSellerModal from "../components/seller/EditSellerModal";
 import { useSellerStore } from "../stores/useSellerStore";
 import Loader from "../components/ui/Loader";
-import { useSearch } from "../hooks/useSearch";
 import { useSeller } from "../hooks/useSeller";
 import SellerInstance from "../components/seller/SellerInstance";
 import StatsCard from "../components/ui/StatsCard";
@@ -16,7 +15,7 @@ const SellersPage = () => {
     sellers: Seller[];
   };
 
-  const { search, setSearch } = useSearch();
+  const [search, setSearch] = useState("");
   const {
     isAddModalOpen,
     isEditModalOpen,
@@ -96,8 +95,16 @@ const SellersPage = () => {
           </table>
         </div>
 
+        {/* No Orders Message */}
+        {filteredSellers.length === 0 && !loading && !search && (
+          <div className="py-12 text-center">
+            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">No Sellers to Show.</p>
+          </div>
+        )}
+
         {/* No sellers found message */}
-        {filteredSellers.length === 0 && !loading && (
+        {filteredSellers.length === 0 && !loading && search && (
           <div className="py-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

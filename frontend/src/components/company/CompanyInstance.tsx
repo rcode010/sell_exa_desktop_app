@@ -1,11 +1,14 @@
 import React from "react";
 import { Company } from "../../types/company";
 import { Building2, Eye } from "lucide-react";
-import { useCompany } from "../../hooks/useCompany";
 
-const CompanyInstance = ({ company }: { company: Company }) => {
-  const { setIsEditModalOpen, setSelectedCompany } = useCompany();
-
+const CompanyInstance = ({
+  company,
+  onViewDetails,
+}: {
+  company: Company;
+  onViewDetails: () => void;
+}) => {
   return (
     <tr key={company._id} className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -39,10 +42,7 @@ const CompanyInstance = ({ company }: { company: Company }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={() => {
-            setSelectedCompany(company);
-            setIsEditModalOpen(true);
-          }}
+          onClick={onViewDetails}
         >
           <Eye className="w-5 h-5" />
         </button>

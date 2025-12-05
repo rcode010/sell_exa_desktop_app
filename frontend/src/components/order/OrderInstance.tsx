@@ -1,6 +1,5 @@
 import React from "react";
 import { Order } from "../../types/order";
-import { useOrder } from "../../hooks/useOrder";
 import { Eye } from "lucide-react";
 
 // Helper | Get styles for given status
@@ -16,10 +15,14 @@ const getStatusStyles = (status: Order["status"]) => {
   return styles[status];
 };
 
-const OrderInstance = ({ order }: { order: Order }) => {
-  const { setSelectedOrder, setIsModalOpen } = useOrder();
-
-  const items = order.products.length;
+const OrderInstance = ({
+  order,
+  viewOrderDetails,
+}: {
+  order: Order;
+  viewOrderDetails: () => void;
+}) => {
+  const items: number = order.products.length;
 
   return (
     <tr key={order.orderId} className="hover:bg-gray-50 transition-colors">
@@ -55,10 +58,7 @@ const OrderInstance = ({ order }: { order: Order }) => {
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={() => {
-            setSelectedOrder(order);
-            setIsModalOpen(true);
-          }}
+          onClick={() => viewOrderDetails()}
         >
           <Eye className="w-5 h-5" />
         </button>

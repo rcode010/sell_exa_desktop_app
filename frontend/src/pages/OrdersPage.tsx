@@ -1,19 +1,83 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Package, Search } from "lucide-react";
 import OrderDetailsModal from "../components/order/OrderDetailsModal";
 import OrderInstance from "../components/order/OrderInstance";
-import { useSearch } from "../hooks/useSearch";
-import { useOrder } from "../hooks/useOrder";
+import { Order } from "../types/order";
+
+const orders: Order[] = [
+  {
+    orderId: 1,
+    buyer: "John Doe",
+    seller: "AutoParts Inc",
+    date: "11/15/2025",
+    products: [
+      {
+        productId: 1,
+        quantity: 4,
+      },
+      {
+        productId: 2,
+        quantity: 2,
+      },
+    ],
+    total: 1250,
+    status: "pending",
+  },
+  {
+    orderId: 2,
+    buyer: "Jane Smith",
+    seller: "CarPro Supply",
+    date: "11/16/2025",
+    products: [
+      {
+        productId: 2,
+        quantity: 2,
+      },
+    ],
+    total: 875,
+    status: "shipped",
+  },
+  {
+    orderId: 3,
+    buyer: "Bob Johnson",
+    seller: "AutoParts Inc",
+    date: "11/17/2025",
+    products: [
+      {
+        productId: 3,
+        quantity: 2,
+      },
+      {
+        productId: 4,
+        quantity: 1,
+      },
+      {
+        productId: 5,
+        quantity: 3,
+      },
+    ],
+    total: 2100,
+    status: "processing",
+  },
+];
 
 const OrdersPage = () => {
-  const { search, setSearch } = useSearch();
-  const {
-    filteredOrders,
-    selectedOrder,
-    setSelectedOrder,
-    isModalOpen,
-    setIsModalOpen,
-  } = useOrder();
+  const [search, setSearch] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const filteredOrders: Order[] = useMemo(() => {
+    const value = search.toLowerCase();
+
+    return orders.filter((order) => {
+      return (
+        order.orderId.toString().includes(value) ||
+        order.buyer.toLowerCase().includes(value) ||
+        order.seller.toLowerCase().includes(value) ||
+        order.status.toLowerCase().includes(value)
+      );
+    });
+  }, [search]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -76,14 +140,29 @@ const OrdersPage = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredOrders.map((order, index) => (
-                <OrderInstance key={index} order={order} />
+                <OrderInstance
+                  key={index}
+                  order={order}
+                  viewOrderDetails={() => {
+                    setSelectedOrder(order);
+                    setIsModalOpen(true);
+                  }}
+                />
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Empty State */}
-        {filteredOrders.length === 0 && (
+        {/* No Orders Message */}
+        {filteredOrders.length === 0 && !search && (
+          <div className="py-12 text-center">
+            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">No Orders to Show.</p>
+          </div>
+        )}
+
+        {/* Empty Search Result Message */}
+        {filteredOrders.length === 0 && search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">
