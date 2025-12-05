@@ -36,16 +36,12 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     // Create FormData
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name.trim());
-    formDataToSend.append("logo", formData.image);
-
-    try {
-      await createCompany(formDataToSend);
-      toast.success("Company added successfully!");
-      onClose();
-    } catch (error) {
-      console.error("Error adding company:", error);
-      toast.error("Failed to add company");
+    if (formData.image) {
+      formDataToSend.append("logo", formData.image);
     }
+
+    await createCompany(formDataToSend);
+    onClose();
   };
 
   return (

@@ -17,7 +17,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     try {
       const response = await axios.get("/api/company/");
       const companies = response.data.data;
-
+      console.log(companies)
       set({ companies, loading: false });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
