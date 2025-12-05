@@ -1,20 +1,25 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
-import { Seller } from "../types/seller";
+import { Seller, SellerStore } from "../types/seller";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
-export const useSellerStore = create((set) => ({
+export const useSellerStore = create<SellerStore>((set) => ({
   sellers: [],
   loading: false,
 
   getAllSellers: async () => {
     try {
       set({ loading: true });
-      const sellers = await axiosInstance.get("/api/seller/some");
+      const sellers: Seller[] = await axiosInstance.get("/api/seller/some");
 
       set({ sellers, loading: false });
     } catch (error) {
-      console.error("Error: " + error);
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.log("Error: " + err.message);
+      toast.error(err.response?.data?.message || "Something went wrong");
+
       set({ loading: false });
     }
   },
@@ -35,8 +40,11 @@ export const useSellerStore = create((set) => ({
       toast.success("Seller created successfully!");
       set({ loading: false });
     } catch (error) {
-      toast.error("Failed to create seller");
-      console.error("Error: " + error);
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.log("Error: " + err.message);
+      toast.error(err.response?.data?.message || "Something went wrong");
+
       set({ loading: false });
     }
   },

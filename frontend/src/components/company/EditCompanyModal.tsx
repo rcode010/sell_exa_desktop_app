@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import { X, Building2, Package, DollarSign, Trash2 } from "lucide-react";
-
-interface Company {
-  id: number;
-  name: string;
-  products: number;
-  revenue: number;
-}
+import { X, Building2, Package, Trash2 } from "lucide-react";
+import { Company } from "../../types/company";
 
 const EditCompanyModal = ({
   company,
@@ -72,21 +66,6 @@ const EditCompanyModal = ({
                 </p>
                 <p className="text-lg font-semibold text-gray-900">
                   {company.products}
-                </p>
-              </div>
-            </div>
-
-            {/* Revenue */}
-            <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <DollarSign className="w-5 h-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 font-medium">
-                  Total Revenue
-                </p>
-                <p className="text-lg font-semibold text-gray-900">
-                  ${company.revenue.toLocaleString()}
                 </p>
               </div>
             </div>

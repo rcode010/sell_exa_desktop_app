@@ -14,10 +14,15 @@ const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 
 const App = () => {
-  const { user, checkAuth } = useUserStore() as { user: User, checkAuth: ()=>void };
-  useEffect(()=>{
-    checkAuth()
-  },[])
+  const { user, checkAuth } = useUserStore() as {
+    user: User;
+    checkAuth: () => void;
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   return (
     <div className="min-h-screen w-full flex bg-gray-50">
       {/* Toaster Notifications */}

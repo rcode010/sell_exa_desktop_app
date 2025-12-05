@@ -27,7 +27,7 @@ export const useSeller = () => {
 
   useEffect(() => {
     getAllSellers();
-  }, [getAllSellers]);
+  }, []);
 
   return {
     filteredSellers,

@@ -1,38 +1,29 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Eye, Building2 } from "lucide-react";
+import React from "react";
+import { Plus, Search, Building2 } from "lucide-react";
 import { Company } from "../types/company";
 import AddCompanyModal from "../components/company/AddCompanyModal";
 import EditCompanyModal from "../components/company/EditCompanyModal";
 import { useCompanyStore } from "../stores/useCompanyStore";
 import Loader from "../components/ui/Loader";
-
-// Mock data matching the design
+import CompanyInstance from "../components/company/CompanyInstance";
+import { useSearch } from "../hooks/useSearch";
+import { useCompany } from "../hooks/useCompany";
 
 const CompaniesPage = () => {
-  const { getCompanies, companies, loading } = useCompanyStore() as {
-    getCompanies: () => void;
+  const { search, setSearch } = useSearch();
+  const {
+    filteredCompanies,
+    isAddModalOpen,
+    setIsAddModalOpen,
+    isEditModalOpen,
+    setIsEditModalOpen,
+    selectedCompany,
+  } = useCompany();
+
+  const { companies, loading } = useCompanyStore() as {
     companies: Company[];
     loading: boolean;
   };
-
-  const [search, setSearch] = useState("");
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-
-  useEffect(() => {
-    getCompanies();
-  }, [getCompanies]);
-
-  // Filter companies based on search
-  const filteredCompanies = useMemo(() => {
-    if (!search) return companies;
-
-    const value = search.toLowerCase();
-    return companies?.filter((company: Company) => {
-      return company.name.toLowerCase().includes(value);
-    });
-  }, [search, companies]);
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
@@ -98,56 +89,13 @@ const CompaniesPage = () => {
                     Products
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Revenue
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCompanies.map((company) => (
-                  <tr
-                    key={company._id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <Building2 className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">
-                          {company.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-gray-900">
-                          {company.models.length}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {company.products}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900"></span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                        onClick={() => {
-                          setSelectedCompany(company);
-                          setIsEditModalOpen(true);
-                        }}
-                      >
-                        <Eye className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
+                {filteredCompanies.map((company, index) => (
+                  <CompanyInstance key={index} company={company} />
                 ))}
               </tbody>
             </table>
@@ -165,9 +113,11 @@ const CompaniesPage = () => {
         )}
       </div>
 
+      {/* Modals */}
       {isAddModalOpen && (
         <AddCompanyModal onClose={() => setIsAddModalOpen(false)} />
       )}
+
       {isEditModalOpen && selectedCompany && (
         <EditCompanyModal
           company={selectedCompany}

@@ -4,7 +4,17 @@ export interface Company {
   _id: Key | null | undefined;
   id: number;
   name: string;
-  models: {name: string}[];
+  models: { name: string }[];
   products: number;
-  revenue: number;
+}
+
+export interface CompanyStore {
+  // State
+  companies: Company[];
+  companiesCount: number;
+  loading: boolean;
+
+  // Actions
+  getCompanies: () => Promise<void>;
+  createCompany: (file: FormData) => Promise<void>;
 }
