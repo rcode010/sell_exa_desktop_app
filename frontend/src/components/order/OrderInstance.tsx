@@ -17,10 +17,10 @@ const getStatusStyles = (status: Order["status"]) => {
 
 const OrderInstance = ({
   order,
-  viewOrderDetails,
+  onViewDetails,
 }: {
   order: Order;
-  viewOrderDetails: () => void;
+  onViewDetails: () => void;
 }) => {
   const items: number = order.products.length;
 
@@ -58,7 +58,7 @@ const OrderInstance = ({
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={() => viewOrderDetails()}
+          onClick={() => onViewDetails()}
         >
           <Eye className="w-5 h-5" />
         </button>

@@ -98,7 +98,14 @@ const SellersPage = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredSellers.map((seller, index) => (
-                    <SellerInstance key={index} seller={seller} />
+                    <SellerInstance
+                      key={index}
+                      seller={seller}
+                      onViewDetails={() => {
+                        setSelectedSeller(seller);
+                        setIsEditModalOpen(true);
+                      }}
+                    />
                   ))}
                 </tbody>
               </>

@@ -143,7 +143,7 @@ const OrdersPage = () => {
                 <OrderInstance
                   key={index}
                   order={order}
-                  viewOrderDetails={() => {
+                  onViewDetails={() => {
                     setSelectedOrder(order);
                     setIsModalOpen(true);
                   }}
