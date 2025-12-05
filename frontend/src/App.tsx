@@ -1,9 +1,9 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
-// import { useUserStore } from "./stores/useUserStore.ts";
-// import { User } from "./types/user.ts";
+import { useUserStore } from "./stores/useUserStore.ts";
+import { User } from "./types/user.ts";
 
 // Lazy-loaded pages
 const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
@@ -14,9 +14,10 @@ const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 
 const App = () => {
-  // const { user } = useUserStore() as { user: User };
-  const user = true;
-
+  const { user, checkAuth } = useUserStore() as { user: User, checkAuth: ()=>void };
+  useEffect(()=>{
+    checkAuth()
+  },[])
   return (
     <div className="min-h-screen w-full flex bg-gray-50">
       {/* Toaster Notifications */}

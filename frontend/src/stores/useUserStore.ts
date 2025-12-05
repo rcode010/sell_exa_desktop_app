@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 
 export const useUserStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       // States
       user: null,
       loading: false,
@@ -32,7 +32,6 @@ export const useUserStore = create(
           } else {
             toast.error("failed to store Token");
           }
-
           set({ user, loading: false, accessToken: user.tokens.accessToken });
           toast.success("Logged in successfully");
         } catch (error: unknown) {
@@ -46,10 +45,19 @@ export const useUserStore = create(
         set({ user: null, accessToken: null });
 
         try {
+          await axois.post(
+            "/api/admin/logout",
+            {}, // body
+            {
+              headers: {
+                "refresh-token": `${await window.secureToken.get()}`, // actual headers
+              },
+            }
+          );
+
           if (window.secureToken) {
             await window.secureToken.clear();
           }
-
           toast.success("Logged out successfully");
         } catch (error) {
           console.log("ERROR: " + error);
@@ -67,8 +75,16 @@ export const useUserStore = create(
           } else {
             throw Error("failed to get token");
           }
+          console.log(get().accessToken);
+          // currently don't have the endpoint for it
+          const res = await axois.get("/api/admin/profile", {
+            headers: {
+              Authorization: `Bearer ${get().accessToken}`,
+            },
+          });
+          const user = res.data.data;
 
-          // currently don't have the endpoint for it 
+          set({ user, loading: false });
         } catch (error) {
           set({ loading: false });
         }
@@ -77,7 +93,10 @@ export const useUserStore = create(
     {
       name: "user-storage",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      partialize: (state: any) => ({ user: state.user }), // only persists user and not loading state
+      partialize: (state: any) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+      }), // only persists user and not loading state
     }
   )
 );
