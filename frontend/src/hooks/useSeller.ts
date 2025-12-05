@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearch } from "./useSearch";
 import { Seller } from "../types/seller";
 import { useSellerStore } from "../stores/useSellerStore";
 
 export const useSeller = () => {
-  const { search } = useSearch();
+  const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
