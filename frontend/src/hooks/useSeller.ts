@@ -27,6 +27,7 @@ export const useSeller = () => {
 
   useEffect(() => {
     getAllSellers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

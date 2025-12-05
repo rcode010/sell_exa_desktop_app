@@ -23,7 +23,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
       const err = error as AxiosError<{ message?: string }>;
 
       console.log("Error: " + err.message);
-      toast.error(err.response?.data?.message || "Something went wrong");
+      toast.error("Something went wrong");
 
       set({ loading: false });
     }
