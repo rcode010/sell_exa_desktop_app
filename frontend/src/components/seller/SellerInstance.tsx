@@ -1,11 +1,14 @@
 import React from "react";
 import { Seller } from "../../types/seller";
 import { Eye, Phone } from "lucide-react";
-import { useSeller } from "../../hooks/useSeller";
 
-const SellerInstance = ({ seller }: { seller: Seller }) => {
-  const { setIsEditModalOpen, setSelectedSeller } = useSeller();
-
+const SellerInstance = ({
+  seller,
+  onViewDetails,
+}: {
+  seller: Seller;
+  onViewDetails: () => void;
+}) => {
   return (
     <tr className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 text-sm text-gray-900 font-medium">
@@ -22,10 +25,7 @@ const SellerInstance = ({ seller }: { seller: Seller }) => {
       <td className="px-6 py-4">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={() => {
-            setIsEditModalOpen(true);
-            setSelectedSeller(seller);
-          }}
+          onClick={onViewDetails}
         >
           <Eye size={18} />
         </button>
