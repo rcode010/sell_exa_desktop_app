@@ -4,6 +4,7 @@ export interface Company {
   _id: Key | null | undefined;
   id: number;
   name: string;
+  logoLink: string;
   models: { name: string }[];
   products: number;
 }

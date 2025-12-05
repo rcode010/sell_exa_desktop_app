@@ -10,8 +10,16 @@ const CompanyInstance = ({ company }: { company: Company }) => {
     <tr key={company._id} className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-            <Building2 className="w-4 h-4 text-gray-600" />
+          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+            {company.logoLink ? (
+              <img
+                src={company.logoLink}
+                alt={`${company.name} logo`}
+                className="w-full h-full object-cover rounded-full"
+              />
+            ) : (
+              <Building2 className="w-4 h-4 text-gray-600" />
+            )}
           </div>
           <span className="text-sm font-medium text-gray-900">
             {company.name}
