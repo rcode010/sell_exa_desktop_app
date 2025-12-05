@@ -1,22 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearch } from "./useSearch";
-import { useCompanyStore } from "../stores/useCompanyStore";
 import { Company } from "../types/company";
 
-export const useCompany = () => {
+export const useCompany = (companies: Company[]) => {
   const { search } = useSearch();
-  const { getCompanies, companies } = useCompanyStore() as {
-    getCompanies: () => void;
-    companies: Company[];
-  };
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-
-  useEffect(() => {
-    getCompanies();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // Filter companies based on search
   const filteredCompanies = useMemo(() => {

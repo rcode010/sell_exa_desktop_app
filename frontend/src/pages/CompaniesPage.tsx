@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Plus, Search, Building2 } from "lucide-react";
 import { Company } from "../types/company";
 import AddCompanyModal from "../components/company/AddCompanyModal";
@@ -10,6 +10,12 @@ import { useSearch } from "../hooks/useSearch";
 import { useCompany } from "../hooks/useCompany";
 
 const CompaniesPage = () => {
+  const { companies, loading, getCompanies } = useCompanyStore() as {
+    companies: Company[];
+    loading: boolean;
+    getCompanies: () => void;
+  };
+
   const { search, setSearch } = useSearch();
   const {
     filteredCompanies,
@@ -18,12 +24,12 @@ const CompaniesPage = () => {
     isEditModalOpen,
     setIsEditModalOpen,
     selectedCompany,
-  } = useCompany();
+  } = useCompany(companies);
 
-  const { companies, loading } = useCompanyStore() as {
-    companies: Company[];
-    loading: boolean;
-  };
+  useEffect(() => {
+    getCompanies();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
