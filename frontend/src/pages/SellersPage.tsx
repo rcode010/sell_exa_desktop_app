@@ -1,29 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Package, Plus, Search, Users } from "lucide-react";
 import AddSellerModal from "../components/seller/AddSellerModal";
 import EditSellerModal from "../components/seller/EditSellerModal";
 import { useSellerStore } from "../stores/useSellerStore";
 import Loader from "../components/ui/Loader";
-import { useSeller } from "../hooks/useSeller";
 import SellerInstance from "../components/seller/SellerInstance";
 import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
 
 const SellersPage = () => {
-  const { loading, sellers } = useSellerStore() as {
+  const { loading, sellers, getAllSellers } = useSellerStore() as {
     loading: boolean;
     sellers: Seller[];
+    getAllSellers: () => Promise<void>;
   };
 
   const [search, setSearch] = useState("");
-  const {
-    isAddModalOpen,
-    isEditModalOpen,
-    setIsEditModalOpen,
-    setIsAddModalOpen,
-    filteredSellers,
-    selectedSeller,
-  } = useSeller();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
+
+  const filteredSellers = useMemo(() => {
+    const value = search.toLowerCase();
+
+    return sellers.filter((seller) => {
+      return (
+        seller.name.toLowerCase().includes(value) ||
+        seller.phone.toLowerCase().includes(value)
+      );
+    });
+  }, [search, sellers]);
+
+  useEffect(() => {
+    getAllSellers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
