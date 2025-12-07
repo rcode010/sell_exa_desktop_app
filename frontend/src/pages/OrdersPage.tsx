@@ -3,6 +3,19 @@ import { Package, Search } from "lucide-react";
 import OrderDetailsModal from "../components/order/OrderDetailsModal";
 import OrderInstance from "../components/order/OrderInstance";
 import { Order } from "../types/order";
+import { useOrderStore } from "../stores/useOrderStore.ts";
+import Loader from "../components/ui/Loader.tsx";
+
+const ORDER_TABLE_HEADERS: { label: string }[] = [
+  { label: "Order #" },
+  { label: "Buyer" },
+  { label: "Seller" },
+  { label: "Date" },
+  { label: "Items" },
+  { label: "Total" },
+  { label: "Status" },
+  { label: "Actions" },
+];
 
 const orders: Order[] = [
   {
@@ -66,6 +79,8 @@ const OrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { loading } = useOrderStore() as { loading: boolean };
+
   const filteredOrders: Order[] = useMemo(() => {
     const value = search.toLowerCase();
 
@@ -100,7 +115,7 @@ const OrdersPage = () => {
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value.toLowerCase())}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search orders..."
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
             />
@@ -109,48 +124,36 @@ const OrdersPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order #
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Buyer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Seller
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Items
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order, index) => (
-                <OrderInstance
-                  key={index}
-                  order={order}
-                  onViewDetails={() => {
-                    setSelectedOrder(order);
-                    setIsModalOpen(true);
-                  }}
-                />
-              ))}
-            </tbody>
-          </table>
+          {loading ? (
+            <Loader />
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  {ORDER_TABLE_HEADERS.map((header, index) => (
+                    <th
+                      key={index}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {header.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredOrders.map((order, index) => (
+                  <OrderInstance
+                    key={index}
+                    order={order}
+                    onViewDetails={() => {
+                      setSelectedOrder(order);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* No Orders Message */}
