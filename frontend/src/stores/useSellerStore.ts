@@ -11,9 +11,9 @@ export const useSellerStore = create<SellerStore>((set) => ({
   getAllSellers: async () => {
     try {
       set({ loading: true });
-      const sellers: Seller[] = await axiosInstance.get("/api/seller/some");
+      const response = await axiosInstance.get("/api/seller/some");
 
-      set({ sellers, loading: false });
+      set({ sellers: response.data, loading: false });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
 

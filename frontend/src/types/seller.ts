@@ -1,10 +1,10 @@
-import { Product } from "./product";
+import { Location } from "./location";
 
 export interface Seller {
   name: string;
   phone: string;
-  location?: { locationName: string; longitude: string; latitude: string };
-  products: Product[];
+  location: Location;
+  products: string[];
 }
 
 export interface SellerStore {

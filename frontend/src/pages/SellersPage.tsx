@@ -9,11 +9,13 @@ import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
 
 const SellersPage = () => {
-  const { loading, sellers, getAllSellers } = useSellerStore() as {
-    loading: boolean;
-    sellers: Seller[];
-    getAllSellers: () => Promise<void>;
-  };
+  const { loading, sellers, getAllSellers, createSeller } =
+    useSellerStore() as {
+      loading: boolean;
+      sellers: Seller[];
+      getAllSellers: () => Promise<void>;
+      createSeller: (seller: Seller) => Promise<void>;
+    };
 
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -134,7 +136,10 @@ const SellersPage = () => {
 
       {/* Show add seller modal when open */}
       {isAddModalOpen && (
-        <AddSellerModal onClose={() => setIsAddModalOpen(false)} />
+        <AddSellerModal
+          createSeller={createSeller}
+          onClose={() => setIsAddModalOpen(false)}
+        />
       )}
 
       {/* Show edit seller modal when open */}
