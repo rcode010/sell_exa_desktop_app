@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Package, Search } from "lucide-react";
+import { Package, Search, RefreshCw } from "lucide-react";
 import OrderDetailsModal from "../components/order/OrderDetailsModal";
 import OrderInstance from "../components/order/OrderInstance";
 import { Order } from "../types/order";
@@ -78,6 +78,7 @@ const OrdersPage = () => {
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { loading } = useOrderStore() as { loading: boolean };
 
@@ -93,6 +94,13 @@ const OrdersPage = () => {
       );
     });
   }, [search]);
+
+  const refresh = (): void => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      location.reload();
+    }, 500);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -110,15 +118,32 @@ const OrdersPage = () => {
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">All Orders</h2>
 
-          <div className="relative">
-            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search orders..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
-            />
+          <div className="flex items-center gap-3">
+            {/* Refresh Button */}
+            <button
+              onClick={refresh}
+              disabled={isRefreshing}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              title="Refresh orders"
+            >
+              <RefreshCw
+                className={`w-5 h-5 text-gray-600 ${
+                  isRefreshing ? "animate-spin" : ""
+                }`}
+              />
+            </button>
+
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search orders..."
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
+              />
+            </div>
           </div>
         </div>
 
