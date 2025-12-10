@@ -17,7 +17,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     try {
       const response = await axios.get("/api/company/");
       const companies = response.data.data;
-      console.log(companies)
+      console.log(companies);
       set({ companies, loading: false });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
@@ -48,6 +48,25 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
 
       set({ loading: false });
     } catch (error: unknown) {
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.log("Error: " + err.message);
+      toast.error(err.response?.data?.message || "Something went wrong");
+
+      set({ loading: false });
+    }
+  },
+  updateCompany: async (name:string, id:number) => {
+    try {
+      console.log(id)
+      set({loading:true})
+      if(!name){
+        return toast.error("Error while updating company");
+      }
+      const response = await axios.patch(`/api/company/${id}`, {name});
+      console.log(response)
+      set({loading:false});
+    } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
 
       console.log("Error: " + err.message);

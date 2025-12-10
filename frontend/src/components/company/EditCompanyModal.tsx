@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Building2, Package, Trash2 } from "lucide-react";
 import { Company } from "../../types/company";
+import { useCompanyStore } from "../../stores/useCompanyStore";
 
 const EditCompanyModal = ({
   company,
@@ -12,20 +13,22 @@ const EditCompanyModal = ({
   const [formData, setFormData] = useState({
     name: company.name,
   });
-
-  const handleUpdate = () => {
+  const { updateCompany } = useCompanyStore() as unknown as {
+    updateCompany: (formData: string, id: string) => void;
+  };
+  const handleUpdate = async (e: React.FormEvent) => {
     console.log("Updating company:", formData);
-
-    // PATCH REQUEST TO UPDATE COMPANY
-
-    onClose();
+    e.preventDefault();
+    if (company._id) {
+      onClose();
+      await updateCompany(formData.name, String(company._id));
+      window.location.reload();
+    }
   };
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete ${company.name}?`)) {
       console.log("Deleting company:", company.id);
-
-      // DELETE REQUEST TO DELETE COMPANY
 
       onClose();
     }
