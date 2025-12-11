@@ -3,9 +3,23 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "build": {
+    "appId": "com.sellexa.app",
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/OIP.webp"
+    },
+    "asar": true
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
+    "build": "tsc && vite build",
+    "dist": "npm run build && electron-builder --win --x64",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -39,5 +53,5 @@
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"
   },
-  "main": "dist-electron/main.js"
+  "main": "dist-electron/main.mjs"
 }

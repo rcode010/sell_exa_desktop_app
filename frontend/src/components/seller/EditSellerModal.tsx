@@ -13,6 +13,7 @@ const EditSellerModal = ({
     name: seller.name,
     phone: seller.phone,
     products: seller.products,
+    location: seller.location,
   });
 
   const handleUpdate = () => {
