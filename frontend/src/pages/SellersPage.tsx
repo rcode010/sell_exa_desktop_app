@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Package, Plus, Search, Users } from "lucide-react";
+import { Package, Plus, RefreshCw, Search, Users } from "lucide-react";
 import AddSellerModal from "../components/seller/AddSellerModal";
 import EditSellerModal from "../components/seller/EditSellerModal";
 import { useSellerStore } from "../stores/useSellerStore";
@@ -17,6 +17,7 @@ const SellersPage = () => {
       createSeller: (seller: Seller) => Promise<void>;
     };
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -37,6 +38,13 @@ const SellersPage = () => {
     getAllSellers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const refresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => {
+      location.reload();
+    }, 500);
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
@@ -69,15 +77,32 @@ const SellersPage = () => {
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-gray-900">All Sellers</h2>
 
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value.toLowerCase())}
-              placeholder="Search sellers..."
-              className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
-            />
+          <div className="flex items-center gap-3">
+            {/* Refresh Button */}
+            <button
+              onClick={refresh}
+              disabled={isRefreshing}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              title="Refresh sellers"
+            >
+              <RefreshCw
+                className={`w-5 h-5 text-gray-600 ${
+                  isRefreshing ? "animate-spin" : ""
+                }`}
+              />
+            </button>
+
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value.toLowerCase())}
+                placeholder="Search sellers..."
+                className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
+              />
+            </div>
           </div>
         </div>
 
