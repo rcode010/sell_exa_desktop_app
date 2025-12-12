@@ -13,24 +13,32 @@ const EditCompanyModal = ({
   const [formData, setFormData] = useState({
     name: company.name,
   });
-  const { updateCompany } = useCompanyStore() as unknown as {
-    updateCompany: (formData: string, id: string) => void;
+
+  // Get store actions
+  const { updateCompany, deleteCompany } = useCompanyStore() as {
+    updateCompany: (name: string, id: number) => void;
+    deleteCompany: (id: number) => void;
   };
+
+  // Handle updating company
   const handleUpdate = async (e: React.FormEvent) => {
-    console.log("Updating company:", formData);
     e.preventDefault();
+
     if (company._id) {
+      await updateCompany(formData.name, company._id as number);
+
       onClose();
-      await updateCompany(formData.name, String(company._id));
       window.location.reload();
     }
   };
 
-  const handleDelete = () => {
+  // Handle company deletion
+  const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete ${company.name}?`)) {
-      console.log("Deleting company:", company.id);
+      await deleteCompany(company._id! as number);
 
       onClose();
+      window.location.reload();
     }
   };
 
