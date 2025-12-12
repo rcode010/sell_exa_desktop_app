@@ -1,5 +1,13 @@
 import { Key } from "react";
 
+type ProductCategory =
+  | "Tire"
+  | "Cleaning"
+  | "Car Repair"
+  | "Spare Parts"
+  | "Accessories"
+  | "Others";
+
 export interface Product {
   id: number;
   name: string;
@@ -9,13 +17,7 @@ export interface Product {
   model: string;
   images: string[];
   price: number;
-  category:
-    | "Tire"
-    | "Cleaning"
-    | "Car Repair"
-    | "Spare Parts"
-    | "Accessories"
-    | "Others";
+  category: ProductCategory;
   quality: ["New", "Used", "Refurbished"];
 }
 
