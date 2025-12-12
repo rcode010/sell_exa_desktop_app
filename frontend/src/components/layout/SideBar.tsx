@@ -3,6 +3,7 @@ import { ShoppingCart, Users, Building2, Package, LogOut } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../stores/useUserStore.ts";
 import MenuLink from "./MenuLink.tsx";
+import { Link } from "react-router-dom";
 
 const SideBar = () => {
   const location = useLocation();
@@ -76,10 +77,10 @@ const SideBar = () => {
             </div>
 
             <div>
-              <a href="/profile">
+              <Link to="/profile">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
                 <p className="text-xs text-gray-500">Admin</p>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
