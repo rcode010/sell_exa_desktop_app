@@ -17,7 +17,7 @@ const SidebarLoader = () => {
       {/* Loading Text */}
       <div className="mt-6 text-center">
         <p className="text-gray-300 text-lg font-medium mb-2">
-          Loading Dashboard
+          Loading Sidebar
         </p>
         <p className="text-gray-500 text-sm">Please wait a moment...</p>
       </div>
