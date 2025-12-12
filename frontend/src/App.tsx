@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
 import { useUserStore } from "./stores/useUserStore.ts";
 import { User } from "./types/user.ts";
+import SidebarLoader from "./components/ui/SidebarLoader.tsx";
 
 // Lazy-loaded pages
 const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
@@ -54,8 +55,7 @@ const App = () => {
       {/* Show the sidebar if the user is logged in */}
       {user && (
         <div className="fixed left-0 top-0 h-full z-20">
-          {/* Suspense added for lazy-loaded component */}
-          <Suspense fallback={<div>Loading sidebar...</div>}>
+          <Suspense fallback={<SidebarLoader />}>
             <SideBar />
           </Suspense>
         </div>
