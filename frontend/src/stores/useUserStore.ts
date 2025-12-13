@@ -13,7 +13,7 @@ export const useUserStore = create(
       isHydrated: false,
 
       // Actions
-      setHydrated: () => set({ isHydrated: true }), // Add this
+      setHydrated: () => set({ isHydrated: true }),
 
       login: async (phone: string, password: string) => {
         set({ loading: true });
