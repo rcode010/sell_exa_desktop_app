@@ -1,5 +1,5 @@
 import React from "react";
-import { ShoppingCart, Users, Building2, Package, LogOut } from "lucide-react";
+import { ShoppingCart, Users, Building2, Package, LogOut, Logs } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../stores/useUserStore.ts";
 import MenuLink from "./MenuLink.tsx";
@@ -34,6 +34,12 @@ const SideBar = () => {
       label: "Products",
       path: "/products",
       active: location.pathname === "/products",
+    },
+    {
+      icon: Logs,
+      label: "Logs",
+      path: "/logs",
+      active: location.pathname === "/logs",
     },
   ];
 
