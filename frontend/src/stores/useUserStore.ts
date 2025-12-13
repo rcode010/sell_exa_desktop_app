@@ -87,7 +87,7 @@ export const useUserStore = create(
             throw Error("No access token available");
           }
 
-          // Token is automatically added by interceptor
+          // Token is automatically added by interceptor inside axios.ts
           const res = await axois.get("/api/admin/profile");
           const user = res.data.data;
 
