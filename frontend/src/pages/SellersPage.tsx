@@ -3,12 +3,15 @@ import { Package, Plus, RefreshCw, Search, Users } from "lucide-react";
 import AddSellerModal from "../components/seller/AddSellerModal";
 import EditSellerModal from "../components/seller/EditSellerModal";
 import { useSellerStore } from "../stores/useSellerStore";
+import { useUserStore } from "../stores/useUserStore";
 import Loader from "../components/ui/Loader";
 import SellerInstance from "../components/seller/SellerInstance";
 import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
 
 const SellersPage = () => {
+  // Get global states and actions
+  const { isHydrated, accessToken } = useUserStore();
   const { loading, sellers, getAllSellers, createSeller } =
     useSellerStore() as {
       loading: boolean;
@@ -24,20 +27,30 @@ const SellersPage = () => {
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
 
   const filteredSellers = useMemo(() => {
+    // Safety check: ensure sellers is an array
+    if (!Array.isArray(sellers)) {
+      console.warn("Sellers is not an array:", sellers);
+      return [];
+    }
+
     const value = search.toLowerCase();
 
     return sellers.filter((seller) => {
       return (
-        seller.name.toLowerCase().includes(value) ||
-        seller.phone.toLowerCase().includes(value)
+        seller.storeName?.toLowerCase().includes(value) ||
+        seller.phoneNo?.toLowerCase().includes(value)
       );
     });
   }, [search, sellers]);
 
   useEffect(() => {
-    getAllSellers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Only fetch sellers after store is hydrated and we have a token
+    if (isHydrated && accessToken) {
+      getAllSellers();
+    } else {
+      console.log("Store not hydrated or no access token");
+    }
+  }, [isHydrated, accessToken]);
 
   const refresh = () => {
     setIsRefreshing(true);
@@ -45,6 +58,15 @@ const SellersPage = () => {
       location.reload();
     }, 500);
   };
+
+  // Show loading state while waiting for hydration
+  if (!isHydrated) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen font-sans flex items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen font-sans">
@@ -67,18 +89,18 @@ const SellersPage = () => {
 
       {/* --- Stats Cards --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Card 1 */}
-        <StatsCard statsTitle="Total Sellers" statsValue={sellers.length} />
+        <StatsCard
+          statsTitle="Total Sellers"
+          statsValue={Array.isArray(sellers) ? sellers.length : 0}
+        />
       </div>
 
       {/* --- Sellers Table Section --- */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        {/* Table Header & Search */}
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-semibold text-gray-900">All Sellers</h2>
 
           <div className="flex items-center gap-3">
-            {/* Refresh Button */}
             <button
               onClick={refresh}
               disabled={isRefreshing}
@@ -92,13 +114,12 @@ const SellersPage = () => {
               />
             </button>
 
-            {/* Search Input */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value.toLowerCase())}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search sellers..."
                 className="pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-64"
               />
@@ -106,20 +127,22 @@ const SellersPage = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             {loading ? (
-              <div className="overflow-hidden">
-                <Loader />
-              </div>
+              <tbody>
+                <tr>
+                  <td colSpan={4}>
+                    <Loader />
+                  </td>
+                </tr>
+              </tbody>
             ) : (
               <>
                 <thead>
                   <tr className="bg-gray-50 text-gray-500 text-xs uppercase font-medium border-b border-gray-100">
                     <th className="px-6 py-4">Name</th>
                     <th className="px-6 py-4">Contact</th>
-                    <th className="px-6 py-4">Joined</th>
                     <th className="px-6 py-4">Actions</th>
                   </tr>
                 </thead>
@@ -140,7 +163,6 @@ const SellersPage = () => {
           </table>
         </div>
 
-        {/* No Orders Message */}
         {filteredSellers.length === 0 && !loading && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -148,7 +170,6 @@ const SellersPage = () => {
           </div>
         )}
 
-        {/* No sellers found message */}
         {filteredSellers.length === 0 && !loading && search && (
           <div className="py-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
@@ -159,7 +180,6 @@ const SellersPage = () => {
         )}
       </div>
 
-      {/* Show add seller modal when open */}
       {isAddModalOpen && (
         <AddSellerModal
           createSeller={createSeller}
@@ -167,7 +187,6 @@ const SellersPage = () => {
         />
       )}
 
-      {/* Show edit seller modal when open */}
       {isEditModalOpen && selectedSeller && (
         <EditSellerModal
           seller={selectedSeller}

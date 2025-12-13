@@ -10,8 +10,11 @@ export const useUserStore = create(
       user: null,
       loading: false,
       accessToken: null,
+      isHydrated: false,
 
       // Actions
+      setHydrated: () => set({ isHydrated: true }), // Add this
+
       login: async (phone: string, password: string) => {
         set({ loading: true });
         try {
@@ -32,6 +35,7 @@ export const useUserStore = create(
           } else {
             toast.error("failed to store Token");
           }
+
           set({ user, loading: false, accessToken: user.tokens.accessToken });
           toast.success("Logged in successfully");
         } catch (error: unknown) {
@@ -47,10 +51,10 @@ export const useUserStore = create(
         try {
           await axois.post(
             "/api/admin/logout",
-            {}, // body
+            {},
             {
               headers: {
-                "refresh-token": `${await window.secureToken.get()}`, // actual headers
+                "refresh-token": `${await window.secureToken.get()}`,
               },
             }
           );
@@ -58,6 +62,7 @@ export const useUserStore = create(
           if (window.secureToken) {
             await window.secureToken.clear();
           }
+
           toast.success("Logged out successfully");
         } catch (error) {
           console.log("ERROR: " + error);
@@ -75,18 +80,21 @@ export const useUserStore = create(
           } else {
             throw Error("failed to get token");
           }
-          console.log(get().accessToken);
-          // currently don't have the endpoint for it
-          const res = await axois.get("/api/admin/profile", {
-            headers: {
-              Authorization: `Bearer ${get().accessToken}`,
-            },
-          });
+
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw Error("No access token available");
+          }
+
+          // Token is automatically added by interceptor
+          const res = await axois.get("/api/admin/profile");
           const user = res.data.data;
 
           set({ user, loading: false });
         } catch (error) {
-          set({ loading: false });
+          console.log("Auth check failed:", error);
+          set({ loading: false, user: null, accessToken: null });
         }
       },
     }),
@@ -96,7 +104,12 @@ export const useUserStore = create(
       partialize: (state: any) => ({
         user: state.user,
         accessToken: state.accessToken,
-      }), // only persists user and not loading state
+      }),
+
+      onRehydrateStorage: () => (state) => {
+        // Called when rehydration is complete
+        state?.setHydrated();
+      },
     }
   )
 );

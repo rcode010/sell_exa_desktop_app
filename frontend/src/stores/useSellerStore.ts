@@ -11,9 +11,20 @@ export const useSellerStore = create<SellerStore>((set) => ({
   getAllSellers: async () => {
     try {
       set({ loading: true });
-      const response = await axiosInstance.get("/api/seller/some");
 
-      set({ sellers: response.data, loading: false });
+      // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
+      const response = await axiosInstance.get("/api/seller/some", {
+        headers: {
+          limit: 20,
+          page: 1,
+        },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch sellers");
+      }
+
+      set({ sellers: response.data.data, loading: false });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
 
@@ -28,9 +39,7 @@ export const useSellerStore = create<SellerStore>((set) => ({
     try {
       set({ loading: true });
 
-      // Sanitize input
-      // if (seller) {}
-
+      // Token is automatically added by interceptor
       const response = await axiosInstance.post("/api/seller/create", seller);
 
       if (response.status !== 201) {

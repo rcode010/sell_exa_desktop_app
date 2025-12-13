@@ -12,13 +12,13 @@ const SellerInstance = ({
   return (
     <tr className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-        {seller.name}
+        {seller.storeName}
       </td>
       <td className="px-6 py-4">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 text-xs text-gray-600">
             <Phone className="w-3 h-3 text-gray-400" />
-            {seller.phone}
+            {seller.phoneNo}
           </div>
         </div>
       </td>

@@ -1,8 +1,8 @@
 import { Location } from "./location";
 
 export interface Seller {
-  name: string;
-  phone: string;
+  storeName: string;
+  phoneNo: string;
   location: Location;
   products: string[];
 }
