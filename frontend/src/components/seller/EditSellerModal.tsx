@@ -20,7 +20,6 @@ const EditSellerModal = ({
     products: seller.products,
 
     location: seller.location,
-    location: seller.location
   });
 
   const handleUpdate = useCallback(async () => {
