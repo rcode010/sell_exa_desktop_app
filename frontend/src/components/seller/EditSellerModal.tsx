@@ -18,10 +18,8 @@ const EditSellerModal = ({
     storeName: seller.storeName,
     phoneNo: seller.phoneNo,
     products: seller.products,
-<<<<<<< HEAD
-=======
+
     location: seller.location,
->>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
   });
 
   const handleUpdate = useCallback(async () => {
