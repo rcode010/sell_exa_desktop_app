@@ -1,9 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-<<<<<<< HEAD
-import { Plus, Search, Building2 } from "lucide-react";
-=======
 import { Plus, Search, Building2, RefreshCw } from "lucide-react";
->>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
 import { Company } from "../types/company";
 import AddCompanyModal from "../components/company/AddCompanyModal";
 import EditCompanyModal from "../components/company/EditCompanyModal";
@@ -18,32 +14,24 @@ const CompaniesPage = () => {
     getCompanies: () => void;
   };
 
-<<<<<<< HEAD
-=======
   const [isRefreshing, setIsRefreshing] = useState(false);
->>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
-  // Filter companies based on search
   const filteredCompanies = useMemo(() => {
     if (!search) return companies;
-
     const value = search.toLowerCase();
-    return companies?.filter((company: Company) => {
-      return company.name.toLowerCase().includes(value);
-    });
+    return companies.filter((company) =>
+      company.name.toLowerCase().includes(value)
+    );
   }, [search, companies]);
 
   useEffect(() => {
     getCompanies();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [getCompanies]);
 
-<<<<<<< HEAD
-=======
   const refresh = (): void => {
     setIsRefreshing(true);
     setTimeout(() => {
@@ -51,7 +39,6 @@ const CompaniesPage = () => {
     }, 500);
   };
 
->>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Page Header */}
@@ -60,16 +47,17 @@ const CompaniesPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
           <p className="text-gray-500 mt-1">Manage companies</p>
         </div>
+
         <button
-          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
         >
           <Plus className="w-5 h-5" />
           Add Company
         </button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Companies</p>
@@ -84,32 +72,9 @@ const CompaniesPage = () => {
         {/* Table Header */}
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-xl font-semibold text-gray-900">All Companies</h2>
-<<<<<<< HEAD
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search companies..."
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
-            />
-=======
 
           <div className="flex items-center gap-3">
-            <button
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              onClick={refresh}
-              disabled={isRefreshing}
-              title="Refresh companies"
-            >
-              <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${
-                  isRefreshing ? "animate-spin" : ""
-                }`}
-              />
-            </button>
-
+            {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -117,41 +82,53 @@ const CompaniesPage = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search companies..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
               />
             </div>
->>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
+
+            {/* Refresh */}
+            <button
+              onClick={refresh}
+              disabled={isRefreshing}
+              title="Refresh companies"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <RefreshCw
+                className={`w-5 h-5 text-gray-600 ${
+                  isRefreshing ? "animate-spin" : ""
+                }`}
+              />
+            </button>
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto">
           {loading ? (
-            <div className="overflow-hidden">
-              <Loader />
-            </div>
+            <Loader />
           ) : (
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Company Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Models
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Products
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
+
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCompanies.map((company, index) => (
+                {filteredCompanies.map((company) => (
                   <CompanyInstance
-                    key={index}
+                    key={company._id}
                     company={company}
                     onViewDetails={() => {
                       setSelectedCompany(company);
