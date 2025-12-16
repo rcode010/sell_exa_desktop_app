@@ -18,4 +18,6 @@ export interface CompanyStore {
   // Actions
   getCompanies: () => Promise<void>;
   createCompany: (file: FormData) => Promise<void>;
+  updateCompany: (name: string, id: number) => Promise<string | undefined>;
+  deleteCompany: (id: number) => Promise<void>;
 }

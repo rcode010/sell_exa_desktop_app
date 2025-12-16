@@ -7,7 +7,11 @@ import { User } from "./types/user.ts";
 <<<<<<< HEAD
 =======
 import SidebarLoader from "./components/ui/SidebarLoader.tsx";
+<<<<<<< HEAD
 >>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
+=======
+import LogsPage from "./pages/LogsPage.tsx";
+>>>>>>> cc77d67070793cf128f3535b329d596270ca76f2
 
 // Lazy-loaded pages
 const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
@@ -39,9 +43,12 @@ const App = () => {
     checkAuth();
   }, [checkAuth]);
 
+<<<<<<< HEAD
   // const user = true;
 >>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
 
+=======
+>>>>>>> cc77d67070793cf128f3535b329d596270ca76f2
   return (
     <div className="min-h-screen w-full flex bg-gray-50">
       {/* Toaster Notifications */}
@@ -121,6 +128,16 @@ const App = () => {
               path="/profile"
               element={
                 user ? <ProfilePage /> : <Navigate to="/login" replace />
+              }
+            />
+            <Route
+              path="/logs"
+              element={
+                user && user.role === "superAdmin" ? (
+                  <LogsPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
               }
             />
             <Route

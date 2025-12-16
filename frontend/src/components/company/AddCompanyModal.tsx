@@ -4,17 +4,19 @@ import { useCompanyStore } from "../../stores/useCompanyStore.js";
 import toast from "react-hot-toast";
 
 const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     image: null as File | null,
   });
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
   const { createCompany } = useCompanyStore() as {
     createCompany: (file: FormData) => Promise<void>;
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
       if (file.size > 3 * 1024 * 1024) {
         toast.error("Image size must be less than 3MB");
@@ -28,6 +30,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
       };
+
       reader.readAsDataURL(file);
     }
   };
@@ -36,6 +39,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     // Create FormData
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name.trim());
+
     if (formData.image) {
       formDataToSend.append("logo", formData.image);
     }

@@ -1,72 +1,18 @@
+<<<<<<< HEAD
 import React, { useMemo, useState } from "react";
 <<<<<<< HEAD
 import { Plus, Search, Eye, Package } from "lucide-react";
 =======
+=======
+import React, { useEffect, useMemo, useState } from "react";
+>>>>>>> cc77d67070793cf128f3535b329d596270ca76f2
 import { Plus, Search, Eye, Package, RefreshCw } from "lucide-react";
 >>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
 import { Product } from "../types/product";
 import AddProductModal from "../components/product/AddProductModal";
 import EditProductModal from "../components/product/EditProductModal";
-
-// Mock data matching the design
-const PRODUCTS_DATA: Product[] = [
-  {
-    id: 1,
-    name: "Engine Oil Filter",
-    category: "Engine Parts",
-    price: 45,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 2,
-    name: "Brake Pads Set",
-    category: "Brakes",
-    price: 89,
-    seller: "CarPro Supply",
-  },
-  {
-    id: 3,
-    name: "Shock Absorber",
-    category: "Suspension",
-    price: 125,
-    seller: "PartsWorld",
-  },
-  {
-    id: 4,
-    name: "Spark Plugs (Set of 4)",
-    category: "Electrical",
-    price: 32,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 5,
-    name: "Air Filter",
-    category: "Engine Parts",
-    price: 28,
-    seller: "CarPro Supply",
-  },
-  {
-    id: 6,
-    name: "Brake Rotor",
-    category: "Brakes",
-    price: 95,
-    seller: "PartsWorld",
-  },
-  {
-    id: 7,
-    name: "Control Arm",
-    category: "Suspension",
-    price: 165,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 8,
-    name: "Alternator",
-    category: "Electrical",
-    price: 285,
-    seller: "CarPro Supply",
-  },
-];
+import { useProductStore } from "../stores/useProductStore";
+import Loader from "../components/ui/Loader";
 
 const ProductsPage = () => {
 <<<<<<< HEAD
@@ -78,19 +24,31 @@ const ProductsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  const { loading, products, getProducts } = useProductStore() as {
+    loading: boolean;
+    products: Product[];
+    getProducts: () => Promise<void>;
+  };
+
   // Filter products based on search
-  const filteredProducts = useMemo(() => {
-    if (!search) return PRODUCTS_DATA;
+  const filteredProducts: Product[] = useMemo(() => {
+    if (Array.isArray(products) === false) return [];
+    if (!search) return products;
 
     const value = search.toLowerCase();
-    return PRODUCTS_DATA.filter((product) => {
+    return products.filter((product) => {
       return (
         product.name.toLowerCase().includes(value) ||
-        product.category.toLowerCase().includes(value) ||
-        product.seller.toLowerCase().includes(value)
+        product.category.toLowerCase().includes(value)
       );
     });
-  }, [search]);
+  }, [products, search]);
+
+  useEffect(() => {
+    getProducts();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 <<<<<<< HEAD
 =======
@@ -124,7 +82,7 @@ const ProductsPage = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Products</p>
           <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {PRODUCTS_DATA.length}
+            {products.length || 0}
           </h3>
         </div>
       </div>
@@ -176,67 +134,66 @@ const ProductsPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Product Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Seller
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product) => (
-                <tr
-                  key={product.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
-                      {product.name}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
-                      {product.category}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-900">
-                      ${product.price}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-900">
-                      {product.seller}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <button
-                      className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setIsEditModalOpen(true);
-                      }}
-                    >
-                      <Eye className="w-5 h-5" />
-                    </button>
-                  </td>
+          {loading ? (
+            <div className="overflow-hidden">
+              <Loader />
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Product Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredProducts.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900">
+                        {product.name}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-900">
+                        {product.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-medium text-gray-900">
+                        ${product.price}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          setIsEditModalOpen(true);
+                        }}
+                      >
+                        <Eye className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {isAddModalOpen && (
@@ -251,7 +208,7 @@ const ProductsPage = () => {
         )}
 
         {/* Empty State */}
-        {filteredProducts.length === 0 && (
+        {filteredProducts.length === 0 && !loading && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

@@ -1,13 +1,6 @@
 import React, { useState } from "react";
-import { X, Package, Tag, DollarSign, Building2, Trash2 } from "lucide-react";
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  seller: string;
-}
+import { X, Package, Tag, DollarSign, Trash2 } from "lucide-react";
+import { Product } from "../../types/product";
 
 const EditProductModal = ({
   product,
@@ -20,16 +13,15 @@ const EditProductModal = ({
     name: product.name,
     category: product.category,
     price: product.price.toString(),
-    seller: product.seller,
   });
 
   const categories = [
-    "Engine Parts",
-    "Brakes",
-    "Suspension",
-    "Electrical",
-    "Transmission",
-    "Body Parts",
+    "Tire",
+    "Cleaning",
+    "Car Repair",
+    "Spare Parts",
+    "Accessories",
+    "Others",
   ];
 
   const handleUpdate = () => {
@@ -104,7 +96,10 @@ const EditProductModal = ({
                 <select
                   value={formData.category}
                   onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
+                    setFormData({
+                      ...formData,
+                      category: e.target.value as Product["category"],
+                    })
                   }
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
                   required
@@ -134,26 +129,6 @@ const EditProductModal = ({
                   placeholder="0.00"
                   min="0"
                   step="0.01"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
-
-            {/* Seller Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Seller *
-              </label>
-              <div className="relative">
-                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={formData.seller}
-                  onChange={(e) =>
-                    setFormData({ ...formData, seller: e.target.value })
-                  }
-                  placeholder="Enter seller company name"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
