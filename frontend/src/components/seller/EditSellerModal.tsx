@@ -1,30 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Seller } from "../../types/seller";
 import { Phone, Trash2, User, X } from "lucide-react";
 
 const EditSellerModal = ({
   seller,
   onClose,
+  deleteSeller,
+  updateSeller,
 }: {
   seller: Seller;
   onClose: () => void;
+  deleteSeller: (id: string) => void;
+  updateSeller: (id: string, seller: Seller) => void;
 }) => {
   const [formData, setFormData] = useState<Seller>({
-    name: seller.name,
-    phone: seller.phone,
+    _id: seller._id,
+    storeName: seller.storeName,
+    phoneNo: seller.phoneNo,
     products: seller.products,
     location: seller.location,
   });
 
-  const handleUpdate = () => {
-    // PATCH REQUEST TO UPDATE SELLER
+  const handleUpdate = useCallback(async () => {
+    await updateSeller(seller._id, formData);
     onClose();
-  };
+  }, [formData, seller._id, updateSeller, onClose]);
 
-  const handleDelete = () => {
-    // DELETE REQUEST TO DELETE SELLER
-    onClose();
-  };
+  const handleDelete = useCallback(
+    async (id: string) => {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this seller? This action cannot be undone."
+      );
+
+      if (!confirmed) return;
+
+      await deleteSeller(id);
+      onClose();
+    },
+    [deleteSeller, onClose]
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -59,9 +73,9 @@ const EditSellerModal = ({
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  value={formData.name}
+                  value={formData.storeName}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    setFormData({ ...formData, storeName: e.target.value })
                   }
                   placeholder="Enter seller's full name"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -79,9 +93,9 @@ const EditSellerModal = ({
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="tel"
-                  value={formData.phone}
+                  value={formData.phoneNo}
                   onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
+                    setFormData({ ...formData, phoneNo: e.target.value })
                   }
                   placeholder="(555) 123-4567"
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -106,7 +120,7 @@ const EditSellerModal = ({
                       permanently removed.
                     </p>
                     <button
-                      onClick={handleDelete}
+                      onClick={() => handleDelete(seller._id)}
                       className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer"
                     >
                       Delete Seller

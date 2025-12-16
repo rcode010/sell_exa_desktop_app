@@ -12,13 +12,21 @@ import { Seller } from "../types/seller";
 const SellersPage = () => {
   // Get global states and actions
   const { isHydrated, accessToken } = useUserStore();
-  const { loading, sellers, getAllSellers, createSeller } =
-    useSellerStore() as {
-      loading: boolean;
-      sellers: Seller[];
-      getAllSellers: () => Promise<void>;
-      createSeller: (seller: Seller) => Promise<void>;
-    };
+  const {
+    loading,
+    sellers,
+    getAllSellers,
+    createSeller,
+    deleteSeller,
+    updateSeller,
+  } = useSellerStore() as {
+    loading: boolean;
+    sellers: Seller[];
+    getAllSellers: () => Promise<void>;
+    createSeller: (seller: Seller) => Promise<void>;
+    deleteSeller: (id: string) => Promise<void>;
+    updateSeller: (id: string, seller: Seller) => Promise<void>;
+  };
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
@@ -191,6 +199,14 @@ const SellersPage = () => {
         <EditSellerModal
           seller={selectedSeller}
           onClose={() => setIsEditModalOpen(false)}
+          deleteSeller={async (id: string) => {
+            await deleteSeller(id);
+            await getAllSellers(); // Refresh the list after deletion
+          }}
+          updateSeller={async (id: string, seller: Seller) => {
+            await updateSeller(id, seller);
+            await getAllSellers(); // Refresh the list after update
+          }}
         />
       )}
     </div>
