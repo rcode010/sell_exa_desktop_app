@@ -113,9 +113,9 @@ const OrdersPage = () => {
       </div>
 
       {/* Orders Table Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         {/* Table Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-xl font-semibold text-gray-900">All Orders</h2>
 
           <div className="flex items-center gap-3">
@@ -147,7 +147,7 @@ const OrdersPage = () => {
           </div>
         </div>
 
-        {/* Table */}
+        {/* Table Body */}
         <div className="overflow-x-auto">
           {loading ? (
             <Loader />
@@ -165,6 +165,7 @@ const OrdersPage = () => {
                   ))}
                 </tr>
               </thead>
+              
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredOrders.map((order, index) => (
                   <OrderInstance

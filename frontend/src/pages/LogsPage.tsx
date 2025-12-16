@@ -276,7 +276,7 @@ const LogsPage = () => {
                 <div className="flex gap-4">
                   {/* Icon */}
                   <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${getActionColor(
+                    className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${getActionColor(
                       log.actionType
                     )}`}
                   >
