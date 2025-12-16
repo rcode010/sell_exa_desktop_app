@@ -4,6 +4,10 @@ import { lazy, Suspense, useEffect } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
 import { useUserStore } from "./stores/useUserStore.ts";
 import { User } from "./types/user.ts";
+<<<<<<< HEAD
+=======
+import SidebarLoader from "./components/ui/SidebarLoader.tsx";
+>>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
 
 // Lazy-loaded pages
 const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
@@ -14,6 +18,7 @@ const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 
 const App = () => {
+<<<<<<< HEAD
   // const { user, checkAuth } = useUserStore() as {
   //   user: User;
   //   checkAuth: () => void;
@@ -24,6 +29,18 @@ const App = () => {
   // }, [checkAuth]);
 
   const user = true;
+=======
+  const { user, checkAuth } = useUserStore() as {
+    user: User;
+    checkAuth: () => void;
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  // const user = true;
+>>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
 
   return (
     <div className="min-h-screen w-full flex bg-gray-50">
@@ -54,8 +71,12 @@ const App = () => {
       {/* Show the sidebar if the user is logged in */}
       {user && (
         <div className="fixed left-0 top-0 h-full z-20">
+<<<<<<< HEAD
           {/* Suspense added for lazy-loaded component */}
           <Suspense fallback={<div>Loading sidebar...</div>}>
+=======
+          <Suspense fallback={<SidebarLoader />}>
+>>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
             <SideBar />
           </Suspense>
         </div>

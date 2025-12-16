@@ -7,11 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+<<<<<<< HEAD
 node_modules
 dist
 dist-electron
 dist-ssr
 *.local
+=======
+node_modules/
+dist/
+dist-electron/
+release/
+*.exe
+*.blockmap
+*.7z
+*.yml
+*.yaml
+>>>>>>> 6adbd6189bfa8d1a22d0432c89cdc8407a50839f
 
 # Editor directories and files
 .vscode/*
