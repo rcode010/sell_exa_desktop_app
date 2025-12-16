@@ -1,8 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { Phone, User, X, MapPin, Package, Search } from "lucide-react";
 import { Product } from "../../types/product";
-import { Seller } from "../../types/seller";
+import {NewSeller} from "../../types/seller";
+import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { LeafletMouseEvent } from 'leaflet';
+
 import toast from "react-hot-toast";
+
+interface Position {
+  lat: number;
+  lng: number;
+}
+
+function LocationMarker({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<NewSeller>> }) {
+  const [position, setPosition] = useState<Position | null>(null);
+
+  useMapEvents({
+    click(e:LeafletMouseEvent) {
+      const { lat, lng } = e.latlng;
+      setPosition({ lat, lng });
+
+      setFormData((prev) => ({
+        ...prev,
+        location: {
+          ...prev.location,
+          latitude: Number.parseFloat(lat.toFixed(6)),
+          longitude: Number.parseFloat(lng.toFixed(6)),
+        },
+      }));
+    },
+  });
+  console.log(position);
+  return position === null ? null : (
+      <Marker position={[position.lat, position.lng]}>
+        <Popup>
+          Lat: {position.lat.toFixed(6)}<br />
+          Lng: {position.lng.toFixed(6)}
+        </Popup>
+      </Marker>
+  );
+}
 
 const PRODUCTS_DATA: Product[] = [
   {
@@ -68,11 +106,11 @@ const AddSellerModal = ({
   createSeller,
 }: {
   onClose: () => void;
-  createSeller: (seller: Seller) => void;
+  createSeller: (seller: NewSeller) => void;
 }) => {
-  const [formData, setFormData] = useState<Seller>({
-    name: "",
-    phone: "",
+  const [formData, setFormData] = useState<NewSeller>({
+    storeName: "",
+    phoneNo: "",
     location: {
       locationName: "",
       latitude: 0,
@@ -82,7 +120,6 @@ const AddSellerModal = ({
   });
 
   const [searchProduct, setSearchProduct] = useState("");
-  const [mapClicked, setMapClicked] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
 
   // Filter products based on search
@@ -99,26 +136,7 @@ const AddSellerModal = ({
     }));
   };
 
-  // Handle map click - simulate getting coordinates
-  const handleMapClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
 
-    // Convert click position to fake lat/lng (in production, use real Google Maps API)
-    const latitude = 36.191 + (y / rect.height) * 0.1;
-    const longitude = 44.009 + (x / rect.width) * 0.1;
-
-    setFormData((prev) => ({
-      ...prev,
-      location: {
-        ...prev.location,
-        latitude: parseFloat(latitude.toFixed(6)),
-        longitude: parseFloat(longitude.toFixed(6)),
-      },
-    }));
-    setMapClicked(true);
-  };
 
   useEffect(() => {
     fetch(
@@ -130,7 +148,7 @@ const AddSellerModal = ({
 
   const handleSubmit = async () => {
     // Validation
-    if (!formData.name || !formData.phone) {
+    if (!formData.storeName || !formData.phoneNo) {
       alert("Please fill in all required fields");
       return;
     }
@@ -146,7 +164,7 @@ const AddSellerModal = ({
     }
 
     try {
-      await createSeller(formData);
+      createSeller(formData);
       onClose();
     } catch (error) {
       toast.error("Error occured while creating a Seller");
@@ -186,12 +204,12 @@ const AddSellerModal = ({
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    value={formData.name}
+                    value={formData.storeName}
                     onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
+                      setFormData({ ...formData, storeName: e.target.value })
                     }
                     placeholder="Enter seller's full name"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 placeholder:text-gray-500 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -206,12 +224,12 @@ const AddSellerModal = ({
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="tel"
-                    value={formData.phone}
+                    value={formData.phoneNo}
                     onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
+                      setFormData({ ...formData, phoneNo: e.target.value })
                     }
                     placeholder="07501234567"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -243,7 +261,7 @@ const AddSellerModal = ({
                     })
                   }
                   placeholder="e.g., Downtown Store, Main Branch"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 placeholder:text-gray-400 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -254,37 +272,31 @@ const AddSellerModal = ({
                   Click on map to set location *
                 </label>
                 <div
-                  onClick={handleMapClick}
                   className="w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg cursor-crosshair hover:border-blue-400 transition-colors relative overflow-hidden"
                   style={{
                     backgroundImage:
                       "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")",
                   }}
                 >
-                  {!mapClicked && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center">
-                        <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">
-                          Click anywhere to set coordinates
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          (In production, this will use Google Maps)
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  {mapClicked && (
-                    <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-lg shadow-md">
-                      <MapPin className="w-4 h-4 text-red-500 inline mr-2" />
-                      <span className="text-sm font-medium">Location Set</span>
-                    </div>
+
+                  {(
+                      <MapContainer
+                          center={[35.5558, 45.4333]}
+                          zoom={13}
+                          style={{ height: '100%', width: '100%' }} // Changed from 100vh to 100%
+                      >
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        />
+                        <LocationMarker setFormData={setFormData} />
+                      </MapContainer>
                   )}
                 </div>
               </div>
 
               {/* Coordinates Display */}
-              {mapClicked && (
+              {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-xs text-gray-600 mb-1">Latitude</p>
@@ -299,7 +311,7 @@ const AddSellerModal = ({
                     </p>
                   </div>
                 </div>
-              )}
+              }
             </div>
 
             {/* Products Section */}

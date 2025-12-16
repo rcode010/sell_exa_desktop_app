@@ -7,6 +7,13 @@ export interface Seller {
   location: Location;
   products: string[];
 }
+export interface NewSeller {
+  storeName: string;
+  phoneNo: string;
+  location: Location;
+  products: string[];
+}
+
 
 export interface SellerStore {
   // State

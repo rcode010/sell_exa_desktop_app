@@ -2,9 +2,12 @@ import { Key } from "react";
 
 type ProductCategory =
   | "Tire"
+  |  "Brakes"
   | "Cleaning"
   | "Car Repair"
   | "Spare Parts"
+  | "Engine Parts"
+  | "Suspension"
   | "Accessories"
   | "Others";
 
