@@ -55,15 +55,21 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     }
   },
 
-  updateCompany: async (name: string, id: number) => {
+  updateCompany: async (file: FormData, id: number) => {
     try {
       set({ loading: true });
 
-      if (!name) {
-        return toast.error("Error while updating company");
+      if (!file.get('name')) {
+        toast.error("Company name is required");
+        set({ loading: false });
+        return;
       }
 
-      const response = await axios.patch(`/api/company/${id}`, { name });
+      const response = await axios.patch(`/api/company/${id}`,file, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       console.log(response);
       
       set({ loading: false });

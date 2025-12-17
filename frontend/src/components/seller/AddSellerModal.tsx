@@ -115,26 +115,27 @@ const AddSellerModal = ({
       locationName: "",
       latitude: 0,
       longitude: 0,
-    },
-    products: [],
+    }
+    // ,
+    // products: [],
   });
 
   const [searchProduct, setSearchProduct] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
+  // const [products, setProducts] = useState<Product[]>([]);
 
   // Filter products based on search
   const filteredProducts = PRODUCTS_DATA.filter((product: Product) =>
     product.name.toLowerCase().includes(searchProduct.toLowerCase())
   );
 
-  const toggleProduct = (productId: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      products: prev.products.includes(productId)
-        ? prev.products.filter((id) => productId !== id)
-        : [...prev.products, productId],
-    }));
-  };
+  // const toggleProduct = (productId: string) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     products: prev.products.includes(productId)
+  //       ? prev.products.filter((id) => productId !== id)
+  //       : [...prev.products, productId],
+  //   }));
+  // };
 
 
 
@@ -158,10 +159,10 @@ const AddSellerModal = ({
       return;
     }
 
-    if (formData.products.length === 0) {
-      alert("Please select at least one product");
-      return;
-    }
+    // if (formData.products.length === 0) {
+    //   alert("Please select at least one product");
+    //   return;
+    // }
 
     try {
       createSeller(formData);
@@ -318,7 +319,7 @@ const AddSellerModal = ({
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5" />
-                Products ({formData.products.length} selected)
+                {/*Products ({formData.products.length} selected)*/}
               </h3>
 
               {/* Product Search */}
@@ -342,9 +343,9 @@ const AddSellerModal = ({
                   >
                     <input
                       type="checkbox"
-                      checked={formData.products.includes(
-                        product.id.toString()
-                      )}
+                      // checked={formData.products.includes(
+                      //   product.id.toString()
+                      // )}
                       onChange={() => toggleProduct(product.id.toString())}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     />

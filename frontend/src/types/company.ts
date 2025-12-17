@@ -5,7 +5,7 @@ export interface Company {
   id: number;
   name: string;
   logoLink: string;
-  models: { name: string }[];
+  models?: { name: string }[];
   products: number;
 }
 
@@ -18,6 +18,6 @@ export interface CompanyStore {
   // Actions
   getCompanies: () => Promise<void>;
   createCompany: (file: FormData) => Promise<void>;
-  updateCompany: (name: string, id: number) => Promise<string | undefined>;
+  updateCompany: (file: FormData, id: number) => Promise<void>;
   deleteCompany: (id: number) => Promise<void>;
 }
