@@ -1,26 +1,30 @@
 import React, { useState } from "react";
 import { useUserStore } from "../stores/useUserStore.ts";
-import { ArrowRight, Loader } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight, Loader, Eye, EyeOff } from "lucide-react";
 
 const LoginPage = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const { login, loading } = useUserStore() as {
-    login: (phone: string, password: string) => void;
-    loading: boolean;
-  };
+  const loading = useUserStore((state) => state.loading);
+  const login = useUserStore((state) => state.login);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    login(phone, password);
+    const success = await login(phone, password);
+
+    if (success) {
+      navigate("/");
+    }
   };
 
   return (
     <div className="bg-gray-100 flex justify-center items-center min-h-screen min-w-screen">
       <div className="bg-white rounded-lg shadow-lg p-10 w-[550px]">
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <div className="bg-red-800 rounded-xl p-4">
             <svg
@@ -53,9 +57,10 @@ const LoginPage = () => {
               id="phone"
               value={phone}
               required
+              disabled={loading}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="Enter your phone number"
-              className="bg-gray-50 border  placeholder:text-gray-400 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
+              className="bg-gray-50 border placeholder:text-gray-400 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -66,21 +71,36 @@ const LoginPage = () => {
             >
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              required
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="bg-gray-50 border placeholder:text-gray-400 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                required
+                disabled={loading}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full bg-gray-50 border placeholder:text-gray-400 border-gray-200 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                disabled={loading}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-linear-to-r from-gray-900 via-black to-gray-900 hover:from-gray-800 hover:via-gray-900 hover:to-gray-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-black/30 hover:shadow-black/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer"
+            className="w-full bg-linear-to-r from-gray-900 via-black to-gray-900 hover:from-gray-800 hover:via-gray-900 hover:to-gray-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-black/30 hover:shadow-black/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-linear-to-r from-gray-700 to-gray-800 opacity-0 group-hover:opacity-30 transition-opacity"></div>
             {loading ? (
@@ -97,7 +117,6 @@ const LoginPage = () => {
           </button>
         </form>
 
-        {/* Footer text */}
         <p className="text-sm text-gray-400 text-center mt-6">
           Use "07xx xxx xxxx" for Super Admin or any other phone number for
           Admin

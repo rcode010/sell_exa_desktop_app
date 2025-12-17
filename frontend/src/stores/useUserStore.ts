@@ -1,113 +1,133 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axois from "../lib/axios";
+import axios from "../lib/axios";
 import toast from "react-hot-toast";
 
 export const useUserStore = create(
   persist(
-    (set, get) => ({
-      // States
+    (set) => ({
+      // Statess
       user: null,
-      loading: false,
       accessToken: null,
       isHydrated: false,
+      loading: false,
 
       // Actions
       setHydrated: () => set({ isHydrated: true }),
+      setAccessToken: (token: any) => set({ accessToken: token }),
 
       login: async (phone: string, password: string) => {
-        set({ loading: true });
-        try {
-          if (!phone || !password) {
-            toast.error("Please enter phone and password");
-            return;
-          }
+        // Ensure user and password are provided
+        if (!phone || !password) {
+          toast.error("Please enter phone and password");
+          return false;
+        }
 
-          const response = await axois.post("/api/admin/login", {
+        set({ loading: true });
+
+        try {
+          const response = await axios.post("/api/admin/login", {
             phoneNo: phone,
             password,
           });
 
           const user = response.data.data;
 
-          if (window.secureToken) {
-            await window.secureToken.save(user.tokens.refreshToken);
-          } else {
-            toast.error("failed to store Token");
-          }
+          // Save refresh token to secure storage
+          await window.secureToken?.save(user.tokens.refreshToken);
 
-          set({ user, loading: false, accessToken: user.tokens.accessToken });
+          set({
+            user,
+            loading: false,
+            accessToken: user.tokens.accessToken,
+          });
+
           toast.success("Logged in successfully");
-        } catch (error: unknown) {
-          console.log("Error: " + error);
+          return true;
+        } catch (error: any) {
+          console.error("Login error:", error);
           set({ loading: false });
-          toast.error("Login failed");
+
+          const message = error.response?.data?.message || "Login failed";
+          toast.error(message);
+
+          return false;
         }
       },
 
       logout: async () => {
-        set({ user: null, accessToken: null });
-
         try {
-          await axois.post(
-            "/api/admin/logout",
-            {},
-            {
-              headers: {
-                "refresh-token": `${await window.secureToken.get()}`,
-              },
-            }
-          );
+          const refreshToken = await window.secureToken.get();
 
-          if (window.secureToken) {
-            await window.secureToken.clear();
+          // Clear state first for instant UI update
+          set({ user: null, accessToken: null });
+
+          if (refreshToken) {
+            await axios.post(
+              "/api/admin/logout",
+              {},
+              {
+                headers: { "refresh-token": `${refreshToken}` },
+              }
+            );
           }
 
           toast.success("Logged out successfully");
         } catch (error) {
-          console.log("ERROR: " + error);
           set({ loading: false });
+          console.error("Logout error:", error);
           toast.error("Logout failed");
+        } finally {
+          await window.secureToken.clear();
         }
       },
 
-      checkAuth: async () => {
+      refreshAuth: async () => {
         try {
-          let refreshToken: string | null = null;
-          if (window.secureToken) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            refreshToken = await window.secureToken.get();
-          } else {
-            throw Error("failed to get token");
+          const refreshToken = await window.secureToken?.get();
+
+          if (!refreshToken) {
+            throw new Error("No refresh token available!");
           }
 
-          const accessToken = get().accessToken;
+          const res = await axios.post(
+            "/api/admin/refresh-token",
+            {},
+            {
+              headers: {
+                "x-refresh-token": refreshToken,
+              },
+            }
+          );
 
-          if (!accessToken) {
-            throw Error("No access token available");
-          }
+          const { accessToken, refreshToken: newRefreshToken } = res.data.data;
 
-          // Token is automatically added by interceptor inside axios.ts
-          const res = await axois.get("/api/admin/profile");
-          const user = res.data.data;
+          // Save the new refresh token in secure storage
+          await window.secureToken?.save(newRefreshToken);
 
-          set({ user, loading: false });
+          set({ accessToken });
+
+          return true;
         } catch (error) {
-          console.log("Auth check failed:", error);
-          set({ loading: false, user: null, accessToken: null });
+          console.error("Auth refresh failed: ", error);
+
+          // Clear everything on refresh failure
+          set({ user: null, accessToken: null });
+          await window.secureToken?.clear();
+
+          return false;
         }
       },
     }),
     {
       name: "user-storage",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       partialize: (state: any) => ({
         user: state.user,
-        accessToken: state.accessToken,
       }),
 
+      // Called when rehydration is complete
       onRehydrateStorage: () => (state) => {
-        // Called when rehydration is complete
         state?.setHydrated();
       },
     }
