@@ -11,7 +11,7 @@ export interface NewSeller {
   storeName: string;
   phoneNo: string;
   location: Location;
-  products: string[];
+  // products: string[];
 }
 
 
