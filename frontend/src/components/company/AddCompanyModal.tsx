@@ -10,9 +10,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     image: null as File | null,
   });
 
-  const { createCompany } = useCompanyStore() as {
-    createCompany: (file: FormData) => Promise<void>;
-  };
+  const { createCompany } = useCompanyStore()
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,9 +41,9 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     if (formData.image) {
       formDataToSend.append("logo", formData.image);
     }
-
-    await createCompany(formDataToSend);
     onClose();
+    await createCompany(formDataToSend);
+
   };
 
   return (
