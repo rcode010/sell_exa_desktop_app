@@ -17,7 +17,7 @@ export interface CompanyStore {
 
   // Actions
   getCompanies: () => Promise<void>;
-  createCompany: (file: FormData) => Promise<void>;
-  updateCompany: (file: FormData, id: number) => Promise<void>;
-  deleteCompany: (id: number) => Promise<void>;
+  createCompany: (file: FormData) => Promise<boolean>;
+  updateCompany: (file: FormData, id: number) => Promise<boolean>;
+  deleteCompany: (id: number) => Promise<boolean>;
 }

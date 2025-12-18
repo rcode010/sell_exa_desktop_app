@@ -32,11 +32,10 @@ const CompaniesPage = () => {
     getCompanies();
   }, [getCompanies]);
 
-  const refresh = (): void => {
+  const refresh = async (): Promise<void> => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      location.reload();
-    }, 500);
+    await getCompanies();
+    setIsRefreshing(false);
   };
 
   return (
