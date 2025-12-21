@@ -1,5 +1,12 @@
 import React from "react";
-import { ShoppingCart, Users, Building2, Package, LogOut, Logs } from "lucide-react";
+import {
+  ShoppingCart,
+  Users,
+  Building2,
+  Package,
+  LogOut,
+  Logs,
+} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../stores/useUserStore.ts";
 import MenuLink from "./MenuLink.tsx";
@@ -8,7 +15,8 @@ import { Link } from "react-router-dom";
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useUserStore() as { logout: () => void };
+  const logout = useUserStore((state) => state.logout);
+  const user = useUserStore((state) => state.user);
 
   const menuItems = [
     {
@@ -40,8 +48,17 @@ const SideBar = () => {
       label: "Logs",
       path: "/logs",
       active: location.pathname === "/logs",
+      superAdminOnly: true,
     },
   ];
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter((item) => {
+    if (item.superAdminOnly) {
+      return user?.role === "superAdmin";
+    }
+    return true;
+  });
 
   return (
     <div className="h-full bg-white border-r border-gray-200 flex flex-col">
@@ -67,7 +84,7 @@ const SideBar = () => {
       {/* Navigation Menu */}
       <nav className="flex-1 p-4">
         <ul className="space-y-1">
-          {menuItems.map((item, index) => {
+          {filteredMenuItems.map((item, index) => {
             return <MenuLink key={index} item={item} />;
           })}
         </ul>
@@ -85,7 +102,9 @@ const SideBar = () => {
             <div>
               <Link to="/profile">
                 <p className="text-sm font-medium text-gray-900">Admin User</p>
-                <p className="text-xs text-gray-500">Admin</p>
+                <p className="text-xs text-gray-500">
+                  {user?.role === "superAdmin" ? "Super Admin" : "Admin"}
+                </p>
               </Link>
             </div>
           </div>
