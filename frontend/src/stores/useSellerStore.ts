@@ -67,8 +67,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
     set({ loading: true });
 
     try {
-      // Token is automatically added by interceptor
-      const response = await axiosInstance.delete(`/api/seller/${id}`);
+      const response = await axiosInstance.delete(`/api/seller?sellerId=${id}`);
 
       if (response.status !== 200) {
         throw new Error("Failed to delete seller");
@@ -95,8 +94,17 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
     set({ loading: true });
 
     try {
-      // Token is automatically added by interceptor
-      const response = await axiosInstance.patch(`/api/seller/${id}`, seller);
+      // Only send the fields that backend expects
+      const updateData = {
+        phoneNo: seller.phoneNo,
+        storeName: seller.storeName,
+        location: seller.location,
+      };
+
+      const response = await axiosInstance.patch(
+        `/api/seller?sellerId=${id}`,
+        updateData
+      );
 
       if (response.status !== 200) {
         throw new Error("Failed to update seller");
