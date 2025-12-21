@@ -8,6 +8,7 @@ import { User } from "./types/user.ts";
 import SidebarLoader from "./components/ui/SidebarLoader.tsx";
 import LogsPage from "./pages/LogsPage.tsx";
 import Loader from "./components/ui/Loader.tsx";
+import AdminsPage from "./pages/AdminsPage.tsx";
 
 // Lazy-loaded components
 const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
@@ -123,6 +124,16 @@ const App = () => {
               element={
                 user?.role === "superAdmin" ? (
                   <LogsPage />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/admins"
+              element={
+                user?.role === "superAdmin" ? (
+                  <AdminsPage />
                 ) : (
                   <Navigate to="/login" replace />
                 )

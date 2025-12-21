@@ -6,9 +6,10 @@ import toast from "react-hot-toast";
 
 export const useUserStore = create(
   persist(
-    (set,get) => ({
+    (set, get) => ({
       // Statess
       user: null,
+      admins: [],
       accessToken: null,
       isHydrated: false,
       loading: false,
@@ -119,33 +120,56 @@ export const useUserStore = create(
           return false;
         }
       },
-      getProfile: async()=>{
+      getProfile: async () => {
         try {
-          const refreshToken = await window.secureToken?.get();
+          set({ loading: true });
 
-          if (!refreshToken) {
-            throw new Error("No refresh token available!");
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw new Error("No access token available!");
           }
 
-          const res = await axios.get(
-            "/api/admin/profile",
-            {
-              headers: {
-                "Authorization": `Bearer ${get().accessToken}`,
-              },
-            }
-          );
+          const res = await axios.get("/api/admin/profile", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
           const user = res.data.data;
-          set({user})
-
-
+          set({ user });
+          set({ loading: false });
 
           return true;
         } catch (error) {
           console.error("get profile failed: ", error);
           return false;
         }
-      }
+      },
+      getAllAdmins: async () => {
+        try {
+          set({ loading: true });
+
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw new Error("No access token available!");
+          }
+
+          const res = await axios.get("/api/admin/some", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          const admins = res.data.data;
+          set({ admins });
+          set({ loading: false });
+
+          return true;
+        } catch (error) {
+          console.error("get profile failed: ", error);
+          return false;
+        }
+      },
     }),
     {
       name: "user-storage",
