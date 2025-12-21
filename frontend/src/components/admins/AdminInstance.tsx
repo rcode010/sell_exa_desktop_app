@@ -1,43 +1,44 @@
 import React from "react";
-import { Company } from "../../types/company";
-import { Building2, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
+import { User } from "../../types/user";
 
-const CompanyInstance = ({
-  company,
+const AdminInstance = ({
+  admin,
   onViewDetails,
 }: {
-  company: Company;
+  admin: User;
   onViewDetails: () => void;
 }) => {
   return (
-    <tr key={company._id} className="hover:bg-gray-50 transition-colors">
+    <tr key={admin._id} className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-            {company.logoLink ? (
-              <img
-                src={company.logoLink}
-                alt={`${company.name} logo`}
-                className="w-full h-full object-cover rounded-full"
-              />
-            ) : (
-              <Building2 className="w-4 h-4 text-gray-600" />
-            )}
-          </div>
+          
           <span className="text-sm font-medium text-gray-900">
-            {company.name}
+            {admin.firstName}
           </span>
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-900">
-            {company.models?.length}
+            {admin.lastName}
           </span>
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <span className="text-sm text-gray-900">{company.products}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-900">
+            {admin.phoneNo}
+          </span>
+        </div>
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-gray-900">
+            {admin.role}
+          </span>
+        </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <button
@@ -51,4 +52,4 @@ const CompanyInstance = ({
   );
 };
 
-export default CompanyInstance;
+export default AdminInstance;

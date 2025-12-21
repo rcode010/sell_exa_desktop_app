@@ -7,6 +7,7 @@ import Loader from "../components/ui/Loader";
 import CompanyInstance from "../components/company/CompanyInstance";
 import { useUserStore } from "../stores/useUserStore";
 import { User } from "../types/user";
+import AdminInstance from "../components/admins/AdminInstance";
 
 const AdminsPage = () => {
   const { admins, loading, getAllAdmins } = useUserStore() as {
@@ -19,9 +20,9 @@ const AdminsPage = () => {
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [selectedAdmin, setSelectedAdmin] = useState<User | null>(null);
 
-  const filteredCompanies = useMemo(() => {
+  const filteredAdmins = useMemo(() => {
     if (!search) return admins;
     const value = search.toLowerCase();
     return admins.filter((admin) =>
@@ -34,9 +35,9 @@ const AdminsPage = () => {
   }, [getAllAdmins]);
 
   const refresh = async (): Promise<void> => {
-    setIsRefreshing(true);
+    // setIsRefreshing(true);
     await getAllAdmins();
-    setIsRefreshing(false);
+    // setIsRefreshing(false);
   };
 
   return (
@@ -44,8 +45,8 @@ const AdminsPage = () => {
       {/* Page Header */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Companies</h1>
-          <p className="text-gray-500 mt-1">Manage companies</p>
+          <h1 className="text-3xl font-bold text-gray-900">Admins</h1>
+          <p className="text-gray-500 mt-1">Manage admins</p>
         </div>
 
         <button
@@ -53,16 +54,16 @@ const AdminsPage = () => {
           className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
         >
           <Plus className="w-5 h-5" />
-          Add Company
+          Add Admin
         </button>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Total Companies</p>
+          <p className="text-gray-500 text-sm font-medium">Total Admins</p>
           <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {admins.length}
+            {admins?.length}
           </h3>
         </div>
       </div>
@@ -71,7 +72,7 @@ const AdminsPage = () => {
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
         {/* Table Header */}
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="text-xl font-semibold text-gray-900">All Companies</h2>
+          <h2 className="text-xl font-semibold text-gray-900">All Admins</h2>
 
           <div className="flex items-center gap-3">
             {/* Refresh Button */}
@@ -111,27 +112,28 @@ const AdminsPage = () => {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Admin Name
+                    Admin First Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Models
+                    Admin Last Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Products
+                    Phone Number
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
+                    Role
                   </th>
+                  
                 </tr>
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCompanies.map((company) => (
-                  <CompanyInstance
-                    key={company._id}
-                    company={company}
+                {filteredAdmins.map((admin) => (
+                  <AdminInstance
+                    key={admin._id}
+                    admin={admin}
                     onViewDetails={() => {
-                      setSelectedCompany(company);
+                      setSelectedAdmin(admin);
                       setIsEditModalOpen(true);
                     }}
                   />
@@ -142,11 +144,11 @@ const AdminsPage = () => {
         </div>
 
         {/* Empty State */}
-        {!loading && filteredCompanies.length === 0 && (
+        {!loading && filteredAdmins.length === 0 && (
           <div className="py-12 text-center">
             <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">
-              No companies found matching your search.
+              No Admins found matching your search.
             </p>
           </div>
         )}
@@ -157,9 +159,9 @@ const AdminsPage = () => {
         <AddCompanyModal onClose={() => setIsAddModalOpen(false)} />
       )}
 
-      {isEditModalOpen && selectedCompany && (
+      {isEditModalOpen && selectedAdmin && (
         <EditCompanyModal
-          company={selectedCompany}
+          admin={selectedAdmin}
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
