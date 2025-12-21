@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 export const useUserStore = create(
   persist(
-    (set) => ({
+    (set,get) => ({
       // Statess
       user: null,
       accessToken: null,
@@ -119,6 +119,33 @@ export const useUserStore = create(
           return false;
         }
       },
+      getProfile: async()=>{
+        try {
+          const refreshToken = await window.secureToken?.get();
+
+          if (!refreshToken) {
+            throw new Error("No refresh token available!");
+          }
+
+          const res = await axios.get(
+            "/api/admin/profile",
+            {
+              headers: {
+                "Authorization": `Bearer ${get().accessToken}`,
+              },
+            }
+          );
+          const user = res.data.data;
+          set({user})
+
+
+
+          return true;
+        } catch (error) {
+          console.error("get profile failed: ", error);
+          return false;
+        }
+      }
     }),
     {
       name: "user-storage",
