@@ -39,15 +39,15 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
         },
       });
 
-      if (response.data.success) {
-        await get().getCompanies();
-        toast.success("Company created successfully!");
-        set({ loading: false });
-        return true;
+      if (!response.data.success) {
+        throw new Error("Create company failed");
       }
 
+      await get().getCompanies();
+      toast.success("Company created successfully!");
+
       set({ loading: false });
-      return false;
+      return true;
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
 
@@ -75,15 +75,15 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
         },
       });
 
-      if (response.data.success) {
-        await get().getCompanies();
-        toast.success("Company updated successfully!");
-        set({ loading: false });
-        return true;
+      if (!response.data.success) {
+        throw new Error("Update company failed");
       }
 
+      await get().getCompanies();
+      toast.success("Company updated successfully!");
+
       set({ loading: false });
-      return false;
+      return true;
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
 
@@ -99,7 +99,12 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     try {
       set({ loading: true });
 
-      await axios.delete(`/api/company/delete-company/${id}`);
+      const response = await axios.delete(`/api/company/delete-company/${id}`);
+
+      if (!response.data.success) {
+        throw new Error("Delete company failed");
+      }
+
       await get().getCompanies();
 
       toast.success("Company deleted successfully!");

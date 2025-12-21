@@ -1,23 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Phone, User, X, MapPin, Package, Search } from "lucide-react";
 import { Product } from "../../types/product";
-import {NewSeller} from "../../types/seller";
-import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { LeafletMouseEvent } from 'leaflet';
-
+import { NewSeller } from "../../types/seller";
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  Marker,
+  Popup,
+} from "react-leaflet";
 import toast from "react-hot-toast";
+import { LeafletMouseEvent } from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { useSellerStore } from "../../stores/useSellerStore";
 
 interface Position {
   lat: number;
   lng: number;
 }
 
-function LocationMarker({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<NewSeller>> }) {
+function LocationMarker({
+  setFormData,
+}: {
+  setFormData: React.Dispatch<React.SetStateAction<NewSeller>>;
+}) {
   const [position, setPosition] = useState<Position | null>(null);
 
   useMapEvents({
-    click(e:LeafletMouseEvent) {
+    click(e: LeafletMouseEvent) {
       const { lat, lng } = e.latlng;
       setPosition({ lat, lng });
 
@@ -31,83 +41,93 @@ function LocationMarker({ setFormData }: { setFormData: React.Dispatch<React.Set
       }));
     },
   });
-  console.log(position);
+
   return position === null ? null : (
-      <Marker position={[position.lat, position.lng]}>
-        <Popup>
-          Lat: {position.lat.toFixed(6)}<br />
-          Lng: {position.lng.toFixed(6)}
-        </Popup>
-      </Marker>
+    <Marker position={[position.lat, position.lng]}>
+      <Popup>
+        Lat: {position.lat.toFixed(6)}
+        <br />
+        Lng: {position.lng.toFixed(6)}
+      </Popup>
+    </Marker>
   );
 }
 
 const PRODUCTS_DATA: Product[] = [
   {
     id: 1,
-    name: "Engine Oil Filter",
-    category: "Engine Parts",
-    price: 45,
-    seller: "AutoParts Inc",
+    name: "Premium All-Season Tire",
+    description: "High-performance tire suitable for all weather conditions",
+    companyId: 101,
+    sellerId: "seller_001",
+    model: "AS-2024-PRO",
+    images: ["https://example.com/tire1.jpg", "https://example.com/tire2.jpg"],
+    price: 145.99,
+    category: "Tire",
+    quality: "New",
   },
   {
     id: 2,
-    name: "Brake Pads Set",
+    name: "Ceramic Brake Pads Set",
+    description: "Low-dust ceramic brake pads for smooth stopping power",
+    companyId: 102,
+    sellerId: "seller_002",
+    model: "CBP-450X",
+    images: ["https://example.com/brake-pads.jpg"],
+    price: 89.5,
     category: "Brakes",
-    price: 89,
-    seller: "CarPro Supply",
+    quality: "New",
   },
   {
     id: 3,
-    name: "Shock Absorber",
+    name: "Heavy Duty Shock Absorber",
+    description: "Professional-grade shock absorber for enhanced stability",
+    companyId: 103,
+    sellerId: "seller_003",
+    model: "HD-SA-2000",
+    images: [
+      "https://example.com/shock1.jpg",
+      "https://example.com/shock2.jpg",
+      "https://example.com/shock3.jpg",
+    ],
+    price: 125.75,
     category: "Suspension",
-    price: 125,
-    seller: "PartsWorld",
+    quality: "New",
   },
   {
     id: 4,
-    name: "Spark Plugs (Set of 4)",
-    category: "Electrical",
-    price: 32,
-    seller: "AutoParts Inc",
+    name: "Engine Oil Filter Kit",
+    description: "Complete oil filter kit with gaskets and seals",
+    companyId: 104,
+    sellerId: "seller_001",
+    model: "EOF-K50",
+    images: ["https://example.com/oil-filter.jpg"],
+    price: 24.99,
+    category: "Engine Parts",
+    quality: "New",
   },
   {
     id: 5,
-    name: "Air Filter",
-    category: "Engine Parts",
-    price: 28,
-    seller: "CarPro Supply",
-  },
-  {
-    id: 6,
-    name: "Brake Rotor",
-    category: "Brakes",
-    price: 95,
-    seller: "PartsWorld",
-  },
-  {
-    id: 7,
-    name: "Control Arm",
-    category: "Suspension",
-    price: 165,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 8,
-    name: "Alternator",
-    category: "Electrical",
-    price: 285,
-    seller: "CarPro Supply",
+    name: "LED Headlight Assembly",
+    description: "Energy-efficient LED headlight with easy installation",
+    companyId: 105,
+    sellerId: "seller_004",
+    model: "LED-HL-9000",
+    images: [
+      "https://example.com/headlight1.jpg",
+      "https://example.com/headlight2.jpg",
+    ],
+    price: 189.0,
+    category: "Accessories",
+    quality: "New",
   },
 ];
 
-const AddSellerModal = ({
-  onClose,
-  createSeller,
-}: {
-  onClose: () => void;
-  createSeller: (seller: NewSeller) => void;
-}) => {
+const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
+  const createSeller = useSellerStore((state) => state.createSeller);
+
+  const [searchProduct, setSearchProduct] = useState("");
+  // const [products, setProducts] = useState<Product[]>([]);
   const [formData, setFormData] = useState<NewSeller>({
     storeName: "",
     phoneNo: "",
@@ -115,37 +135,31 @@ const AddSellerModal = ({
       locationName: "",
       latitude: 0,
       longitude: 0,
-    }
-    // ,
-    // products: [],
+    },
+    products: [],
   });
-
-  const [searchProduct, setSearchProduct] = useState("");
-  // const [products, setProducts] = useState<Product[]>([]);
 
   // Filter products based on search
   const filteredProducts = PRODUCTS_DATA.filter((product: Product) =>
     product.name.toLowerCase().includes(searchProduct.toLowerCase())
   );
 
-  // const toggleProduct = (productId: string) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     products: prev.products.includes(productId)
-  //       ? prev.products.filter((id) => productId !== id)
-  //       : [...prev.products, productId],
-  //   }));
-  // };
+  const toggleProduct = (productId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      products: prev.products.includes(productId)
+        ? prev.products.filter((id) => productId !== id)
+        : [...prev.products, productId],
+    }));
+  };
 
-
-
-  useEffect(() => {
-    fetch(
-      "https://solution-squad-backend-development.onrender.com/api/products"
-    )
-      .then((response) => response.json())
-      .then((data) => setProducts(data));
-  }, []);
+  // useEffect(() => {
+  //   fetch(
+  //     "https://solution-squad-backend-development.onrender.com/api/products"
+  //   )
+  //     .then((response) => response.json())
+  //     .then((data) => setProducts(data));
+  // }, []);
 
   const handleSubmit = async () => {
     // Validation
@@ -159,14 +173,16 @@ const AddSellerModal = ({
       return;
     }
 
-    // if (formData.products.length === 0) {
-    //   alert("Please select at least one product");
-    //   return;
-    // }
+    if (formData.products.length === 0) {
+      alert("Please select at least one product");
+      return;
+    }
 
     try {
-      createSeller(formData);
-      onClose();
+      const success = await createSeller(formData);
+      if (success) {
+        onClose();
+      }
     } catch (error) {
       toast.error("Error occured while creating a Seller");
     }
@@ -279,20 +295,19 @@ const AddSellerModal = ({
                       "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")",
                   }}
                 >
-
-                  {(
-                      <MapContainer
-                          center={[35.5558, 45.4333]}
-                          zoom={13}
-                          style={{ height: '100%', width: '100%' }} // Changed from 100vh to 100%
-                      >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        />
-                        <LocationMarker setFormData={setFormData} />
-                      </MapContainer>
-                  )}
+                  {
+                    <MapContainer
+                      center={[35.5558, 45.4333]}
+                      zoom={13}
+                      style={{ height: "100%", width: "100%" }}
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
+                      <LocationMarker setFormData={setFormData} />
+                    </MapContainer>
+                  }
                 </div>
               </div>
 
@@ -319,7 +334,6 @@ const AddSellerModal = ({
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5" />
-                {/*Products ({formData.products.length} selected)*/}
               </h3>
 
               {/* Product Search */}
@@ -343,9 +357,9 @@ const AddSellerModal = ({
                   >
                     <input
                       type="checkbox"
-                      // checked={formData.products.includes(
-                      //   product.id.toString()
-                      // )}
+                      checked={formData.products.includes(
+                        product.id.toString()
+                      )}
                       onChange={() => toggleProduct(product.id.toString())}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     />

@@ -10,23 +10,13 @@ import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
 
 const SellersPage = () => {
-  const { isHydrated, accessToken } = useUserStore();
+  // Use individual selectors to prevent unnecessary re-renders
+  const isHydrated = useUserStore((state) => state.isHydrated);
+  const accessToken = useUserStore((state) => state.accessToken);
 
-  const {
-    loading,
-    sellers,
-    getAllSellers,
-    createSeller,
-    deleteSeller,
-    updateSeller,
-  } = useSellerStore() as {
-    loading: boolean;
-    sellers: Seller[];
-    getAllSellers: () => Promise<void>;
-    createSeller: (seller: Seller) => Promise<void>;
-    deleteSeller: (id: string) => Promise<void>;
-    updateSeller: (id: string, seller: Seller) => Promise<void>;
-  };
+  const loading = useSellerStore((state) => state.loading);
+  const sellers = useSellerStore((state) => state.sellers);
+  const getAllSellers = useSellerStore((state) => state.getAllSellers);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
@@ -36,8 +26,9 @@ const SellersPage = () => {
 
   const filteredSellers = useMemo(() => {
     if (!Array.isArray(sellers)) return [];
-    const value = search.toLowerCase();
+    if (!search) return sellers;
 
+    const value = search.toLowerCase();
     return sellers.filter(
       (seller) =>
         seller.storeName?.toLowerCase().includes(value) ||
@@ -45,11 +36,13 @@ const SellersPage = () => {
     );
   }, [search, sellers]);
 
+  // Fetch sellers once when auth is ready
   useEffect(() => {
     if (isHydrated && accessToken) {
       getAllSellers();
     }
-  }, [isHydrated, accessToken, getAllSellers]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated, accessToken]);
 
   const refresh = async () => {
     setIsRefreshing(true);
@@ -183,24 +176,13 @@ const SellersPage = () => {
 
       {/* Modals */}
       {isAddModalOpen && (
-        <AddSellerModal
-          createSeller={createSeller}
-          onClose={() => setIsAddModalOpen(false)}
-        />
+        <AddSellerModal onClose={() => setIsAddModalOpen(false)} />
       )}
 
       {isEditModalOpen && selectedSeller && (
         <EditSellerModal
           seller={selectedSeller}
           onClose={() => setIsEditModalOpen(false)}
-          deleteSeller={async (id) => {
-            await deleteSeller(id);
-            await getAllSellers();
-          }}
-          updateSeller={async (id, seller) => {
-            await updateSeller(id, seller);
-            await getAllSellers();
-          }}
         />
       )}
     </div>

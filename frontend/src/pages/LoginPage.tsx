@@ -100,7 +100,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-linear-to-r from-gray-900 via-black to-gray-900 hover:from-gray-800 hover:via-gray-900 hover:to-gray-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-black/30 hover:shadow-black/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden"
+            className="w-full bg-linear-to-r from-gray-900 via-black to-gray-900 hover:from-gray-800 hover:via-gray-900 hover:to-gray-800 text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-black/30 hover:shadow-black/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group relative overflow-hidden cursor-pointer"
           >
             <div className="absolute inset-0 bg-linear-to-r from-gray-700 to-gray-800 opacity-0 group-hover:opacity-30 transition-opacity"></div>
             {loading ? (
