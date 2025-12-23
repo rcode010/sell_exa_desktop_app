@@ -12,7 +12,7 @@ type ProductCategory =
 type ProductQuality = "New" | "Used" | "Refurbished";
 
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
   description?: string;
   companyId: number;
@@ -29,4 +29,7 @@ export interface ProductStore {
   products: Product[];
 
   getProducts: () => Promise<void>;
+  createProduct: (product: Partial<Product>) => Promise<boolean>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
 }
