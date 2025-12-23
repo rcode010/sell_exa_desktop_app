@@ -1,13 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Building2, RefreshCw } from "lucide-react";
-import { Company } from "../types/company";
-import AddCompanyModal from "../components/company/AddCompanyModal";
-import EditCompanyModal from "../components/company/EditCompanyModal";
+import EditAdminsModal from "../components/admins/EditAdminsModal";
 import Loader from "../components/ui/Loader";
-import CompanyInstance from "../components/company/CompanyInstance";
 import { useUserStore } from "../stores/useUserStore";
 import { User } from "../types/user";
 import AdminInstance from "../components/admins/AdminInstance";
+import AddAdminsModal from "../components/admins/AddAdminsModal";
 
 const AdminsPage = () => {
   const { admins, loading, getAllAdmins } = useUserStore() as {
@@ -32,12 +30,13 @@ const AdminsPage = () => {
 
   useEffect(() => {
     getAllAdmins();
-  }, [getAllAdmins]);
+  }, []);
 
   const refresh = async (): Promise<void> => {
-    // setIsRefreshing(true);
+    setIsRefreshing(true);
     await getAllAdmins();
-    // setIsRefreshing(false);
+
+    setIsRefreshing(false);
   };
 
   return (
@@ -80,7 +79,7 @@ const AdminsPage = () => {
               onClick={refresh}
               disabled={isRefreshing}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              title="Refresh orders"
+              title="Refresh admins"
             >
               <RefreshCw
                 className={`w-5 h-5 text-gray-600 ${
@@ -96,7 +95,7 @@ const AdminsPage = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search orders..."
+                placeholder="Search admins..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
               />
             </div>
@@ -123,7 +122,6 @@ const AdminsPage = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                     Role
                   </th>
-                  
                 </tr>
               </thead>
 
@@ -156,11 +154,16 @@ const AdminsPage = () => {
 
       {/* Modals */}
       {isAddModalOpen && (
-        <AddCompanyModal onClose={() => setIsAddModalOpen(false)} />
+        <AddAdminsModal
+          onClose={async () => {
+            setIsAddModalOpen(false);
+            await getAllAdmins();
+          }}
+        />
       )}
 
       {isEditModalOpen && selectedAdmin && (
-        <EditCompanyModal
+        <EditAdminsModal
           admin={selectedAdmin}
           onClose={() => setIsEditModalOpen(false)}
         />

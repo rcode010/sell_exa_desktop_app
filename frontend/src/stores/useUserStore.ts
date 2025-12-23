@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
+import { newUser } from "../types/user";
 
 export const useUserStore = create(
   persist(
@@ -166,6 +167,34 @@ export const useUserStore = create(
 
           return true;
         } catch (error) {
+          console.error("get profile failed: ", error);
+          return false;
+        }
+      },
+      createAdmin: async (data: newUser) => {
+        try {
+          set({ loading: true });
+          console.log(data);
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw new Error("No access token available!");
+          }
+
+          const res = await axios.post("/api/admin", data, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          console.log(res.data);
+          
+          set({ loading: false });
+          toast.success("Admin added successfully");
+          return true;
+        } catch (error: any) {
+          set({ loading: false });
+
+          toast.error(`Admin creation failed: ${error.message}`);
           console.error("get profile failed: ", error);
           return false;
         }

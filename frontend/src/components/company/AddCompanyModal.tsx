@@ -34,7 +34,6 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
   };
 
   const handleSubmit = async () => {
-    // Create FormData
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name.trim());
 
@@ -45,6 +44,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     const success = await createCompany(formDataToSend);
 
     if (success) {
+      
       onClose();
     }
   };

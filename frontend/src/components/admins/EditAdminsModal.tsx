@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { X, Building2, Package, Trash2, Upload } from "lucide-react";
-import { Company } from "../../types/company";
-import { useCompanyStore } from "../../stores/useCompanyStore";
-import toast from "react-hot-toast";
+import { X, Building2, Package, Trash2 } from "lucide-react";
 import { User } from "../../types/user";
 
 const EditAdminsModal = ({
@@ -12,67 +9,35 @@ const EditAdminsModal = ({
   admin: User;
   onClose: () => void;
 }) => {
-  // Preview image (URL or uploaded file)
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    company.logoLink || null
-  );
-  // Form data
-  const [formData, setFormData] = useState({
-    name: company.name,
-    logoFile: null as File | null,
+  const [formData, setFormData] = useState<User>({
+    _id: "",
+    firstName: "",
+    lastName: "",
+    phoneNo: "",
+    role: "admin",
   });
-
-  const { updateCompany, deleteCompany } = useCompanyStore();
-
-  // Handle logo upload
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.size > 3 * 1024 * 1024) {
-      toast.error("Logo size must be less than 3MB");
-      return;
-    }
-
-    setFormData({ ...formData, logoFile: file });
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-
-    reader.readAsDataURL(file);
-  };
 
   // Handle update
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!company._id) return;
 
-    const formDataToSend = new FormData();
-    formDataToSend.append("name", formData.name.trim());
+    // const success = await updateCompany(formDataToSend, company._id as number);
 
-    if (formData.logoFile) {
-      formDataToSend.append("logo", formData.logoFile);
-    }
-    const success = await updateCompany(formDataToSend, company._id as number);
-
-    if (success) {
-      onClose();
-    }
+    // if (success) {
+    //   onClose();
+    // }
   };
 
   // Handle delete
   const handleDelete = async () => {
-    if (
-      globalThis.confirm(`Are you sure you want to delete ${company.name}?`)
-    ) {
-      const success = await deleteCompany(company._id as number);
-
-      if (success) {
-        onClose();
-      }
-    }
+    // if (
+    //   globalThis.confirm(`Are you sure you want to delete ${company.name}?`)
+    // ) {
+    //   const success = await deleteCompany(company._id as number);
+    //   if (success) {
+    //     onClose();
+    //   }
+    // }
   };
 
   return (
@@ -107,7 +72,7 @@ const EditAdminsModal = ({
                   Total Products
                 </p>
                 <p className="text-lg font-semibold text-gray-900">
-                  {company.products}
+                  {admin.firstName}
                 </p>
               </div>
             </div>
@@ -124,68 +89,17 @@ const EditAdminsModal = ({
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  value={formData.name}
+                  value={formData.firstName}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      name: e.target.value,
+                      firstName: e.target.value,
                     })
                   }
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
-            </div>
-
-            {/* Logo */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Company Logo
-              </label>
-
-              <input
-                type="file"
-                id="edit-company-logo"
-                accept="image/*"
-                onChange={handleLogoChange}
-                className="hidden"
-              />
-
-              <label
-                htmlFor="edit-company-logo"
-                className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-              >
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Company logo preview"
-                    className="h-full object-contain rounded-lg"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600 font-medium">
-                      Click to upload logo
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      PNG, JPG (Max 3MB)
-                    </p>
-                  </div>
-                )}
-              </label>
-
-              {imagePreview && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({ ...formData, logoFile: null });
-                    setImagePreview(null);
-                  }}
-                  className="mt-2 text-sm text-red-600 hover:underline"
-                >
-                  Remove logo
-                </button>
-              )}
             </div>
 
             {/* Delete */}
