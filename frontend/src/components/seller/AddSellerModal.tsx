@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Phone, User, X, MapPin, Package, Search } from "lucide-react";
 import { Product } from "../../types/product";
-import { NewSeller } from "../../types/seller";
+import { Seller } from "../../types/seller";
 import {
   MapContainer,
   TileLayer,
@@ -13,6 +13,7 @@ import toast from "react-hot-toast";
 import { LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSellerStore } from "../../stores/useSellerStore";
+import { useProductStore } from "../../stores/useProductStore";
 
 interface Position {
   lat: number;
@@ -22,7 +23,7 @@ interface Position {
 function LocationMarker({
   setFormData,
 }: {
-  setFormData: React.Dispatch<React.SetStateAction<NewSeller>>;
+  setFormData: React.Dispatch<React.SetStateAction<Partial<Seller>>>;
 }) {
   const [position, setPosition] = useState<Position | null>(null);
 
@@ -31,10 +32,10 @@ function LocationMarker({
       const { lat, lng } = e.latlng;
       setPosition({ lat, lng });
 
-      setFormData((prev) => ({
+      setFormData((prev: Partial<Seller>) => ({
         ...prev,
         location: {
-          ...prev.location,
+          locationName: prev.location?.locationName ?? "",
           latitude: Number.parseFloat(lat.toFixed(6)),
           longitude: Number.parseFloat(lng.toFixed(6)),
         },
@@ -53,82 +54,15 @@ function LocationMarker({
   );
 }
 
-const PRODUCTS_DATA: Product[] = [
-  {
-    id: 1,
-    name: "Premium All-Season Tire",
-    description: "High-performance tire suitable for all weather conditions",
-    companyId: 101,
-    sellerId: "seller_001",
-    model: "AS-2024-PRO",
-    images: ["https://example.com/tire1.jpg", "https://example.com/tire2.jpg"],
-    price: 145.99,
-    category: "Tire",
-    quality: "New",
-  },
-  {
-    id: 2,
-    name: "Ceramic Brake Pads Set",
-    description: "Low-dust ceramic brake pads for smooth stopping power",
-    companyId: 102,
-    sellerId: "seller_002",
-    model: "CBP-450X",
-    images: ["https://example.com/brake-pads.jpg"],
-    price: 89.5,
-    category: "Brakes",
-    quality: "New",
-  },
-  {
-    id: 3,
-    name: "Heavy Duty Shock Absorber",
-    description: "Professional-grade shock absorber for enhanced stability",
-    companyId: 103,
-    sellerId: "seller_003",
-    model: "HD-SA-2000",
-    images: [
-      "https://example.com/shock1.jpg",
-      "https://example.com/shock2.jpg",
-      "https://example.com/shock3.jpg",
-    ],
-    price: 125.75,
-    category: "Suspension",
-    quality: "New",
-  },
-  {
-    id: 4,
-    name: "Engine Oil Filter Kit",
-    description: "Complete oil filter kit with gaskets and seals",
-    companyId: 104,
-    sellerId: "seller_001",
-    model: "EOF-K50",
-    images: ["https://example.com/oil-filter.jpg"],
-    price: 24.99,
-    category: "Engine Parts",
-    quality: "New",
-  },
-  {
-    id: 5,
-    name: "LED Headlight Assembly",
-    description: "Energy-efficient LED headlight with easy installation",
-    companyId: 105,
-    sellerId: "seller_004",
-    model: "LED-HL-9000",
-    images: [
-      "https://example.com/headlight1.jpg",
-      "https://example.com/headlight2.jpg",
-    ],
-    price: 189.0,
-    category: "Accessories",
-    quality: "New",
-  },
-];
-
 const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const createSeller = useSellerStore((state) => state.createSeller);
 
+  const getProducts = useProductStore((state) => state.getProducts);
+  const products = useProductStore((state) => state.products);
+
   const [searchProduct, setSearchProduct] = useState("");
   // const [products, setProducts] = useState<Product[]>([]);
-  const [formData, setFormData] = useState<NewSeller>({
+  const [formData, setFormData] = useState<Partial<Seller>>({
     storeName: "",
     phoneNo: "",
     location: {
@@ -140,26 +74,29 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   });
 
   // Filter products based on search
-  const filteredProducts = PRODUCTS_DATA.filter((product: Product) =>
-    product.name.toLowerCase().includes(searchProduct.toLowerCase())
-  );
+  const filteredProducts = products.filter((product: Product) => {
+    if (!searchProduct) return products;
+
+    const value = searchProduct.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(value) ||
+      product.category.toLowerCase().includes(value)
+    );
+  });
 
   const toggleProduct = (productId: string) => {
-    setFormData((prev) => ({
+    setFormData((prev: Partial<Seller>) => ({
       ...prev,
-      products: prev.products.includes(productId)
-        ? prev.products.filter((id) => productId !== id)
-        : [...prev.products, productId],
+      products: prev.products?.includes(productId)
+        ? prev.products.filter((id: string) => productId !== id)
+        : [...prev.products!, productId],
     }));
   };
 
-  // useEffect(() => {
-  //   fetch(
-  //     "https://solution-squad-backend-development.onrender.com/api/products"
-  //   )
-  //     .then((response) => response.json())
-  //     .then((data) => setProducts(data));
-  // }, []);
+  useEffect(() => {
+    getProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async () => {
     // Validation
@@ -168,12 +105,12 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
       return;
     }
 
-    if (!formData.location.locationName || formData.location.latitude === 0) {
+    if (!formData.location?.locationName || formData.location.latitude === 0) {
       alert("Please set a location on the map and provide a location name");
       return;
     }
 
-    if (formData.products.length === 0) {
+    if (formData.products?.length === 0) {
       alert("Please select at least one product");
       return;
     }
@@ -267,13 +204,14 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 </label>
                 <input
                   type="text"
-                  value={formData.location.locationName}
+                  value={formData.location?.locationName}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       location: {
-                        ...formData.location,
                         locationName: e.target.value,
+                        latitude: formData.location?.latitude ?? 0,
+                        longitude: formData.location?.longitude ?? 0,
                       },
                     })
                   }
@@ -317,13 +255,13 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-xs text-gray-600 mb-1">Latitude</p>
                     <p className="text-sm font-semibold text-gray-900">
-                      {formData.location.latitude}
+                      {formData.location?.latitude}
                     </p>
                   </div>
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-xs text-gray-600 mb-1">Longitude</p>
                     <p className="text-sm font-semibold text-gray-900">
-                      {formData.location.longitude}
+                      {formData.location?.longitude}
                     </p>
                   </div>
                 </div>
@@ -357,7 +295,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                   >
                     <input
                       type="checkbox"
-                      checked={formData.products.includes(
+                      checked={formData.products?.includes(
                         product.id.toString()
                       )}
                       onChange={() => toggleProduct(product.id.toString())}

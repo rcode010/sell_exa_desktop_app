@@ -8,13 +8,6 @@ export interface Seller {
   products: string[];
 }
 
-export interface NewSeller {
-  storeName: string;
-  phoneNo: string;
-  location: Location;
-  products: string[];
-}
-
 export interface SellerStore {
   // State
   sellers: Seller[];
@@ -22,7 +15,7 @@ export interface SellerStore {
 
   // Actions
   getAllSellers: () => Promise<void>;
-  createSeller: (seller: NewSeller) => Promise<boolean>;
+  createSeller: (seller: Partial<Seller>) => Promise<boolean>;
   deleteSeller: (id: string) => Promise<boolean>;
   updateSeller: (id: string, seller: Seller) => Promise<boolean>;
 }

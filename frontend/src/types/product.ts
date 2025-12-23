@@ -29,4 +29,7 @@ export interface ProductStore {
   products: Product[];
 
   getProducts: () => Promise<void>;
+  createProduct: (product: Partial<Product>) => Promise<boolean>;
+  updateProduct: (id: number, product: Partial<Product>) => Promise<boolean>;
+  deleteProduct: (id: number) => Promise<boolean>;
 }

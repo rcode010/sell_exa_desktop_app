@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import axiosInstance from "../lib/axios";
-import { NewSeller, Seller, SellerStore } from "../types/seller";
+import { Seller, SellerStore } from "../types/seller";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
@@ -35,7 +35,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
     }
   },
 
-  createSeller: async (seller: NewSeller) => {
+  createSeller: async (seller: Partial<Seller>) => {
     set({ loading: true });
 
     try {
