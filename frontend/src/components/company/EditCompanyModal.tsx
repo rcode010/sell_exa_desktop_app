@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { X, Building2, Package, Trash2, Upload } from "lucide-react";
+import { X, Building2, Package, Trash2, Upload, Loader } from "lucide-react";
 import { Company } from "../../types/company";
 import { useCompanyStore } from "../../stores/useCompanyStore";
 import toast from "react-hot-toast";
+import { FILE_UPLOAD } from "../../constants/config";
 
 const EditCompanyModal = ({
   company,
@@ -15,21 +16,28 @@ const EditCompanyModal = ({
   const [imagePreview, setImagePreview] = useState<string | null>(
     company.logoLink || null
   );
-  // Form data
   const [formData, setFormData] = useState({
     name: company.name,
     logoFile: null as File | null,
   });
 
-  const { updateCompany, deleteCompany } = useCompanyStore();
+  const updateCompany = useCompanyStore((state) => state.updateCompany);
+  const deleteCompany = useCompanyStore((state) => state.deleteCompany);
+  const loading = useCompanyStore((state) => state.loading);
 
   // Handle logo upload
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
+    if (file.size > FILE_UPLOAD.MAX_FILE_SIZE_MB) {
       toast.error("Logo size must be less than 3MB");
+      return;
+    }
+
+    if (!FILE_UPLOAD.ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error("Invalid file type");
       return;
     }
 
@@ -54,7 +62,7 @@ const EditCompanyModal = ({
     if (formData.logoFile) {
       formDataToSend.append("logo", formData.logoFile);
     }
-    const success = await updateCompany(formDataToSend, company._id as number);
+    const success = await updateCompany(formDataToSend, company._id);
 
     if (success) {
       onClose();
@@ -66,7 +74,7 @@ const EditCompanyModal = ({
     if (
       globalThis.confirm(`Are you sure you want to delete ${company.name}?`)
     ) {
-      const success = await deleteCompany(company._id as number);
+      const success = await deleteCompany(company._id);
 
       if (success) {
         onClose();
@@ -130,6 +138,7 @@ const EditCompanyModal = ({
                       name: e.target.value,
                     })
                   }
+                  disabled={loading}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -148,6 +157,7 @@ const EditCompanyModal = ({
                 accept="image/*"
                 onChange={handleLogoChange}
                 className="hidden"
+                disabled={loading}
               />
 
               <label
@@ -204,7 +214,8 @@ const EditCompanyModal = ({
                     <button
                       type="button"
                       onClick={handleDelete}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      disabled={loading}
+                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                     >
                       Delete Company
                     </button>
@@ -218,15 +229,24 @@ const EditCompanyModal = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-100"
+                disabled={loading}
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800"
+                disabled={loading}
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
               >
-                Save Changes
+                {loading ? (
+                  <>
+                    <Loader className="w-5 h-5 animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
+                )}
               </button>
             </div>
           </form>

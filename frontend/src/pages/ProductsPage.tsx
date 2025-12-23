@@ -4,6 +4,7 @@ import { Product } from "../types/product";
 import AddProductModal from "../components/product/AddProductModal";
 import EditProductModal from "../components/product/EditProductModal";
 import { useProductStore } from "../stores/useProductStore";
+import { useUserStore } from "../stores/useUserStore";
 import Loader from "../components/ui/Loader";
 
 const ProductsPage = () => {
@@ -13,11 +14,14 @@ const ProductsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const { loading, products, getProducts } = useProductStore() as {
-    loading: boolean;
-    products: Product[];
-    getProducts: () => Promise<void>;
-  };
+  const isHydrated: boolean = useUserStore((state) => state.isHydrated);
+  const accessToken: string = useUserStore((state) => state.accessToken);
+
+  const loading: boolean = useProductStore((state) => state.loading);
+  const products: Product[] = useProductStore((state) => state.products);
+  const getProducts: () => Promise<void> = useProductStore(
+    (state) => state.getProducts
+  );
 
   // Filter products based on search
   const filteredProducts: Product[] = useMemo(() => {
@@ -34,16 +38,17 @@ const ProductsPage = () => {
   }, [products, search]);
 
   useEffect(() => {
-    getProducts();
+    if (isHydrated && accessToken) {
+      getProducts();
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isHydrated, accessToken]);
 
-  const refresh = () => {
+  const refresh = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      location.reload();
-    }, 500);
+    await getProducts();
+    setIsRefreshing(false);
   };
 
   return (
@@ -136,7 +141,7 @@ const ProductsPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredProducts.map((product) => (
                   <tr
-                    key={product.id}
+                    key={product._id}
                     className="hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">

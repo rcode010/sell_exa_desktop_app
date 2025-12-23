@@ -1,45 +1,48 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Seller } from "../../types/seller";
-import { Phone, Trash2, User, X } from "lucide-react";
+import { Loader, Phone, Trash2, User, X } from "lucide-react";
+import { useSellerStore } from "../../stores/useSellerStore";
 
 const EditSellerModal = ({
   seller,
   onClose,
-  deleteSeller,
-  updateSeller,
 }: {
   seller: Seller;
   onClose: () => void;
-  deleteSeller: (id: string) => void;
-  updateSeller: (id: string, seller: Seller) => void;
 }) => {
+  const updateSeller = useSellerStore((state) => state.updateSeller);
+  const deleteSeller = useSellerStore((state) => state.deleteSeller);
+  const loading = useSellerStore((state) => state.loading);
+
   const [formData, setFormData] = useState<Seller>({
     _id: seller._id,
     storeName: seller.storeName,
     phoneNo: seller.phoneNo,
     products: seller.products,
-
     location: seller.location,
   });
 
-  const handleUpdate = useCallback(async () => {
-    await updateSeller(seller._id, formData);
-    onClose();
-  }, [formData, seller._id, updateSeller, onClose]);
+  const handleUpdate = async () => {
+    const success = await updateSeller(seller._id, formData);
 
-  const handleDelete = useCallback(
-    async (id: string) => {
-      const confirmed = window.confirm(
-        "Are you sure you want to delete this seller? This action cannot be undone."
-      );
-
-      if (!confirmed) return;
-
-      await deleteSeller(id);
+    if (success) {
       onClose();
-    },
-    [deleteSeller, onClose]
-  );
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this seller? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    const success = await deleteSeller(id);
+
+    if (success) {
+      onClose();
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -79,6 +82,7 @@ const EditSellerModal = ({
                     setFormData({ ...formData, storeName: e.target.value })
                   }
                   placeholder="Enter seller's full name"
+                  disabled={loading}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -99,6 +103,7 @@ const EditSellerModal = ({
                     setFormData({ ...formData, phoneNo: e.target.value })
                   }
                   placeholder="(555) 123-4567"
+                  disabled={loading}
                   className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
@@ -122,7 +127,8 @@ const EditSellerModal = ({
                     </p>
                     <button
                       onClick={() => handleDelete(seller._id)}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer"
+                      disabled={loading}
+                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                     >
                       Delete Seller
                     </button>
@@ -137,15 +143,24 @@ const EditSellerModal = ({
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
             onClick={onClose}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            disabled={loading}
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleUpdate}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            disabled={loading}
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
           >
-            Save Changes
+            {loading ? (
+              <>
+                <Loader className="w-5 h-5 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <span>Save Changes</span>
+            )}
           </button>
         </div>
       </div>

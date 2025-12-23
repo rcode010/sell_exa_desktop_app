@@ -6,13 +6,15 @@ import EditCompanyModal from "../components/company/EditCompanyModal";
 import { useCompanyStore } from "../stores/useCompanyStore";
 import Loader from "../components/ui/Loader";
 import CompanyInstance from "../components/company/CompanyInstance";
+import { useUserStore } from "../stores/useUserStore";
 
 const CompaniesPage = () => {
-  const { companies, loading, getCompanies } = useCompanyStore() as {
-    companies: Company[];
-    loading: boolean;
-    getCompanies: () => void;
-  };
+  const companies = useCompanyStore((state) => state.companies);
+  const loading = useCompanyStore((state) => state.loading);
+  const getCompanies = useCompanyStore((state) => state.getCompanies);
+
+  const isHydrated = useUserStore((state) => state.isHydrated);
+  const accessToken = useUserStore((state) => state.accessToken);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [search, setSearch] = useState("");
@@ -22,6 +24,7 @@ const CompaniesPage = () => {
 
   const filteredCompanies = useMemo(() => {
     if (!search) return companies;
+
     const value = search.toLowerCase();
     return companies.filter((company) =>
       company.name.toLowerCase().includes(value)
@@ -29,14 +32,25 @@ const CompaniesPage = () => {
   }, [search, companies]);
 
   useEffect(() => {
-    getCompanies();
-  }, [getCompanies]);
+    if (isHydrated && accessToken) {
+      getCompanies();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isHydrated, accessToken]);
 
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);
     await getCompanies();
     setIsRefreshing(false);
   };
+
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">

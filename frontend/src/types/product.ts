@@ -1,8 +1,6 @@
-import { Key } from "react";
-
 type ProductCategory =
   | "Tire"
-  |  "Brakes"
+  | "Brakes"
   | "Cleaning"
   | "Car Repair"
   | "Spare Parts"
@@ -11,17 +9,19 @@ type ProductCategory =
   | "Accessories"
   | "Others";
 
+type ProductQuality = "New" | "Used" | "Refurbished";
+
 export interface Product {
-  id: number;
+  _id: string;
   name: string;
   description?: string;
-  companyId: Key;
-  sellerId: Key;
+  companyId: number;
+  sellerId: string;
   model: string;
   images: string[];
   price: number;
   category: ProductCategory;
-  quality: ["New", "Used", "Refurbished"];
+  quality: ProductQuality;
 }
 
 export interface ProductStore {
@@ -29,4 +29,7 @@ export interface ProductStore {
   products: Product[];
 
   getProducts: () => Promise<void>;
+  createProduct: (product: Partial<Product>) => Promise<boolean>;
+  updateProduct: (id: string, product: Partial<Product>) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
 }

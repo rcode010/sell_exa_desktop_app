@@ -9,6 +9,7 @@ import SidebarLoader from "./components/ui/SidebarLoader.tsx";
 import LogsPage from "./pages/LogsPage.tsx";
 import Loader from "./components/ui/Loader.tsx";
 import AdminsPage from "./pages/AdminsPage.tsx";
+import ErrorBoundary from "./components/errors/ErrorBoundary.tsx";
 
 // Lazy-loaded components
 const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
@@ -42,53 +43,54 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex bg-gray-50">
-      {/* Toaster Notifications */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: "#1F2937",
-            color: "#fff",
-          },
-          success: {
-            iconTheme: {
-              primary: "#10B981",
-              secondary: "#fff",
+    <ErrorBoundary>
+      <div className="min-h-screen w-full flex bg-gray-50">
+        {/* Toaster Notifications */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#1F2937",
+              color: "#fff",
             },
-          },
-          error: {
-            iconTheme: {
-              primary: "#EF4444",
-              secondary: "#fff",
+            success: {
+              iconTheme: {
+                primary: "#10B981",
+                secondary: "#fff",
+              },
             },
-          },
-        }}
-      />
+            error: {
+              iconTheme: {
+                primary: "#EF4444",
+                secondary: "#fff",
+              },
+            },
+          }}
+        />
 
-      {/* Sidebar */}
-      {user && (
-        <div className="fixed left-0 top-0 h-full z-20">
-          <Suspense fallback={<SidebarLoader />}>
-            <SideBar />
-          </Suspense>
-        </div>
-      )}
+        {/* Sidebar */}
+        {user && (
+          <div className="fixed left-0 top-0 h-full z-20">
+            <Suspense fallback={<SidebarLoader />}>
+              <SideBar />
+            </Suspense>
+          </div>
+        )}
 
-      {/* Main content */}
-      <div
-        className={`flex-1 min-h-screen transition-all duration-300 ${
-          user ? "ml-80" : "ml-0"
-        }`}
-      >
-        <Suspense fallback={<Loader />}>
-          <Routes>
-            {/* Public */}
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/" replace /> : <LoginPage />}
-            />
+        {/* Main content */}
+        <div
+          className={`flex-1 min-h-screen transition-all duration-300 ${
+            user ? "ml-80" : "ml-0"
+          }`}
+        >
+          <Suspense fallback={<Loader />}>
+            <Routes>
+              {/* Public */}
+              <Route
+                path="/login"
+                element={user ? <Navigate to="/" replace /> : <LoginPage />}
+              />
 
             {/* Protected */}
             <Route
@@ -139,16 +141,58 @@ const App = () => {
                 )
               }
             />
+              {/* Protected */}
+              <Route
+                path="/"
+                element={
+                  user ? <OrdersPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/products"
+                element={
+                  user ? <ProductsPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/sellers"
+                element={
+                  user ? <SellersPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/companies"
+                element={
+                  user ? <CompaniesPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  user ? <ProfilePage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/logs"
+                element={
+                  user?.role === "superAdmin" ? (
+                    <LogsPage />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
 
-            {/* Fallback */}
-            <Route
-              path="*"
-              element={<Navigate to={user ? "/" : "/login"} replace />}
-            />
-          </Routes>
-        </Suspense>
+              {/* Fallback */}
+              <Route
+                path="*"
+                element={<Navigate to={user ? "/" : "/login"} replace />}
+              />
+            </Routes>
+          </Suspense>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

@@ -4,13 +4,13 @@ import { useCompanyStore } from "../../stores/useCompanyStore.js";
 import toast from "react-hot-toast";
 
 const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
+  const createCompany = useCompanyStore((state) => state.createCompany);
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     image: null as File | null,
   });
-
-  const { createCompany } = useCompanyStore();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -1,150 +1,101 @@
 import React, { useEffect, useState } from "react";
 import { Phone, User, X, MapPin, Package, Search } from "lucide-react";
 import { Product } from "../../types/product";
-import {NewSeller} from "../../types/seller";
-import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { LeafletMouseEvent } from 'leaflet';
-
+import { Seller } from "../../types/seller";
+import {
+  MapContainer,
+  TileLayer,
+  useMapEvents,
+  Marker,
+  Popup,
+} from "react-leaflet";
 import toast from "react-hot-toast";
+import { LeafletMouseEvent } from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { useSellerStore } from "../../stores/useSellerStore";
+import { useProductStore } from "../../stores/useProductStore";
 
 interface Position {
   lat: number;
   lng: number;
 }
 
-function LocationMarker({ setFormData }: { setFormData: React.Dispatch<React.SetStateAction<NewSeller>> }) {
+function LocationMarker({
+  setFormData,
+}: {
+  setFormData: React.Dispatch<React.SetStateAction<Partial<Seller>>>;
+}) {
   const [position, setPosition] = useState<Position | null>(null);
 
   useMapEvents({
-    click(e:LeafletMouseEvent) {
+    click(e: LeafletMouseEvent) {
       const { lat, lng } = e.latlng;
       setPosition({ lat, lng });
 
-      setFormData((prev) => ({
+      setFormData((prev: Partial<Seller>) => ({
         ...prev,
         location: {
-          ...prev.location,
+          locationName: prev.location?.locationName ?? "",
           latitude: Number.parseFloat(lat.toFixed(6)),
           longitude: Number.parseFloat(lng.toFixed(6)),
         },
       }));
     },
   });
-  console.log(position);
+
   return position === null ? null : (
-      <Marker position={[position.lat, position.lng]}>
-        <Popup>
-          Lat: {position.lat.toFixed(6)}<br />
-          Lng: {position.lng.toFixed(6)}
-        </Popup>
-      </Marker>
+    <Marker position={[position.lat, position.lng]}>
+      <Popup>
+        Lat: {position.lat.toFixed(6)}
+        <br />
+        Lng: {position.lng.toFixed(6)}
+      </Popup>
+    </Marker>
   );
 }
 
-const PRODUCTS_DATA: Product[] = [
-  {
-    id: 1,
-    name: "Engine Oil Filter",
-    category: "Engine Parts",
-    price: 45,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 2,
-    name: "Brake Pads Set",
-    category: "Brakes",
-    price: 89,
-    seller: "CarPro Supply",
-  },
-  {
-    id: 3,
-    name: "Shock Absorber",
-    category: "Suspension",
-    price: 125,
-    seller: "PartsWorld",
-  },
-  {
-    id: 4,
-    name: "Spark Plugs (Set of 4)",
-    category: "Electrical",
-    price: 32,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 5,
-    name: "Air Filter",
-    category: "Engine Parts",
-    price: 28,
-    seller: "CarPro Supply",
-  },
-  {
-    id: 6,
-    name: "Brake Rotor",
-    category: "Brakes",
-    price: 95,
-    seller: "PartsWorld",
-  },
-  {
-    id: 7,
-    name: "Control Arm",
-    category: "Suspension",
-    price: 165,
-    seller: "AutoParts Inc",
-  },
-  {
-    id: 8,
-    name: "Alternator",
-    category: "Electrical",
-    price: 285,
-    seller: "CarPro Supply",
-  },
-];
+const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
+  const createSeller = useSellerStore((state) => state.createSeller);
 
-const AddSellerModal = ({
-  onClose,
-  createSeller,
-}: {
-  onClose: () => void;
-  createSeller: (seller: NewSeller) => void;
-}) => {
-  const [formData, setFormData] = useState<NewSeller>({
+  const getProducts = useProductStore((state) => state.getProducts);
+  const products = useProductStore((state) => state.products);
+
+  const [searchProduct, setSearchProduct] = useState("");
+  // const [products, setProducts] = useState<Product[]>([]);
+  const [formData, setFormData] = useState<Partial<Seller>>({
     storeName: "",
     phoneNo: "",
     location: {
       locationName: "",
       latitude: 0,
       longitude: 0,
-    }
-    // ,
-    // products: [],
+    },
+    products: [],
   });
 
-  const [searchProduct, setSearchProduct] = useState("");
-  // const [products, setProducts] = useState<Product[]>([]);
-
   // Filter products based on search
-  const filteredProducts = PRODUCTS_DATA.filter((product: Product) =>
-    product.name.toLowerCase().includes(searchProduct.toLowerCase())
-  );
+  const filteredProducts = products.filter((product: Product) => {
+    if (!searchProduct) return products;
 
-  // const toggleProduct = (productId: string) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     products: prev.products.includes(productId)
-  //       ? prev.products.filter((id) => productId !== id)
-  //       : [...prev.products, productId],
-  //   }));
-  // };
+    const value = searchProduct.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(value) ||
+      product.category.toLowerCase().includes(value)
+    );
+  });
 
-
+  const toggleProduct = (productId: string) => {
+    setFormData((prev: Partial<Seller>) => ({
+      ...prev,
+      products: prev.products?.includes(productId)
+        ? prev.products.filter((id: string) => productId !== id)
+        : [...prev.products!, productId],
+    }));
+  };
 
   useEffect(() => {
-    fetch(
-      "https://solution-squad-backend-development.onrender.com/api/products"
-    )
-      .then((response) => response.json())
-      .then((data) => setProducts(data));
+    getProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async () => {
@@ -154,19 +105,21 @@ const AddSellerModal = ({
       return;
     }
 
-    if (!formData.location.locationName || formData.location.latitude === 0) {
+    if (!formData.location?.locationName || formData.location.latitude === 0) {
       alert("Please set a location on the map and provide a location name");
       return;
     }
 
-    // if (formData.products.length === 0) {
-    //   alert("Please select at least one product");
-    //   return;
-    // }
+    if (formData.products?.length === 0) {
+      alert("Please select at least one product");
+      return;
+    }
 
     try {
-      createSeller(formData);
-      onClose();
+      const success = await createSeller(formData);
+      if (success) {
+        onClose();
+      }
     } catch (error) {
       toast.error("Error occured while creating a Seller");
     }
@@ -251,13 +204,14 @@ const AddSellerModal = ({
                 </label>
                 <input
                   type="text"
-                  value={formData.location.locationName}
+                  value={formData.location?.locationName}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
                       location: {
-                        ...formData.location,
                         locationName: e.target.value,
+                        latitude: formData.location?.latitude ?? 0,
+                        longitude: formData.location?.longitude ?? 0,
                       },
                     })
                   }
@@ -279,20 +233,19 @@ const AddSellerModal = ({
                       "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")",
                   }}
                 >
-
-                  {(
-                      <MapContainer
-                          center={[35.5558, 45.4333]}
-                          zoom={13}
-                          style={{ height: '100%', width: '100%' }} // Changed from 100vh to 100%
-                      >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        />
-                        <LocationMarker setFormData={setFormData} />
-                      </MapContainer>
-                  )}
+                  {
+                    <MapContainer
+                      center={[35.5558, 45.4333]}
+                      zoom={13}
+                      style={{ height: "100%", width: "100%" }}
+                    >
+                      <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      />
+                      <LocationMarker setFormData={setFormData} />
+                    </MapContainer>
+                  }
                 </div>
               </div>
 
@@ -302,13 +255,13 @@ const AddSellerModal = ({
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-xs text-gray-600 mb-1">Latitude</p>
                     <p className="text-sm font-semibold text-gray-900">
-                      {formData.location.latitude}
+                      {formData.location?.latitude}
                     </p>
                   </div>
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <p className="text-xs text-gray-600 mb-1">Longitude</p>
                     <p className="text-sm font-semibold text-gray-900">
-                      {formData.location.longitude}
+                      {formData.location?.longitude}
                     </p>
                   </div>
                 </div>
@@ -319,7 +272,6 @@ const AddSellerModal = ({
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5" />
-                {/*Products ({formData.products.length} selected)*/}
               </h3>
 
               {/* Product Search */}
@@ -343,9 +295,9 @@ const AddSellerModal = ({
                   >
                     <input
                       type="checkbox"
-                      // checked={formData.products.includes(
-                      //   product.id.toString()
-                      // )}
+                      checked={formData.products?.includes(
+                        product.id.toString()
+                      )}
                       onChange={() => toggleProduct(product.id.toString())}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     />
