@@ -1,11 +1,12 @@
-import { Key } from "react";
+interface CompanyModel {
+  name: string;
+}
 
 export interface Company {
-  _id: Key | null | undefined;
-  id: number;
+  _id: string;
   name: string;
-  logoLink: string;
-  models?: { name: string }[];
+  logoLink: string | null;
+  models?: CompanyModel[];
   products: number;
 }
 
@@ -18,6 +19,6 @@ export interface CompanyStore {
   // Actions
   getCompanies: () => Promise<void>;
   createCompany: (file: FormData) => Promise<boolean>;
-  updateCompany: (file: FormData, id: number) => Promise<boolean>;
-  deleteCompany: (id: number) => Promise<boolean>;
+  updateCompany: (file: FormData, id: string) => Promise<boolean>;
+  deleteCompany: (id: string) => Promise<boolean>;
 }

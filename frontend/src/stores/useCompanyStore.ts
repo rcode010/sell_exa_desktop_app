@@ -43,9 +43,24 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
         throw new Error("Create company failed");
       }
 
-      await get().getCompanies();
-      toast.success("Company created successfully!");
+      try {
+        await get().getCompanies();
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+        // Optimistically update with server response
+        set((state) => ({
+          companies: state.companies.map((company) =>
+            company._id === response.data.data._id
+              ? response.data.data
+              : company
+          ),
+        }));
+      }
 
+      toast.success("Company created successfully!");
       set({ loading: false });
       return true;
     } catch (error) {
@@ -59,7 +74,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     }
   },
 
-  updateCompany: async (file: FormData, id: number) => {
+  updateCompany: async (file: FormData, id: string) => {
     try {
       set({ loading: true });
 
@@ -79,9 +94,23 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
         throw new Error("Update company failed");
       }
 
-      await get().getCompanies();
+      try {
+        await get().getCompanies();
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+        // Optimistically update with server response
+        set((state) => ({
+          companies: state.companies.map((company) =>
+            company._id === response.data.data._id
+              ? response.data.data
+              : company
+          ),
+        }));
+      }
       toast.success("Company updated successfully!");
-
       set({ loading: false });
       return true;
     } catch (error) {
@@ -95,7 +124,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     }
   },
 
-  deleteCompany: async (id: number) => {
+  deleteCompany: async (id: string) => {
     try {
       set({ loading: true });
 
@@ -105,7 +134,20 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
         throw new Error("Delete company failed");
       }
 
-      await get().getCompanies();
+      try {
+        await get().getCompanies();
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+        // Optimistically update with server response
+        set((state) => ({
+          companies: state.companies.map((company) =>
+            company._id === id ? response.data.data : company
+          ),
+        }));
+      }
 
       toast.success("Company deleted successfully!");
       set({ loading: false });

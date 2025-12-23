@@ -3,6 +3,7 @@ import { X, Building2, Package, Trash2, Upload, Loader } from "lucide-react";
 import { Company } from "../../types/company";
 import { useCompanyStore } from "../../stores/useCompanyStore";
 import toast from "react-hot-toast";
+import { FILE_UPLOAD } from "../../constants/config";
 
 const EditCompanyModal = ({
   company,
@@ -27,10 +28,16 @@ const EditCompanyModal = ({
   // Handle logo upload
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
+    if (file.size > FILE_UPLOAD.MAX_FILE_SIZE_MB) {
       toast.error("Logo size must be less than 3MB");
+      return;
+    }
+
+    if (!FILE_UPLOAD.ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error("Invalid file type");
       return;
     }
 
@@ -55,7 +62,7 @@ const EditCompanyModal = ({
     if (formData.logoFile) {
       formDataToSend.append("logo", formData.logoFile);
     }
-    const success = await updateCompany(formDataToSend, company._id as number);
+    const success = await updateCompany(formDataToSend, company._id);
 
     if (success) {
       onClose();
@@ -67,7 +74,7 @@ const EditCompanyModal = ({
     if (
       globalThis.confirm(`Are you sure you want to delete ${company.name}?`)
     ) {
-      const success = await deleteCompany(company._id as number);
+      const success = await deleteCompany(company._id);
 
       if (success) {
         onClose();

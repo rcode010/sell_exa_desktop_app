@@ -4,6 +4,7 @@ import { useUserStore } from "../stores/useUserStore";
 
 const axiosInstance = axios.create({
   baseURL: "https://solution-squad-backend-development.onrender.com",
+  timeout: 30000, // 30 seconds timeout to prevent hanging requests
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

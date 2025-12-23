@@ -3,6 +3,7 @@ import axiosInstance from "../lib/axios";
 import { Seller, SellerStore } from "../types/seller";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
+import { PAGINATION } from "../constants/config";
 
 export const useSellerStore = create<SellerStore>((set, get) => ({
   sellers: [],
@@ -15,8 +16,8 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
       // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
       const response = await axiosInstance.get("/api/seller/some", {
         headers: {
-          limit: 20,
-          page: 1,
+          limit: PAGINATION.DEFAULT_LIMIT,
+          page: PAGINATION.DEFAULT_PAGE,
         },
       });
 
@@ -46,8 +47,22 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
         throw new Error("Failed to create seller");
       }
 
-      // Update sellers state after creation
-      await get().getAllSellers();
+      // Try updating sellers state after creation by fetching them from backend
+      try {
+        await get().getAllSellers(); // Try to refresh
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+
+        // Optimistically update with server response
+        set((state) => ({
+          sellers: state.sellers.map((c) =>
+            c._id === response.data.data._id ? response.data.data : c
+          ),
+        }));
+      }
 
       set({ loading: false });
       toast.success("Seller created successfully!");
@@ -74,7 +89,22 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
       }
 
       // Update sellers state after deletion
-      await get().getAllSellers();
+      // Try updating sellers state after creation by fetching them from backend
+      try {
+        await get().getAllSellers(); // Try to refresh
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+
+        // Optimistically update with server response
+        set((state) => ({
+          sellers: state.sellers.map((c) =>
+            c._id === response.data.data._id ? response.data.data : c
+          ),
+        }));
+      }
 
       set({ loading: false });
       toast.success("Seller deleted successfully!");
@@ -111,7 +141,22 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
       }
 
       // Update sellers state after update
-      await get().getAllSellers();
+      // Try updating sellers state after creation by fetching them from backend
+      try {
+        await get().getAllSellers(); // Try to refresh
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+
+        // Optimistically update with server response
+        set((state) => ({
+          sellers: state.sellers.map((c) =>
+            c._id === response.data.data._id ? response.data.data : c
+          ),
+        }));
+      }
 
       set({ loading: false });
       toast.success("Seller updated successfully!");

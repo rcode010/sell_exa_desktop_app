@@ -34,7 +34,22 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         throw new Error("Failed to create product");
       }
 
-      await get().getProducts();
+      try {
+        await get().getProducts(); // Try to refresh
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+        // Optimistically update with server response
+        set((state) => ({
+          products: state.products.map((product) =>
+            product._id === response.data.data._id
+              ? response.data.data
+              : product
+          ),
+        }));
+      }
 
       set({ loading: false });
       toast.success("Product created successfully!");
@@ -50,7 +65,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     }
   },
 
-  updateProduct: async (id: number, product: Partial<Product>) => {
+  updateProduct: async (id: string, product: Partial<Product>) => {
     set({ loading: true });
     try {
       const response = await axiosInstance.put(`/api/product/${id}`, product);
@@ -59,7 +74,20 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         throw new Error("Failed to update product");
       }
 
-      await get().getProducts();
+      try {
+        await get().getProducts(); // Try to refresh
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+        // Optimistically update with server response
+        set((state) => ({
+          products: state.products.map((product) =>
+            product._id === id ? response.data.data : product
+          ),
+        }));
+      }
 
       set({ loading: false });
       toast.success("Product updated successfully!");
@@ -75,7 +103,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     }
   },
 
-  deleteProduct: async (id: number) => {
+  deleteProduct: async (id: string) => {
     set({ loading: true });
     try {
       const response = await axiosInstance.delete(`/api/product/${id}`);
@@ -84,7 +112,21 @@ export const useProductStore = create<ProductStore>((set, get) => ({
         throw new Error("Failed to delete product");
       }
 
-      await get().getProducts();
+      try {
+        await get().getProducts();
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError
+        );
+
+        // Optimistically update with server response
+        set((state) => ({
+          products: state.products.map((product) =>
+            product._id === id ? response.data.data : product
+          ),
+        }));
+      }
 
       set({ loading: false });
       toast.success("Product deleted successfully!");
