@@ -195,7 +195,7 @@ export const useUserStore = create(
           set({ loading: false });
 
           toast.error(`Admin creation failed: ${error.message}`);
-          console.error("get profile failed: ", error);
+          console.log("get profile failed: ", error);
           return false;
         }
       },
