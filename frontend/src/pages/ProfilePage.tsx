@@ -1,28 +1,14 @@
-import React, { useRef } from "react";
+import React from "react";
+import { useUserStore } from "../stores/useUserStore";
+import { User } from "../types/user";
 
 const ProfilePage = () => {
-  // Referencing the hidden file input's image
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const user: User = useUserStore((state) => state.user);
 
   // Updating profile
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Profile updated");
-  };
-
-  // When uploading an image
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log("File selected:", file.name);
-    }
-  };
-
-  // When clicking the change avatar button
-  const handleAvatarClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
   };
 
   return (
@@ -43,21 +29,12 @@ const ProfilePage = () => {
             <span className="text-3xl font-medium text-gray-600">AU</span>
           </div>
 
-          {/* Hidden file input */}
-          <input
-            type="file"
-            accept="image/jpeg, image/png"
-            className="hidden"
-            onChange={handleFileChange}
-            ref={fileInputRef}
-          />
-
-          <button
-            className="px-6 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors font-medium cursor-pointer"
-            onClick={() => handleAvatarClick()}
-          >
-            Change Avatar
-          </button>
+          <div className="flex flex-col">
+            <span className="text-xl font-semibold text-gray-900">
+              {user.firstName + " " + user.lastName}
+            </span>
+            <span className="text-sm text-gray-500 mt-1">{user.role}</span>
+          </div>
         </div>
 
         <hr className="mb-6 border-gray-200" />
@@ -73,7 +50,7 @@ const ProfilePage = () => {
             <input
               id="fullName"
               type="text"
-              placeholder="Yazen adnnan"
+              placeholder={user.firstName + " " + user.lastName}
               className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -87,8 +64,8 @@ const ProfilePage = () => {
             </label>
             <input
               id="phone"
-              type="test"
-              placeholder="07xxxxxxxxx"
+              type="text"
+              placeholder={user.phoneNo}
               className="px-4 py-3 border placeholder:text-gray-400 border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
