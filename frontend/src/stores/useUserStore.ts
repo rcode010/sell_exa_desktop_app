@@ -3,12 +3,14 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
+import { newUser } from "../types/user";
 
 export const useUserStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       // Statess
       user: null,
+      admins: [],
       accessToken: null,
       isHydrated: false,
       loading: false,
@@ -118,6 +120,84 @@ export const useUserStore = create(
           set({ user: null, accessToken: null });
           await window.secureToken?.clear();
 
+          return false;
+        }
+      },
+      getProfile: async () => {
+        try {
+          set({ loading: true });
+
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw new Error("No access token available!");
+          }
+
+          const res = await axios.get("/api/admin/profile", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          const user = res.data.data;
+          set({ user });
+          set({ loading: false });
+
+          return true;
+        } catch (error) {
+          console.error("get profile failed: ", error);
+          return false;
+        }
+      },
+      getAllAdmins: async () => {
+        try {
+          set({ loading: true });
+
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw new Error("No access token available!");
+          }
+
+          const res = await axios.get("/api/admin/some", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          const admins = res.data.data;
+          set({ admins });
+          set({ loading: false });
+
+          return true;
+        } catch (error) {
+          console.error("get profile failed: ", error);
+          return false;
+        }
+      },
+      createAdmin: async (data: newUser) => {
+        try {
+          set({ loading: true });
+          console.log(data);
+          const accessToken = get().accessToken;
+
+          if (!accessToken) {
+            throw new Error("No access token available!");
+          }
+
+          const res = await axios.post("/api/admin", data, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          console.log(res.data);
+          
+          set({ loading: false });
+          toast.success("Admin added successfully");
+          return true;
+        } catch (error: any) {
+          set({ loading: false });
+
+          toast.error(`Admin creation failed: ${error.message}`);
+          console.log("get profile failed: ", error);
           return false;
         }
       },

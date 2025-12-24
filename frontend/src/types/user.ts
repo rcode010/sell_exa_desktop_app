@@ -5,6 +5,14 @@ export interface User {
   phoneNo: string;
   role: string;
 }
+export interface newUser {
+  firstName: string;
+  lastName: string;
+  password: string;
+  confirmPassword: string;
+  phoneNo: string;
+  role: string;
+}
 
 export interface UserStore {
   user: User | null;
