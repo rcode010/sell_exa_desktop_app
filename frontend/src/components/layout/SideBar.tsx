@@ -1,5 +1,13 @@
 import React from "react";
-import { ShoppingCart, Users, Building2, Package, LogOut, Logs, UserCog } from "lucide-react";
+import {
+  ShoppingCart,
+  Users,
+  Building2,
+  Package,
+  LogOut,
+  Logs,
+  UserCog,
+} from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUserStore } from "../../stores/useUserStore.ts";
 import MenuLink from "./MenuLink.tsx";
@@ -49,7 +57,8 @@ const SideBar = () => {
       label: "Admins",
       path: "/admins",
       active: location.pathname === "/admins",
-    }
+      superAdminOnly: true,
+    },
   ];
 
   // Filter menu items based on user role

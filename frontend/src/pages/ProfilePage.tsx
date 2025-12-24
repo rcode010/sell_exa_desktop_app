@@ -121,17 +121,17 @@ const ProfilePage = () => {
               className="px-4 py-3 border placeholder:text-gray-400 border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          {isSuperAdmin&&
-          <button
-            type="button"
-            onClick={() => setShowPasswordSection((p) => !p)}
-            className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          >
-            <Key className="w-4 h-4" />
-            Change Password
-          </button>
-          }
-          {showPasswordSection&&isSuperAdmin && (
+          {isSuperAdmin && (
+            <button
+              type="button"
+              onClick={() => setShowPasswordSection((p) => !p)}
+              className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            >
+              <Key className="w-4 h-4" />
+              Change Password
+            </button>
+          )}
+          {showPasswordSection && isSuperAdmin && (
             <>
               <div className="bg-blue-100 rounded-lg  w-full max-w-2xl max-h-[90vh] p-7 overflow-hidden flex flex-col space-y-6">
                 <div className="flex flex-col">
