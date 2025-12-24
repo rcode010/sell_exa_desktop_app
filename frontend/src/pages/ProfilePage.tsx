@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import { User } from "../types/user";
-import { Key, Loader } from "lucide-react";
+import { Key, Loader, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 
 const ProfilePage = () => {
@@ -16,6 +16,9 @@ const ProfilePage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -46,16 +49,20 @@ const ProfilePage = () => {
     ) {
       return toast.error("Fill in all required fields.");
     }
+
     if (formData.newPassword !== formData.confirmPassword) {
       return toast.error("Passwords do not match");
     }
+
     if (formData.oldPassword === formData.newPassword) {
       return toast.error(
         "New password must be different from the current password."
       );
     }
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...dataToBeSent } = formData;
+
     setIsSubmitting(true);
     const success = await updateAdmin(dataToBeSent, user._id);
     setIsSubmitting(false);
@@ -68,7 +75,7 @@ const ProfilePage = () => {
         confirmPassword: "",
       });
       setShowPasswordSection(false);
-      getProfile();
+      await getProfile();
     }
   };
 
@@ -141,20 +148,33 @@ const ProfilePage = () => {
                   >
                     Current password
                   </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={formData.oldPassword}
-                    disabled={isSubmitting}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        oldPassword: e.target.value,
-                      });
-                    }}
-                    placeholder="Enter current Password"
-                    className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showOldPassword ? "text" : "password"}
+                      value={formData.oldPassword}
+                      disabled={isSubmitting}
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          oldPassword: e.target.value,
+                        });
+                      }}
+                      placeholder="Enter current Password"
+                      className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showOldPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col">
                   <label
@@ -163,20 +183,33 @@ const ProfilePage = () => {
                   >
                     New Password
                   </label>
-                  <input
-                    id="newPassword"
-                    type="password"
-                    value={formData.newPassword}
-                    disabled={isSubmitting}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        newPassword: e.target.value,
-                      });
-                    }}
-                    placeholder="enter new password"
-                    className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      id="newPassword"
+                      type={showNewPassword ? "text" : "password"}
+                      value={formData.newPassword}
+                      disabled={isSubmitting}
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          newPassword: e.target.value,
+                        });
+                      }}
+                      placeholder="enter new password"
+                      className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-col">
                   <label
@@ -185,20 +218,35 @@ const ProfilePage = () => {
                   >
                     Confirmation Password
                   </label>
-                  <input
-                    id="confirmationPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    disabled={isSubmitting}
-                    onChange={(e) => {
-                      setFormData({
-                        ...formData,
-                        confirmPassword: e.target.value,
-                      });
-                    }}
-                    placeholder="Re-enter password"
-                    className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      id="confirmationPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={formData.confirmPassword}
+                      disabled={isSubmitting}
+                      onChange={(e) => {
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value,
+                        });
+                      }}
+                      placeholder="Re-enter password"
+                      className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </>

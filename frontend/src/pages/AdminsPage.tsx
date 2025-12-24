@@ -23,8 +23,12 @@ const AdminsPage = () => {
   const filteredAdmins = useMemo(() => {
     if (!search) return admins;
     const value = search.toLowerCase();
-    return admins.filter((admin) =>
-      admin.firstName.toLowerCase().includes(value)
+    return admins.filter(
+      (admin) =>
+        admin.firstName.toLowerCase().includes(value) ||
+        admin.lastName.toLowerCase().includes(value) ||
+        admin.phoneNo.toLowerCase().includes(value) ||
+        admin.role.toLowerCase().includes(value)
     );
   }, [search, admins]);
 

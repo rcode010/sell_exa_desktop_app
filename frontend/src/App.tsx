@@ -1,6 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
 import { useUserStore } from "./stores/useUserStore.ts";
 import { User } from "./types/user.ts";
@@ -197,7 +197,7 @@ const App = () => {
                   user ? <ProfilePage /> : <Navigate to="/login" replace />
                 }
               />
-              <Route
+              {/* <Route
                 path="/logs"
                 element={
                   user?.role === "superAdmin" ? (
@@ -206,7 +206,7 @@ const App = () => {
                     <Navigate to="/login" replace />
                   )
                 }
-              />
+              /> */}
               <Route
                 path="/admins"
                 element={

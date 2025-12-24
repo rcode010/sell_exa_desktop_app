@@ -45,13 +45,13 @@ const SideBar = () => {
       path: "/products",
       active: location.pathname === "/products",
     },
-    {
-      icon: Logs,
-      label: "Logs",
-      path: "/logs",
-      active: location.pathname === "/logs",
-      superAdminOnly: true,
-    },
+    // {
+    //   icon: Logs,
+    //   label: "Logs",
+    //   path: "/logs",
+    //   active: location.pathname === "/logs",
+    //   superAdminOnly: true,
+    // },
     {
       icon: UserCog,
       label: "Admins",
