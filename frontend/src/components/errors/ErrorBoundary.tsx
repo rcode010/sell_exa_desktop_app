@@ -18,24 +18,29 @@ class ErrorBoundary extends Component<Props, State> {
     this.state = { hasError: false, error: null };
   }
 
+  // Static method to get the derived state from error
   static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
   }
 
+  // Logs error to console or external service
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error(
       "ErrorBoundary caught an error: ",
       error,
-      +"\n" + "Error info: " + errorInfo
+      + "\n" + "Error info: " + errorInfo
     );
   }
 
   render() {
+    // If an error occurred
     if (this.state.hasError) {
+      // If a fallback is provided display it
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
+      // Default error UI
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
@@ -60,6 +65,7 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // If no error occurred, render children components (App.tsx)
     return this.props.children;
   }
 }
