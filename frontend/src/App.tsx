@@ -92,56 +92,6 @@ const App = () => {
                 element={user ? <Navigate to="/" replace /> : <LoginPage />}
               />
 
-            {/* Protected */}
-            <Route
-              path="/"
-              element={user ? <OrdersPage /> : <Navigate to="/login" replace />}
-            />
-            <Route
-              path="/products"
-              element={
-                user ? <ProductsPage /> : <Navigate to="/login" replace />
-              }
-            />
-            <Route
-              path="/sellers"
-              element={
-                user ? <SellersPage /> : <Navigate to="/login" replace />
-              }
-            />
-            <Route
-              path="/companies"
-              element={
-                user ? <CompaniesPage /> : <Navigate to="/login" replace />
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                user ? <ProfilePage /> : <Navigate to="/login" replace />
-              }
-            />
-            <Route
-              path="/logs"
-              element={
-                user?.role === "superAdmin" ? (
-                  <LogsPage />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
-            <Route
-              path="/admins"
-              element={
-                user?.role === "superAdmin" ? (
-                  <AdminsPage />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
-            
               {/* Protected */}
               <Route
                 path="/"
@@ -183,7 +133,68 @@ const App = () => {
                   )
                 }
               />
+              <Route
+                path="/admins"
+                element={
+                  user?.role === "superAdmin" ? (
+                    <AdminsPage />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
 
+              {/* Protected */}
+              <Route
+                path="/"
+                element={
+                  user ? <OrdersPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/products"
+                element={
+                  user ? <ProductsPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/sellers"
+                element={
+                  user ? <SellersPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/companies"
+                element={
+                  user ? <CompaniesPage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  user ? <ProfilePage /> : <Navigate to="/login" replace />
+                }
+              />
+              <Route
+                path="/logs"
+                element={
+                  user?.role === "superAdmin" ? (
+                    <LogsPage />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/admins"
+                element={
+                  user?.role === "superAdmin" ? (
+                    <AdminsPage />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
               {/* Fallback */}
               <Route
                 path="*"
