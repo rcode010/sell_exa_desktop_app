@@ -133,12 +133,6 @@ export const useUserStore = create(
         try {
           set({ loading: true });
 
-          // const accessToken = get().accessToken;
-
-          // if (!accessToken) {
-          //   throw new Error("No access token available!");
-          // }
-
           const res = await axios.get("/api/admin/profile");
 
           const user = res.data.data;
@@ -184,12 +178,6 @@ export const useUserStore = create(
       createAdmin: async (data: newUser) => {
         try {
           set({ loading: true });
-
-          // const accessToken = get().accessToken;
-
-          // if (!accessToken) {
-          //   throw new Error("No access token available!");
-          // }
 
           await axios.post("/api/admin", data);
 

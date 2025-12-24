@@ -1,6 +1,6 @@
 import { Route, Routes, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import LoginPage from "./pages/LoginPage.tsx";
 import { useUserStore } from "./stores/useUserStore.ts";
 import { User } from "./types/user.ts";
@@ -26,16 +26,34 @@ const App = () => {
   const accessToken = useUserStore((state) => state.accessToken);
   const refreshAuth = useUserStore((state) => state.refreshAuth);
   const checkingAuth = useUserStore((state) => state.checkingAuth);
+  const getProfile = useUserStore((state) => state.getProfile);
 
   useEffect(() => {
-    if (checkingAuth) {
-      if (isHydrated && !accessToken) {
-        // Refresh auth if store is hydrated, but no access token found
-        refreshAuth();
+    const initAuth = async () => {
+      if (!isHydrated) return;
+
+      // Check if refresh token exists
+      const refreshToken = await window.secureToken.get();
+
+      if (refreshToken && !accessToken) {
+        // We have refresh token but no access token refresh the access token
+        const success = await refreshAuth();
+
+        if (success) {
+          await getProfile();
+        }
+      } else if (accessToken && !user) {
+        // We have access token but no user profile, fetch the profile
+        await getProfile();
+      } else if (user && !refreshToken && !accessToken) {
+        // No tokens but user exists, logout to clear inconsistent state
+        await useUserStore.getState().logout();
       }
-    }
+    };
+
+    initAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, isHydrated]);
+  }, [isHydrated]);
 
   if (!isHydrated || checkingAuth) {
     // Show loading state while store is hydrating or when access token is being refreshed
