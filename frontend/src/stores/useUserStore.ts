@@ -74,10 +74,12 @@ export const useUserStore = create(
           }
 
           toast.success("Logged out successfully");
+          return true;
         } catch (error) {
           set({ loading: false });
           console.error("Logout error:", error);
           toast.error("Logout failed");
+          return false;
         } finally {
           await window.secureToken.clear();
         }

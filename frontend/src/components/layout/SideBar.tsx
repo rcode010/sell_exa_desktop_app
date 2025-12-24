@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
   const logout = useUserStore((state) => state.logout);
   const user = useUserStore((state) => state.user);
 
@@ -59,6 +60,14 @@ const SideBar = () => {
     }
     return true;
   });
+
+  const handleLogout = async () => {
+    const success = await logout();
+
+    if (success) {
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="h-full bg-white border-r border-gray-200 flex flex-col">
@@ -112,10 +121,7 @@ const SideBar = () => {
 
         <button
           className="w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
-          onClick={() => {
-            logout();
-            navigate("/login");
-          }}
+          onClick={handleLogout}
         >
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Logout</span>
