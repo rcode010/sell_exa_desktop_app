@@ -23,6 +23,7 @@ const EditAdminsModal = ({
   // Handle update
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
+    //validation required
     if (formData.password !== formData.confirmPassword) {
       return toast.error("Passwords do not match");
     }
@@ -212,6 +213,7 @@ const EditAdminsModal = ({
                 Cancel
               </button>
               <button
+              disabled={!showPasswordSection}
                 type="submit"
                 className="px-6 py-3 cursor-pointer bg-black text-white rounded-lg hover:bg-gray-800"
               >

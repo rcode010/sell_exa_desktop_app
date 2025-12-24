@@ -196,18 +196,15 @@ export const useUserStore = create(
           return false;
         }
       },
-      deleteAdmin: async (id:string) => {
+      deleteAdmin: async (id: string) => {
         try {
           set({ loading: true });
 
-          const response = await axios.delete(
-            `/api/admin`,
-            {
-              headers: {
-                "admin-id": id
-              }
-            }
-          );
+          const response = await axios.delete(`/api/admin`, {
+            headers: {
+              "admin-id": id,
+            },
+          });
 
           if (!response.data.success) {
             throw new Error("Delete admin failed");
@@ -221,14 +218,42 @@ export const useUserStore = create(
               refreshError
             );
             // Optimistically update with server response
-            set((state:any) => ({
-              admins: state.admins.map((admin:User) =>
+            set((state: any) => ({
+              admins: state.admins.map((admin: User) =>
                 admin._id === id ? response.data.data : admin
               ),
             }));
           }
 
           toast.success("Admin deleted successfully!");
+          set({ loading: false });
+          return true;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
+
+          console.log("Error: " + err.message);
+          toast.error(err.response?.data?.message || "Something went wrong");
+
+          set({ loading: false });
+          return false;
+        }
+      },
+      updateAdmin: async (data:any, id: string) => {
+        try {
+          set({ loading: true });
+          if (!data.oldPassword||!data.newPassword) {
+            toast.error("all fields are required");
+            set({ loading: false });
+            return false;
+          }
+          const response = await axios.patch(`/api/admin`,data);
+
+          if (!response.data.success) {
+            throw new Error("Update admin failed");
+          }
+
+          
+          
           set({ loading: false });
           return true;
         } catch (error) {
