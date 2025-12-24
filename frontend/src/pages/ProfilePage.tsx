@@ -4,23 +4,23 @@ import { useUserStore } from "../stores/useUserStore";
 import { User } from "../types/user";
 import { Loader } from "lucide-react";
 
-
-
 const ProfilePage = () => {
-  const { loading, user, getProfile } = useUserStore() as {
-    loading: boolean;
-    user: User;
-    getProfile: () => void;
-  };
+  const user: User = useUserStore((state) => state.user);
+  const loading = useUserStore((state) => state.loading);
+  const getProfile = useUserStore((state) => state.getProfile);
   const isSuperAdmin = user.role === "superAdmin";
+
   const [FormData, setFormData] = useState({
     firstName: "",
     lastName: "",
     phoneNo: "",
   });
+
   useEffect(() => {
     getProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -28,6 +28,7 @@ const ProfilePage = () => {
       </div>
     );
   }
+
   // Updating profile
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +65,6 @@ const ProfilePage = () => {
               type="text"
               value={user.firstName + " " + user.lastName}
               readOnly
-              placeholder="Yazen adnnan"
               className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -81,7 +81,6 @@ const ProfilePage = () => {
               type="test"
               value={user.phoneNo}
               readOnly={!isSuperAdmin}
-              placeholder="07xxxxxxxxx"
               className="px-4 py-3 border placeholder:text-gray-400 border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

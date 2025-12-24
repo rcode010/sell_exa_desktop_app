@@ -25,16 +25,20 @@ const App = () => {
   const isHydrated = useUserStore((state) => state.isHydrated);
   const accessToken = useUserStore((state) => state.accessToken);
   const refreshAuth = useUserStore((state) => state.refreshAuth);
+  const checkingAuth = useUserStore((state) => state.checkingAuth);
 
   useEffect(() => {
-    if (isHydrated && user && !accessToken) {
-      // Refresh auth if store is hydrated, user exists, but no access token
-      refreshAuth();
+    if (checkingAuth) {
+      if (isHydrated && !accessToken) {
+        // Refresh auth if store is hydrated, but no access token found
+        refreshAuth();
+      }
     }
-  }, [accessToken, isHydrated, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, isHydrated]);
 
-  if (!isHydrated) {
-    // Show loading state while store is hydrating
+  if (!isHydrated || checkingAuth) {
+    // Show loading state while store is hydrating or when access token is being refreshed
     return (
       <div className="min-h-screen w-full flex justify-center items-center bg-gray-50">
         <Loader />

@@ -14,6 +14,7 @@ export const useUserStore = create(
       accessToken: null,
       isHydrated: false,
       loading: false,
+      checkingAuth: false,
 
       // Actions
       setHydrated: () => set({ isHydrated: true }),
@@ -88,8 +89,12 @@ export const useUserStore = create(
       },
 
       refreshAuth: async () => {
+        set({ checkingAuth: true });
+
         try {
           const refreshToken = await window.secureToken?.get();
+
+          console.log("Refresh token: " + refreshToken);
 
           if (!refreshToken) {
             throw new Error("No refresh token available!");
@@ -110,94 +115,95 @@ export const useUserStore = create(
           // Save the new refresh token in secure storage
           await window.secureToken?.save(newRefreshToken);
 
-          set({ accessToken });
+          set({ accessToken, checkingAuth: false });
 
           return true;
         } catch (error) {
           console.error("Auth refresh failed: ", error);
 
           // Clear everything on refresh failure
-          set({ user: null, accessToken: null });
+          set({ user: null, accessToken: null, checkingAuth: false });
           await window.secureToken?.clear();
 
           return false;
         }
       },
+
       getProfile: async () => {
         try {
           set({ loading: true });
 
-          const accessToken = get().accessToken;
+          // const accessToken = get().accessToken;
 
-          if (!accessToken) {
-            throw new Error("No access token available!");
-          }
+          // if (!accessToken) {
+          //   throw new Error("No access token available!");
+          // }
 
-          const res = await axios.get("/api/admin/profile", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const res = await axios.get("/api/admin/profile");
+
           const user = res.data.data;
+
           set({ user });
           set({ loading: false });
-
           return true;
-        } catch (error) {
-          console.error("get profile failed: ", error);
+        } catch (error: any) {
+          console.error("Getting profile error:", error);
+          set({ loading: false });
+
+          const message =
+            error.response?.data?.message || "Getting profile data failed";
+          toast.error(message);
+
           return false;
         }
       },
+
       getAllAdmins: async () => {
         try {
           set({ loading: true });
 
-          const accessToken = get().accessToken;
+          const res = await axios.get("/api/admin/some");
 
-          if (!accessToken) {
-            throw new Error("No access token available!");
-          }
-
-          const res = await axios.get("/api/admin/some", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
           const admins = res.data.data;
+
           set({ admins });
           set({ loading: false });
-
           return true;
-        } catch (error) {
-          console.error("get profile failed: ", error);
+        } catch (error: any) {
+          console.error("get all admins error:", error);
+          set({ loading: false });
+
+          const message =
+            error.response?.data?.message || "Getting admins failed";
+          toast.error(message);
+
           return false;
         }
       },
+
       createAdmin: async (data: newUser) => {
         try {
           set({ loading: true });
-          console.log(data);
-          const accessToken = get().accessToken;
 
-          if (!accessToken) {
-            throw new Error("No access token available!");
-          }
+          // const accessToken = get().accessToken;
 
-          const res = await axios.post("/api/admin", data, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
-          console.log(res.data);
-          
+          // if (!accessToken) {
+          //   throw new Error("No access token available!");
+          // }
+
+          await axios.post("/api/admin", data);
+
           set({ loading: false });
           toast.success("Admin added successfully");
           return true;
         } catch (error: any) {
+          console.error("Creating admin error:", error);
           set({ loading: false });
 
-          toast.error(`Admin creation failed: ${error.message}`);
-          console.log("get profile failed: ", error);
+          const message =
+            error.response?.data?.message || "Creating admin failed";
+          toast.error(message);
+
           return false;
         }
       },
