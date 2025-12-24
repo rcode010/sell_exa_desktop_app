@@ -141,6 +141,7 @@ const App = () => {
                 )
               }
             />
+            
               {/* Protected */}
               <Route
                 path="/"
