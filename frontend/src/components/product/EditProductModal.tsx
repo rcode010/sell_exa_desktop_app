@@ -34,7 +34,7 @@ const EditProductModal = ({
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete ${product.name}?`)) {
-      console.log("Deleting product:", product.id);
+      console.log("Deleting product:", product._id);
 
       // DELETE REQUEST TO DELETE PRODUCT
 

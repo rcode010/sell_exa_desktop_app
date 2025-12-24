@@ -290,15 +290,15 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
               <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
                 {filteredProducts.map((product) => (
                   <label
-                    key={product.id}
+                    key={product._id}
                     className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                   >
                     <input
                       type="checkbox"
                       checked={formData.products?.includes(
-                        product.id.toString()
+                        product._id.toString()
                       )}
-                      onChange={() => toggleProduct(product.id.toString())}
+                      onChange={() => toggleProduct(product._id.toString())}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
                     />
                     <span className="text-sm text-gray-900">
