@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { X, Trash2, Loader, Key } from "lucide-react";
 import { User } from "../../types/user";
+import { useUserStore } from "../../stores/useUserStore";
+import toast from "react-hot-toast";
 
 const EditAdminsModal = ({
   admin,
@@ -14,15 +16,17 @@ const EditAdminsModal = ({
     confirmPassword: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const [isDeleting, setisDeleting] = useState(false);
 
+  const [showPasswordSection, setShowPasswordSection] = useState(false);
+  const { deleteAdmin } = useUserStore();
   // Handle update
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData.password)
-    console.log("handle update");
-
-    // const success = await updateCompany(formDataToSend, company._id as number);
+    if (formData.password !== formData.confirmPassword) {
+      return toast.error("Passwords do not match");
+    }
+    // const success = await updateAdmin(formData.password, admin._id);
 
     // if (success) {
     //   onClose();
@@ -30,17 +34,18 @@ const EditAdminsModal = ({
   };
 
   // Handle delete
-  const handleDelete = async (e: React.FormEvent) => {
+  const handleDelete = async () => {
+    if (
+      globalThis.confirm(`Are you sure you want to delete ${admin.lastName}?`)
+    ) {
+      setisDeleting(true);
+      const success = await deleteAdmin(admin._id);
+      setisDeleting(false);
 
-    console.log("handle delete");
-    // if (
-    //   globalThis.confirm(`Are you sure you want to delete ${company.name}?`)
-    // ) {
-    //   const success = await deleteCompany(company._id as number);
-    //   if (success) {
-    //     onClose();
-    //   }
-    // }
+      if (success) {
+        onClose();
+      }
+    }
   };
 
   return (
@@ -112,8 +117,8 @@ const EditAdminsModal = ({
               ></input>
             </div>
             <button
-            type="button"
-              onClick={() => setShowPasswordSection((p)=>!p)}
+              type="button"
+              onClick={() => setShowPasswordSection((p) => !p)}
               className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             >
               <Key className="w-4 h-4" />
@@ -186,7 +191,7 @@ const EditAdminsModal = ({
                       onClick={handleDelete}
                       className="cursor-pointer mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                     >
-                      {isSubmitting ? (
+                      {isDeleting ? (
                         <Loader className="animate-spin" />
                       ) : (
                         "Delete Admin"

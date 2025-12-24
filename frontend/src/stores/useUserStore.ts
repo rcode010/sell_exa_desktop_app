@@ -4,7 +4,8 @@ import { persist } from "zustand/middleware";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
 import { newUser } from "../types/user";
-
+import { User } from "../types/user";
+import { AxiosError } from "axios";
 export const useUserStore = create(
   persist(
     (set, get) => ({
@@ -192,6 +193,51 @@ export const useUserStore = create(
             error.response?.data?.message || "Creating admin failed";
           toast.error(message);
 
+          return false;
+        }
+      },
+      deleteAdmin: async (id:string) => {
+        try {
+          set({ loading: true });
+
+          const response = await axios.delete(
+            `/api/admin`,
+            {
+              headers: {
+                "admin-id": id
+              }
+            }
+          );
+
+          if (!response.data.success) {
+            throw new Error("Delete admin failed");
+          }
+
+          try {
+            await get().getAllAdmins();
+          } catch (refreshError) {
+            console.error(
+              "Failed to refresh, using server response:",
+              refreshError
+            );
+            // Optimistically update with server response
+            set((state:any) => ({
+              admins: state.admins.map((admin:User) =>
+                admin._id === id ? response.data.data : admin
+              ),
+            }));
+          }
+
+          toast.success("Admin deleted successfully!");
+          set({ loading: false });
+          return true;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
+
+          console.log("Error: " + err.message);
+          toast.error(err.response?.data?.message || "Something went wrong");
+
+          set({ loading: false });
           return false;
         }
       },
