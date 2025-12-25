@@ -31,7 +31,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "test:unit": "vitest run --dir src/test/unit",
+    "test:integration": "vitest run --dir src/test/integration",
+    "test:components": "vitest run --dir src/test/components",
+    "test:pages": "vitest run --dir src/test/pages"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
