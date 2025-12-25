@@ -14,7 +14,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     try {
       const response = await axiosInstance.get("/api/product/");
 
-      set({ products: response.data, loading: false });
+      set({ products: response.data.data, loading: false });
     } catch (error) {
       const err = error as AxiosError<{ message?: string }>;
 

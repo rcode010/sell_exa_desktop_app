@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { newUser } from "../types/user";
 import { User } from "../types/user";
 import { AxiosError } from "axios";
+
 export const useUserStore = create(
   persist(
     (set, get) => ({
@@ -94,8 +95,6 @@ export const useUserStore = create(
 
         try {
           const refreshToken = await window.secureToken?.get();
-
-          console.log("Refresh token: " + refreshToken);
 
           if (!refreshToken) {
             throw new Error("No refresh token available!");
@@ -196,6 +195,7 @@ export const useUserStore = create(
           return false;
         }
       },
+
       deleteAdmin: async (id: string) => {
         try {
           set({ loading: true });
@@ -238,22 +238,23 @@ export const useUserStore = create(
           return false;
         }
       },
-      updateAdmin: async (data:any, id: string) => {
+
+      updateAdmin: async (data: any, id: string) => {
         try {
           set({ loading: true });
-          if (!data.oldPassword||!data.newPassword) {
+
+          if (!data.oldPassword || !data.newPassword) {
             toast.error("all fields are required");
             set({ loading: false });
             return false;
           }
-          const response = await axios.patch(`/api/admin`,data);
+
+          const response = await axios.patch(`/api/admin`, data);
 
           if (!response.data.success) {
             throw new Error("Update admin failed");
           }
 
-          
-          
           set({ loading: false });
           return true;
         } catch (error) {

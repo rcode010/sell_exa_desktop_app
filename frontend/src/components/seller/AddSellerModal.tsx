@@ -22,13 +22,17 @@ interface Position {
 
 function LocationMarker({
   setFormData,
+  disabled,
 }: {
   setFormData: React.Dispatch<React.SetStateAction<Partial<Seller>>>;
+  disabled: boolean;
 }) {
   const [position, setPosition] = useState<Position | null>(null);
 
   useMapEvents({
     click(e: LeafletMouseEvent) {
+      if (disabled) return;
+
       const { lat, lng } = e.latlng;
       setPosition({ lat, lng });
 
@@ -56,6 +60,7 @@ function LocationMarker({
 
 const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const createSeller = useSellerStore((state) => state.createSeller);
+  const loading = useSellerStore((state) => state.loading);
 
   const getProducts = useProductStore((state) => state.getProducts);
   const products = useProductStore((state) => state.products);
@@ -79,8 +84,8 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
 
     const value = searchProduct.toLowerCase();
     return (
-      product.name.toLowerCase().includes(value) ||
-      product.category.toLowerCase().includes(value)
+      product.name?.toLowerCase().includes(value) ||
+      product.category?.toLowerCase().includes(value)
     );
   });
 
@@ -89,7 +94,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
       ...prev,
       products: prev.products?.includes(productId)
         ? prev.products.filter((id: string) => productId !== id)
-        : [...prev.products!, productId],
+        : [...(prev.products || []), productId],
     }));
   };
 
@@ -137,6 +142,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
             </p>
           </div>
           <button
+            disabled={loading}
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
@@ -157,6 +163,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
+                    disabled={loading}
                     type="text"
                     value={formData.storeName}
                     onChange={(e) =>
@@ -177,6 +184,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
+                    disabled={loading}
                     type="tel"
                     value={formData.phoneNo}
                     onChange={(e) =>
@@ -203,6 +211,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                   Location Name *
                 </label>
                 <input
+                  disabled={loading}
                   type="text"
                   value={formData.location?.locationName}
                   onChange={(e) =>
@@ -226,58 +235,79 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Click on map to set location *
                 </label>
-                <div
-                  className="w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg cursor-crosshair hover:border-blue-400 transition-colors relative overflow-hidden"
-                  style={{
-                    backgroundImage:
-                      "url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E\")",
-                  }}
-                >
-                  {
+                {/* Add loading overlay */}
+                <div className="relative">
+                  <div
+                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${
+                      loading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-crosshair hover:border-blue-400"
+                    }`}
+                  >
                     <MapContainer
                       center={[35.5558, 45.4333]}
                       zoom={13}
                       style={{ height: "100%", width: "100%" }}
+                      dragging={!loading}
+                      touchZoom={!loading}
+                      doubleClickZoom={!loading}
+                      scrollWheelZoom={!loading}
+                      boxZoom={!loading}
+                      keyboard={!loading}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                       />
-                      <LocationMarker setFormData={setFormData} />
+                      <LocationMarker
+                        setFormData={setFormData}
+                        disabled={loading}
+                      />
                     </MapContainer>
-                  }
+                  </div>
+
+                  {/* Loading overlay */}
+                  {loading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
+                      <span className="text-white font-medium">
+                        Map disabled during submission...
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Coordinates Display */}
-              {
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-600 mb-1">Latitude</p>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {formData.location?.latitude}
-                    </p>
-                  </div>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-xs text-gray-600 mb-1">Longitude</p>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {formData.location?.longitude}
-                    </p>
-                  </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Latitude</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {formData.location?.latitude}
+                  </p>
                 </div>
-              }
+                <div className="bg-blue-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Longitude</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {formData.location?.longitude}
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Products Section */}
             <div className="border-t border-gray-200 pt-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <Package className="w-5 h-5" />
+                <span>
+                  Products ({formData.products?.length || 0} selected)
+                </span>
               </h3>
 
               {/* Product Search */}
               <div className="relative mb-4">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
+                  disabled={loading}
                   type="text"
                   value={searchProduct}
                   onChange={(e) => setSearchProduct(e.target.value)}
@@ -288,28 +318,34 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
 
               {/* Products List */}
               <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
-                {filteredProducts.map((product) => (
-                  <label
-                    key={product._id}
-                    className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.products?.includes(
-                        product._id.toString()
-                      )}
-                      onChange={() => toggleProduct(product._id.toString())}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                    />
-                    <span className="text-sm text-gray-900">
-                      {product.name}
-                    </span>
-                  </label>
-                ))}
-                {filteredProducts.length === 0 && (
+                {products.length === 0 ? (
                   <div className="p-8 text-center text-gray-500">
-                    No products found
+                    No products available
                   </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    No products found matching "{searchProduct}"
+                  </div>
+                ) : (
+                  filteredProducts.map((product) => (
+                    <label
+                      key={product._id}
+                      className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                    >
+                      <input
+                        disabled={loading}
+                        type="checkbox"
+                        checked={formData.products?.includes(
+                          product._id.toString()
+                        )}
+                        onChange={() => toggleProduct(product._id.toString())}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
+                      />
+                      <span className="text-sm text-gray-900">
+                        {product.name}
+                      </span>
+                    </label>
+                  ))
                 )}
               </div>
             </div>
@@ -319,12 +355,14 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
         {/* Modal Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
+            disabled={loading}
             onClick={onClose}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
           >
             Cancel
           </button>
           <button
+            disabled={loading}
             onClick={handleSubmit}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
