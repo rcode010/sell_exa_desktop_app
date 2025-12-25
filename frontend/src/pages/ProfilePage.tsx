@@ -12,7 +12,6 @@ const ProfilePage = () => {
 
   const { updateAdmin } = useUserStore();
 
-  const isSuperAdmin = user.role === "superAdmin";
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
@@ -83,9 +82,8 @@ const ProfilePage = () => {
     <div className="flex flex-col py-8 px-4">
       <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
       <p className="text-gray-500 mt-2 mb-8">
-        {isSuperAdmin
-          ? "Manage your account settings and preferences"
-          : "Your personal information"}
+          Manage your account settings and preferences
+          
       </p>
 
       <div className="border border-gray-200 rounded-lg p-8 bg-white w-[40%]">
@@ -128,7 +126,6 @@ const ProfilePage = () => {
               className="px-4 py-3 border placeholder:text-gray-400 border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          {isSuperAdmin && (
             <button
               type="button"
               onClick={() => setShowPasswordSection((p) => !p)}
@@ -137,8 +134,7 @@ const ProfilePage = () => {
               <Key className="w-4 h-4" />
               Change Password
             </button>
-          )}
-          {showPasswordSection && isSuperAdmin && (
+          {showPasswordSection && (
             <>
               <div className="bg-blue-100 rounded-lg  w-full max-w-2xl max-h-[90vh] p-7 overflow-hidden flex flex-col space-y-6">
                 <div className="flex flex-col">
@@ -251,7 +247,6 @@ const ProfilePage = () => {
               </div>
             </>
           )}
-          {isSuperAdmin && (
             <button
               type="submit"
               disabled={!showPasswordSection}
@@ -263,7 +258,6 @@ const ProfilePage = () => {
                 "Update Profile"
               )}
             </button>
-          )}
         </form>
       </div>
     </div>

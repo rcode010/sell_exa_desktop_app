@@ -62,6 +62,7 @@ const EditCompanyModal = ({
     if (formData.logoFile) {
       formDataToSend.append("logo", formData.logoFile);
     }
+    console.log(formData, company._id)
     const success = await updateCompany(formDataToSend, company._id);
 
     if (success) {

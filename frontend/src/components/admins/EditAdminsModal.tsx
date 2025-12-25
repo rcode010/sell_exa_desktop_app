@@ -117,14 +117,14 @@ const EditAdminsModal = ({
                 className="w-full pl-5 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               ></input>
             </div>
-            <button
+            {/* <button
               type="button"
               onClick={() => setShowPasswordSection((p) => !p)}
               className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             >
               <Key className="w-4 h-4" />
               Change Password
-            </button>
+            </button> */}
             {showPasswordSection && (
               <>
                 <div className="bg-blue-100 rounded-lg  w-full max-w-2xl max-h-[90vh] p-7 overflow-hidden flex flex-col space-y-6">
@@ -204,7 +204,7 @@ const EditAdminsModal = ({
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 pt-6 border-t">
+            {/* <div className="flex justify-end gap-3 pt-6 border-t">
               <button
                 type="button"
                 onClick={onClose}
@@ -223,7 +223,7 @@ const EditAdminsModal = ({
                   "Save changes"
                 )}
               </button>
-            </div>
+            </div> */}
           </form>
         </div>
       </div>

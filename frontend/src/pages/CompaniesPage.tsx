@@ -51,7 +51,6 @@ const CompaniesPage = () => {
       </div>
     );
   }
-
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Page Header */}

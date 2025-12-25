@@ -9,6 +9,7 @@ const CompanyInstance = ({
   company: Company;
   onViewDetails: () => void;
 }) => {
+  
   return (
     <tr key={company._id} className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Building2, Upload, Image as ImageIcon } from "lucide-react";
+import { X, Building2, Upload, Image as ImageIcon, Loader } from "lucide-react";
 import { useCompanyStore } from "../../stores/useCompanyStore.js";
 import toast from "react-hot-toast";
 
@@ -11,6 +11,8 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     name: "",
     image: null as File | null,
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -40,11 +42,11 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
     if (formData.image) {
       formDataToSend.append("logo", formData.image);
     }
-
+    setIsSubmitting(true);
     const success = await createCompany(formDataToSend);
+    setIsSubmitting(false);
 
     if (success) {
-      
       onClose();
     }
   };
@@ -80,6 +82,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
               <div className="relative">
                 <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
+                  disabled={isSubmitting}
                   type="text"
                   value={formData.name}
                   onChange={(e) =>
@@ -102,6 +105,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
               <div className="relative">
                 <input
                   type="file"
+                  disabled={isSubmitting}
                   id="company-image"
                   accept="image/*"
                   onChange={handleImageChange}
@@ -163,20 +167,25 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
             </div>
           </div>
         </div>
-
         {/* Modal Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
+            disabled={isSubmitting}
             onClick={onClose}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
           >
             Cancel
           </button>
           <button
+            disabled={isSubmitting}
             onClick={handleSubmit}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
-            Add Company
+            {isSubmitting ? (
+              <Loader className="animate-spin" />
+            ) : (
+              "Add Company"
+            )}
           </button>
         </div>
       </div>
