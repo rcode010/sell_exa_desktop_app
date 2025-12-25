@@ -16,7 +16,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     set({ loading: true });
 
     try {
-      const response = await axios.get(`/api/companies/${companyId}/models`);
+      const response = await axios.get(`/api/model/${companyId}/models`);
       const models = response.data.data;
 
       set({ models, modelsCount: models.length, loading: false });
@@ -35,7 +35,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
   createModel: async (companyId: string, modelName: string) => {
     set({ loading: true });
     try {
-      const response = await axios.post(`/api/companies/${companyId}/models`, {
+      const response = await axios.post(`/api/model/${companyId}/models`, {
         modelName: modelName.trim(),
       });
 
@@ -60,7 +60,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     set({ loading: true });
     try {
       const response = await axios.patch(
-        `/api/companies/${companyId}/models/${modelId}`,
+        `/api/model/${companyId}/models/${modelId}`,
         {
           newName: newName.trim(),
         }
@@ -87,7 +87,7 @@ export const useModelStore = create<ModelStore>((set, get) => ({
     set({ loading: true });
     try {
       const response = await axios.delete(
-        `/api/companies/${companyId}/models/${modelId}`
+        `/api/model/${companyId}/models/${modelId}`
       );
 
       toast.success(response.data.message || "Model deleted successfully");

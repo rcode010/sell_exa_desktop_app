@@ -172,7 +172,7 @@ const EditCompanyModal = ({
           <button
             disabled={companyLoading}
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -182,7 +182,7 @@ const EditCompanyModal = ({
         <div className="flex border-b border-gray-200 bg-gray-50">
           <button
             onClick={() => setIsCompanyDetailsVisible(true)}
-            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${
               isCompanyDetailsVisible
                 ? "text-blue-600 border-b-2 border-blue-600 bg-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -192,7 +192,7 @@ const EditCompanyModal = ({
           </button>
           <button
             onClick={() => setIsCompanyDetailsVisible(false)}
-            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${
               !isCompanyDetailsVisible
                 ? "text-blue-600 border-b-2 border-blue-600 bg-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -382,7 +382,7 @@ const EditCompanyModal = ({
                 <button
                   onClick={handleAddModel}
                   disabled={modelsLoading || !newModelName.trim()}
-                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2"
+                  className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2 cursor-pointer"
                 >
                   {modelsLoading ? (
                     <Loader className="w-4 h-4 animate-spin" />
@@ -439,7 +439,7 @@ const EditCompanyModal = ({
                           <button
                             onClick={() => handleEditModel(model._id)}
                             disabled={modelsLoading}
-                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all text-sm font-medium disabled:opacity-50"
+                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all text-sm font-medium disabled:opacity-50 cursor-pointer"
                           >
                             {modelsLoading ? (
                               <Loader className="w-4 h-4 animate-spin" />
@@ -453,7 +453,7 @@ const EditCompanyModal = ({
                               setEditingModelName("");
                             }}
                             disabled={modelsLoading}
-                            className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all text-sm font-medium disabled:opacity-50"
+                            className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all text-sm font-medium disabled:opacity-50 cursor-pointer"
                           >
                             Cancel
                           </button>
@@ -470,7 +470,7 @@ const EditCompanyModal = ({
                                 setEditingModelName(model.name);
                               }}
                               disabled={modelsLoading}
-                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                               title="Edit model"
                             >
                               <Edit2 className="w-4 h-4" />
@@ -480,7 +480,7 @@ const EditCompanyModal = ({
                                 handleDeleteModel(model._id, model.name)
                               }
                               disabled={modelsLoading}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                               title="Delete model"
                             >
                               <Trash2 className="w-4 h-4" />
