@@ -9,7 +9,6 @@ const CompanyInstance = ({
   company: Company;
   onViewDetails: () => void;
 }) => {
-  
   return (
     <tr key={company._id} className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
@@ -36,9 +35,6 @@ const CompanyInstance = ({
             {company.models?.length}
           </span>
         </div>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className="text-sm text-gray-900">{company.products}</span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <button

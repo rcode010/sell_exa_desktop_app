@@ -65,6 +65,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
           </div>
           <button
             onClick={onClose}
+            disabled={isSubmitting}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-6 h-6 text-gray-500" />
@@ -150,6 +151,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
                     </div>
                   </div>
                   <button
+                    disabled={isSubmitting}
                     onClick={() => {
                       setFormData({ ...formData, image: null });
                       setImagePreview(null);
@@ -181,11 +183,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
             onClick={handleSubmit}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
           >
-            {isSubmitting ? (
-              <Loader className="animate-spin" />
-            ) : (
-              "Add Company"
-            )}
+            {isSubmitting ? <Loader className="animate-spin" /> : "Add Company"}
           </button>
         </div>
       </div>

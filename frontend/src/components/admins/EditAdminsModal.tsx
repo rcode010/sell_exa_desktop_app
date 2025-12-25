@@ -62,6 +62,7 @@ const EditAdminsModal = ({
           </div>
           <button
             onClick={onClose}
+            disabled={isDeleting}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
             <X className="w-6 h-6 text-gray-500" />

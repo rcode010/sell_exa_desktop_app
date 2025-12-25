@@ -62,7 +62,7 @@ const EditCompanyModal = ({
     if (formData.logoFile) {
       formDataToSend.append("logo", formData.logoFile);
     }
-    console.log(formData, company._id)
+    console.log(formData, company._id);
     const success = await updateCompany(formDataToSend, company._id);
 
     if (success) {
@@ -95,6 +95,7 @@ const EditCompanyModal = ({
             </p>
           </div>
           <button
+            disabled={loading}
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg"
           >
@@ -186,6 +187,7 @@ const EditCompanyModal = ({
 
               {imagePreview && (
                 <button
+                  disabled={loading}
                   type="button"
                   onClick={() => {
                     setFormData({ ...formData, logoFile: null });

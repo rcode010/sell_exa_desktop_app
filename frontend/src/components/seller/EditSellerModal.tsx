@@ -57,6 +57,7 @@ const EditSellerModal = ({
             </p>
           </div>
           <button
+            disabled={loading}
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           >
