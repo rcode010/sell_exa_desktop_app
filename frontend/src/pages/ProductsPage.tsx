@@ -31,8 +31,8 @@ const ProductsPage = () => {
     const value = search.toLowerCase();
     return products.filter((product) => {
       return (
-        product.name.toLowerCase().includes(value) ||
-        product.category.toLowerCase().includes(value)
+        product.name.english.toLowerCase().includes(value) ||
+        product.quality.toLowerCase().includes(value)
       );
     });
   }, [products, search]);
@@ -127,7 +127,7 @@ const ProductsPage = () => {
                     Product Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
+                    Quality
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Price
@@ -146,12 +146,12 @@ const ProductsPage = () => {
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900">
-                        {product.name}
+                        {product.name.english}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900">
-                        {product.category}
+                        {product.quality}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

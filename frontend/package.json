@@ -32,11 +32,11 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
-    "test:unit": "vitest run --dir src/test/unit",
-    "test:integration": "vitest run --dir src/test/integration",
-    "test:components": "vitest run --dir src/test/components",
-    "test:pages": "vitest run --dir src/test/pages"
+    "test:coverage": "vitest --ui --coverage",
+    "test:unit": "vitest --ui run --dir src/test/unit",
+    "test:integration": "vitest --ui run --dir src/test/integration",
+    "test:components": "vitest --ui run --dir src/test/components",
+    "test:pages": "vitest --ui run --dir src/test/pages"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
@@ -65,6 +65,7 @@
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^4.0.15",
     "@vitest/ui": "^4.0.15",
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",

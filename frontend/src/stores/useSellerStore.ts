@@ -14,12 +14,9 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
       set({ loading: true });
 
       // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
-      const response = await axiosInstance.get("/api/seller/some", {
-        headers: {
-          limit: PAGINATION.DEFAULT_LIMIT,
-          page: PAGINATION.DEFAULT_PAGE,
-        },
-      });
+      const response = await axiosInstance.get(
+        `/api/seller/some?limit=${PAGINATION.DEFAULT_LIMIT}&page=${PAGINATION.DEFAULT_PAGE}`
+      );
 
       if (response.status !== 200) {
         throw new Error("Failed to fetch sellers");

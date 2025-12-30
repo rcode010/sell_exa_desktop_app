@@ -28,7 +28,7 @@ class ErrorBoundary extends Component<Props, State> {
     console.error(
       "ErrorBoundary caught an error: ",
       error,
-      + "\n" + "Error info: " + errorInfo
+      +"\n" + "Error info: " + errorInfo
     );
   }
 

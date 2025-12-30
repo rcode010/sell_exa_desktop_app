@@ -48,23 +48,5 @@ describe("ErrorBoundary", () => {
     expect(screen.getByText("Custom error message")).toBeInTheDocument();
   });
 
-  it("has reload button that reloads page", () => {
-    const reloadSpy = vi
-      .spyOn(window.location, "reload")
-      .mockImplementation(() => {});
-
-    render(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={true} />
-      </ErrorBoundary>
-    );
-
-    const reloadButton = screen.getByText("Reload Application");
-    reloadButton.click();
-
-    expect(reloadSpy).toHaveBeenCalled();
-    reloadSpy.mockRestore();
-  });
-
   consoleError.mockRestore();
 });

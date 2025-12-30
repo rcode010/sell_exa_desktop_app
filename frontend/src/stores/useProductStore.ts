@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Product, ProductStore } from "../types/product";
+import { Product, ProductStore, CreateProductParams } from "../types/product";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
@@ -12,7 +12,11 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     set({ loading: true });
 
     try {
-      const response = await axiosInstance.get("/api/product/");
+      const response = await axiosInstance.get("/api/product/some");
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch products");
+      }
 
       set({ products: response.data.data, loading: false });
     } catch (error) {
@@ -25,10 +29,19 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     }
   },
 
-  createProduct: async (product: Partial<Product>) => {
+  createProduct: async (params: CreateProductParams) => {
     set({ loading: true });
     try {
-      const response = await axiosInstance.post("/api/product/", product);
+      const { formData, sellerId, companyId, modelId } = params;
+
+      // Send as query parameters as the backend expects
+      const url = `/api/product/?sellerId=${sellerId}&companyId=${companyId}&modelId=${modelId}`;
+
+      const response = await axiosInstance.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status !== 201) {
         throw new Error("Failed to create product");
@@ -42,13 +55,11 @@ export const useProductStore = create<ProductStore>((set, get) => ({
           refreshError
         );
         // Optimistically update with server response
-        set((state) => ({
-          products: state.products.map((product) =>
-            product._id === response.data.data._id
-              ? response.data.data
-              : product
-          ),
-        }));
+        if (response.data.data) {
+          set((state) => ({
+            products: [...state.products, response.data.data],
+          }));
+        }
       }
 
       set({ loading: false });
@@ -122,9 +133,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
         // Optimistically update with server response
         set((state) => ({
-          products: state.products.map((product) =>
-            product._id === id ? response.data.data : product
-          ),
+          products: state.products.filter((product) => product._id !== id),
         }));
       }
 

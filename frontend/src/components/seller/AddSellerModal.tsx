@@ -84,7 +84,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
 
     const value = searchProduct.toLowerCase();
     return (
-      product.name?.toLowerCase().includes(value) ||
+      product.name?.english.toLowerCase().includes(value) ||
       product.category?.toLowerCase().includes(value)
     );
   });
@@ -342,7 +342,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                         className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
                       />
                       <span className="text-sm text-gray-900">
-                        {product.name}
+                        {product.name.english}
                       </span>
                     </label>
                   ))

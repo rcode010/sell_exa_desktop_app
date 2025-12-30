@@ -9,19 +9,40 @@ type ProductCategory =
   | "Accessories"
   | "Others";
 
-type ProductQuality = "New" | "Used" | "Refurbished";
+type ProductQuality = "Very good" | "Good" | "Basic";
 
 export interface Product {
   _id: string;
-  name: string;
-  description?: string;
-  companyId: number;
+  name: {
+    english: string;
+    kurdish: string;
+    arabic: string;
+  };
+  description: {
+    english: string;
+    kurdish: string;
+    arabic: string;
+  };
+  companyId: string;
   sellerId: string;
-  model: string;
-  images: string[];
+  modelId: string;
+  images: {
+    imageLink: string;
+    imageId: string;
+  }[];
   price: number;
-  category: ProductCategory;
+  category?: ProductCategory;
   quality: ProductQuality;
+  city: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateProductParams {
+  formData: FormData;
+  sellerId: string;
+  companyId: string;
+  modelId: string;
 }
 
 export interface ProductStore {
@@ -29,7 +50,7 @@ export interface ProductStore {
   products: Product[];
 
   getProducts: () => Promise<void>;
-  createProduct: (product: Partial<Product>) => Promise<boolean>;
+  createProduct: (params: CreateProductParams) => Promise<boolean>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;
 }
