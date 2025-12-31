@@ -129,6 +129,28 @@ export const useUserStore = create(
         }
       },
 
+      initAuth: async () => {
+        if (!get().isHydrated) return;
+
+        // Check if refresh token exists
+        const refreshToken = await window.secureToken.get();
+
+        if (refreshToken && !get().accessToken) {
+          // We have refresh token but no access token refresh the access token
+          const success = await get().refreshAuth();
+
+          if (success) {
+            await get().getProfile();
+          }
+        } else if (get().accessToken && !get().user) {
+          // We have access token but no user profile, fetch the profile
+          await get().getProfile();
+        } else if (get().user && !refreshToken && !get().accessToken) {
+          // No tokens but user exists, logout to clear inconsistent state
+          await useUserStore.getState().logout();
+        }
+      },
+
       getProfile: async () => {
         try {
           set({ loading: true });
@@ -239,7 +261,7 @@ export const useUserStore = create(
         }
       },
 
-      updateAdmin: async (data: any, id: string) => {
+      updateAdmin: async (data: any) => {
         try {
           set({ loading: true });
 

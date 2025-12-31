@@ -1,59 +1,34 @@
-import { Route, Routes, Navigate } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { lazy, Suspense, useEffect } from "react";
-import LoginPage from "./pages/LoginPage.tsx";
+import { Route, Routes, Navigate, Outlet } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore.ts";
 import { User } from "./types/user.ts";
 
-import SidebarLoader from "./components/ui/SidebarLoader.tsx";
-import LogsPage from "./pages/LogsPage.tsx";
 import Loader from "./components/ui/Loader.tsx";
-import AdminsPage from "./pages/AdminsPage.tsx";
 import ErrorBoundary from "./components/errors/ErrorBoundary.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
+import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
+import MainLayout from "./components/layout/MainLayout.tsx";
 
-// Lazy-loaded components
-const SideBar = lazy(() => import("./components/layout/SideBar.tsx"));
+// Laze loaded imports
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage.tsx"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
 const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
+const AdminsPage = lazy(() => import("./pages/AdminsPage.tsx"));
 
 const App = () => {
   // Get states and actions from user store | the individual selectors help in preventing unnecessary re-renders
   const user: User = useUserStore((state) => state.user);
   const isHydrated = useUserStore((state) => state.isHydrated);
-  const accessToken = useUserStore((state) => state.accessToken);
-  const refreshAuth = useUserStore((state) => state.refreshAuth);
   const checkingAuth = useUserStore((state) => state.checkingAuth);
-  const getProfile = useUserStore((state) => state.getProfile);
+  const initAuth = useUserStore((state) => state.initAuth);
 
   useEffect(() => {
-    const initAuth = async () => {
-      if (!isHydrated) return;
-
-      // Check if refresh token exists
-      const refreshToken = await window.secureToken.get();
-
-      if (refreshToken && !accessToken) {
-        // We have refresh token but no access token refresh the access token
-        const success = await refreshAuth();
-
-        if (success) {
-          await getProfile();
-        }
-      } else if (accessToken && !user) {
-        // We have access token but no user profile, fetch the profile
-        await getProfile();
-      } else if (user && !refreshToken && !accessToken) {
-        // No tokens but user exists, logout to clear inconsistent state
-        await useUserStore.getState().logout();
-      }
-    };
-
+    // Function to initialize authentication state at app startup
     initAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated]);
+  }, [initAuth]);
 
   if (!isHydrated || checkingAuth) {
     // Show loading state while store is hydrating or when access token is being refreshed
@@ -66,166 +41,75 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen w-full flex bg-gray-50">
-        {/* Toaster Notifications */}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-            style: {
-              background: "#1F2937",
-              color: "#fff",
+      {/* Toaster Notifications */}
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#1F2937",
+            color: "#fff",
+          },
+          success: {
+            iconTheme: {
+              primary: "#10B981",
+              secondary: "#fff",
             },
-            success: {
-              iconTheme: {
-                primary: "#10B981",
-                secondary: "#fff",
-              },
+          },
+          error: {
+            iconTheme: {
+              primary: "#EF4444",
+              secondary: "#fff",
             },
-            error: {
-              iconTheme: {
-                primary: "#EF4444",
-                secondary: "#fff",
-              },
-            },
-          }}
-        />
+          },
+        }}
+      />
 
-        {/* Sidebar */}
-        {user && (
-          <div className="fixed left-0 top-0 h-full z-20">
-            <Suspense fallback={<SidebarLoader />}>
-              <SideBar />
-            </Suspense>
-          </div>
-        )}
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/" replace /> : <LoginPage />}
+          />
 
-        {/* Main content */}
-        <div
-          className={`flex-1 min-h-screen transition-all duration-300 ${
-            user ? "ml-80" : "ml-0"
-          }`}
-        >
-          <Suspense fallback={<Loader />}>
-            <Routes>
-              {/* Public */}
-              <Route
-                path="/login"
-                element={user ? <Navigate to="/" replace /> : <LoginPage />}
-              />
+          {/* 1. OUTER SHELL: The Authentication Checkpoint */}
+          <Route element={<ProtectedRoute />}>
+            {/* 2. INNER SHELL: The UI Layout 
+                This route doesn't add to the URL path (no path="..."). 
+                It just wraps everything inside it with the Sidebar. 
+            */}
+            <Route
+              element={
+                <MainLayout>
+                  <Outlet />
+                </MainLayout>
+              }
+            >
+              {/* 3. THE CONTENT: These render INSIDE MainLayout's <Outlet /> */}
+              <Route path="/" element={<OrdersPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/sellers" element={<SellersPage />} />
+              <Route path="/companies" element={<CompaniesPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
 
-              {/* Protected */}
-              <Route
-                path="/"
-                element={
-                  user ? <OrdersPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/products"
-                element={
-                  user ? <ProductsPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/sellers"
-                element={
-                  user ? <SellersPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/companies"
-                element={
-                  user ? <CompaniesPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  user ? <ProfilePage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/logs"
-                element={
-                  user?.role === "superAdmin" ? (
-                    <LogsPage />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              <Route
-                path="/admins"
-                element={
-                  user?.role === "superAdmin" ? (
-                    <AdminsPage />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
+              {/* Role Based Route */}
+              {/* 4. SPECIAL CASE: A Route inside a Route inside a Route! 
+                  This is a "Double Protected" route. 
+                  First passed Auth (Layer 1), then got Layout (Layer 2), now checks Role (Layer 4).
+              */}
+              <Route element={<ProtectedRoute allowedRoles={["superAdmin"]} />}>
+                <Route path="/admins" element={<AdminsPage />} />
+              </Route>
+            </Route>
+          </Route>
 
-              {/* Protected */}
-              <Route
-                path="/"
-                element={
-                  user ? <OrdersPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/products"
-                element={
-                  user ? <ProductsPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/sellers"
-                element={
-                  user ? <SellersPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/companies"
-                element={
-                  user ? <CompaniesPage /> : <Navigate to="/login" replace />
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  user ? <ProfilePage /> : <Navigate to="/login" replace />
-                }
-              />
-              {/* <Route
-                path="/logs"
-                element={
-                  user?.role === "superAdmin" ? (
-                    <LogsPage />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              /> */}
-              <Route
-                path="/admins"
-                element={
-                  user?.role === "superAdmin" ? (
-                    <AdminsPage />
-                  ) : (
-                    <Navigate to="/login" replace />
-                  )
-                }
-              />
-              {/* Fallback */}
-              <Route
-                path="*"
-                element={<Navigate to={user ? "/" : "/login"} replace />}
-              />
-            </Routes>
-          </Suspense>
-        </div>
-      </div>
+          <Route
+            path="*"
+            element={<Navigate to={user ? "/" : "/login"} replace />}
+          />
+        </Routes>
+      </Suspense>
     </ErrorBoundary>
   );
 };
