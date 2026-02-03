@@ -7,6 +7,8 @@ import {
   Building2,
   FileText,
   Users,
+  Weight,
+  Ruler,
 } from "lucide-react";
 import { useProductStore } from "../../stores/useProductStore";
 import toast from "react-hot-toast";
@@ -39,6 +41,12 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
     kurdishDescription: "",
     englishDescription: "",
     arabicDescription: "",
+    weight: "",
+    dimensions: {
+      width: "",
+      height: "",
+      length: "",
+    },
     price: "",
     quality: "Good",
   });
@@ -408,6 +416,98 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
               </div>
             </div>
 
+            {/* Weight Field */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Weight (KG)
+              </label>
+              <div className="relative">
+                <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) =>
+                    setFormData({ ...formData, weight: e.target.value })
+                  }
+                  placeholder="0.00"
+                  min="0"
+                  step="0.01"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Dimensions */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dimensions (m)
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="number"
+                    value={formData.dimensions.width}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dimensions: {
+                          ...formData.dimensions,
+                          width: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Width"
+                    min="0"
+                    step="0.01"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="relative">
+                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="number"
+                    value={formData.dimensions.height}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dimensions: {
+                          ...formData.dimensions,
+                          height: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Height"
+                    min="0"
+                    step="0.01"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="relative">
+                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="number"
+                    value={formData.dimensions.length}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        dimensions: {
+                          ...formData.dimensions,
+                          length: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="Length"
+                    min="0"
+                    step="0.01"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
             {/* Dropdowns Section */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -477,8 +577,8 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                       {!companyId
                         ? "Select company first"
                         : loadingModels
-                        ? "Loading..."
-                        : "Select model"}
+                          ? "Loading..."
+                          : "Select model"}
                     </option>
                     {models.map((model) => (
                       <option key={model._id} value={model._id}>

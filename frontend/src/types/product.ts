@@ -36,6 +36,12 @@ export interface Product {
   city: string;
   createdAt?: string;
   updatedAt?: string;
+  weight?: number;
+  dimensions?: {
+    width: number;
+    height: number;
+    length: number;
+  };
 }
 
 export interface CreateProductParams {
