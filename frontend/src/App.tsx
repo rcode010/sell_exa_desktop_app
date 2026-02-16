@@ -27,8 +27,10 @@ const App = () => {
 
   useEffect(() => {
     // Function to initialize authentication state at app startup
-    initAuth();
-  }, [initAuth]);
+    if (isHydrated) {
+      initAuth();
+    }
+  }, [initAuth, isHydrated]);
 
   if (!isHydrated || checkingAuth) {
     // Show loading state while store is hydrating or when access token is being refreshed

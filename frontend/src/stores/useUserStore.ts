@@ -74,7 +74,7 @@ export const useUserStore = create(
               {},
               {
                 headers: { "refresh-token": `${refreshToken}` },
-              }
+              },
             );
           }
 
@@ -107,16 +107,22 @@ export const useUserStore = create(
               headers: {
                 "x-refresh-token": refreshToken,
               },
-            }
+            },
           );
 
-          const { accessToken, refreshToken: newRefreshToken } = res.data.data;
+          const data = res.data.data;
+          const newAccessToken = data.accessToken || data.tokens?.accessToken;
+          const newRefreshToken =
+            data.refreshToken || data.tokens?.refreshToken;
 
-          // Save the new refresh token in secure storage
-          await window.secureToken?.save(newRefreshToken);
+          if (!newAccessToken)
+            throw new Error("Backend did not return an access token");
 
-          set({ accessToken, checkingAuth: false });
+          if (refreshToken) {
+            await window.secureToken?.save(newRefreshToken);
+          }
 
+          set({ accessToken: newAccessToken, checkingAuth: false });
           return true;
         } catch (error) {
           console.error("Auth refresh failed: ", error);
@@ -130,8 +136,6 @@ export const useUserStore = create(
       },
 
       initAuth: async () => {
-        if (!get().isHydrated) return;
-
         // Check if refresh token exists
         const refreshToken = await window.secureToken.get();
 
@@ -237,12 +241,12 @@ export const useUserStore = create(
           } catch (refreshError) {
             console.error(
               "Failed to refresh, using server response:",
-              refreshError
+              refreshError,
             );
             // Optimistically update with server response
             set((state: any) => ({
               admins: state.admins.map((admin: User) =>
-                admin._id === id ? response.data.data : admin
+                admin._id === id ? response.data.data : admin,
               ),
             }));
           }
@@ -300,6 +304,6 @@ export const useUserStore = create(
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },
-    }
-  )
+    },
+  ),
 );
