@@ -124,12 +124,21 @@ export const useUserStore = create(
 
           set({ accessToken: newAccessToken, checkingAuth: false });
           return true;
-        } catch (error) {
+        } catch (error: any) {
           console.error("Auth refresh failed: ", error);
+
+          const isExplicitInvalid =
+            error.response?.data?.message === "Invalid refresh token";
 
           // Clear everything on refresh failure
           set({ user: null, accessToken: null, checkingAuth: false });
           await window.secureToken?.clear();
+
+          if (isExplicitInvalid) {
+            toast.error("Session expired. Please login again.");
+          } else {
+            toast.error("Auth refresh failed");
+          }
 
           return false;
         }

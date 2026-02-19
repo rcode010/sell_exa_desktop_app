@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Phone, User, X, MapPin, Package, Search } from "lucide-react";
-import { Product } from "../../types/product";
+import React, { useState } from "react";
+import { Phone, User, X, MapPin } from "lucide-react";
 import { Seller } from "../../types/seller";
 import {
   MapContainer,
@@ -13,7 +12,6 @@ import toast from "react-hot-toast";
 import { LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useSellerStore } from "../../stores/useSellerStore";
-import { useProductStore } from "../../stores/useProductStore";
 
 interface Position {
   lat: number;
@@ -62,10 +60,6 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const createSeller = useSellerStore((state) => state.createSeller);
   const loading = useSellerStore((state) => state.loading);
 
-  const getProducts = useProductStore((state) => state.getProducts);
-  const products = useProductStore((state) => state.products);
-
-  const [searchProduct, setSearchProduct] = useState("");
   // const [products, setProducts] = useState<Product[]>([]);
   const [formData, setFormData] = useState<Partial<Seller>>({
     storeName: "",
@@ -78,31 +72,6 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
     products: [],
   });
 
-  // Filter products based on search
-  const filteredProducts = products.filter((product: Product) => {
-    if (!searchProduct) return products;
-
-    const value = searchProduct.toLowerCase();
-    return (
-      product.name?.english.toLowerCase().includes(value) ||
-      product.category?.toLowerCase().includes(value)
-    );
-  });
-
-  const toggleProduct = (productId: string) => {
-    setFormData((prev: Partial<Seller>) => ({
-      ...prev,
-      products: prev.products?.includes(productId)
-        ? prev.products.filter((id: string) => productId !== id)
-        : [...(prev.products || []), productId],
-    }));
-  };
-
-  useEffect(() => {
-    getProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const handleSubmit = async () => {
     // Validation
     if (!formData.storeName || !formData.phoneNo) {
@@ -112,11 +81,6 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
 
     if (!formData.location?.locationName || formData.location.latitude === 0) {
       alert("Please set a location on the map and provide a location name");
-      return;
-    }
-
-    if (formData.products?.length === 0) {
-      alert("Please select at least one product");
       return;
     }
 
@@ -291,62 +255,6 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                     {formData.location?.longitude}
                   </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Products Section */}
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <Package className="w-5 h-5" />
-                <span>
-                  Products ({formData.products?.length || 0} selected)
-                </span>
-              </h3>
-
-              {/* Product Search */}
-              <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  disabled={loading}
-                  type="text"
-                  value={searchProduct}
-                  onChange={(e) => setSearchProduct(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Products List */}
-              <div className="border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
-                {products.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    No products available
-                  </div>
-                ) : filteredProducts.length === 0 ? (
-                  <div className="p-8 text-center text-gray-500">
-                    No products found matching "{searchProduct}"
-                  </div>
-                ) : (
-                  filteredProducts.map((product) => (
-                    <label
-                      key={product._id}
-                      className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                    >
-                      <input
-                        disabled={loading}
-                        type="checkbox"
-                        checked={formData.products?.includes(
-                          product._id.toString()
-                        )}
-                        onChange={() => toggleProduct(product._id.toString())}
-                        className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer disabled:cursor-not-allowed"
-                      />
-                      <span className="text-sm text-gray-900">
-                        {product.name.english}
-                      </span>
-                    </label>
-                  ))
-                )}
               </div>
             </div>
           </div>
