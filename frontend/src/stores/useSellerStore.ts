@@ -15,7 +15,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
 
       // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
       const response = await axiosInstance.get(
-        `/api/seller/some?limit=${PAGINATION.DEFAULT_LIMIT}&page=${PAGINATION.DEFAULT_PAGE}`
+        `/api/seller/all?limit=${PAGINATION.DEFAULT_LIMIT}&page=${PAGINATION.DEFAULT_PAGE}`
       );
 
       if (response.status !== 200) {

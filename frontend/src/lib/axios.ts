@@ -57,7 +57,7 @@ axiosInstance.interceptors.response.use(
 
     // If there's no user or access token, return the error
     const { user, accessToken } = useUserStore.getState();
-    if (!user && !accessToken) {
+    if (!user || !accessToken) {
       return Promise.reject(error);
     }
 
@@ -66,7 +66,8 @@ axiosInstance.interceptors.response.use(
       error.response?.status !== 401 ||
       originalRequest._retry ||
       originalRequest.url.includes("/api/admin/refresh-token") ||
-      originalRequest.url.includes("/api/admin/login")
+      originalRequest.url.includes("/api/admin/login") ||
+      originalRequest.url.includes("/api/admin/logout")
     ) {
       return Promise.reject(error);
     }

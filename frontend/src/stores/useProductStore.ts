@@ -12,7 +12,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     set({ loading: true });
 
     try {
-      const response = await axiosInstance.get("/api/product/some");
+      const response = await axiosInstance.get("/api/product/all");
 
       if (response.status !== 200) {
         throw new Error("Failed to fetch products");

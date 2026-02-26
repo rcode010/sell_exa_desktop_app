@@ -34,7 +34,7 @@ const AdminsPage = () => {
 
   useEffect(() => {
     getAllAdmins();
-  }, []);
+  }, [getAllAdmins]);
 
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);

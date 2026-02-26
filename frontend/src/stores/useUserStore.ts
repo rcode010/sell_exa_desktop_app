@@ -145,22 +145,30 @@ export const useUserStore = create(
       },
 
       initAuth: async () => {
-        // Check if refresh token exists
-        const refreshToken = await window.secureToken.get();
+        set({ checkingAuth: true });
 
-        if (refreshToken && !get().accessToken) {
-          // We have refresh token but no access token refresh the access token
-          const success = await get().refreshAuth();
+        try {
+          // Check if refresh token exists
+          const refreshToken = await window.secureToken.get();
 
-          if (success) {
+          if (refreshToken && !get().accessToken) {
+            // We have refresh token but no access token refresh the access token
+            const success = await get().refreshAuth();
+
+            if (success) {
+              await get().getProfile();
+            }
+          } else if (get().accessToken && !get().user) {
+            // We have access token but no user profile, fetch the profile
             await get().getProfile();
+          } else if (get().user && !refreshToken && !get().accessToken) {
+            // No tokens but user exists, logout to clear inconsistent state
+            await useUserStore.getState().logout();
           }
-        } else if (get().accessToken && !get().user) {
-          // We have access token but no user profile, fetch the profile
-          await get().getProfile();
-        } else if (get().user && !refreshToken && !get().accessToken) {
-          // No tokens but user exists, logout to clear inconsistent state
-          await useUserStore.getState().logout();
+        } catch (error) {
+          console.error("Auth initialization error: ", error);
+        } finally {
+          set({ checkingAuth: false });
         }
       },
 
@@ -191,7 +199,7 @@ export const useUserStore = create(
         try {
           set({ loading: true });
 
-          const res = await axios.get("/api/admin/some");
+          const res = await axios.get("/api/admin/all");
 
           const admins = res.data.data;
 
