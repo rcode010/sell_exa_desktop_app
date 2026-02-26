@@ -43,7 +43,7 @@ axiosInstance.interceptors.request.use(
   },
 
   // If there's an error in the request setup
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Add response interceptor to handle 401 errors | token refresh
@@ -54,6 +54,12 @@ axiosInstance.interceptors.response.use(
   // If there's an error response
   async (error) => {
     const originalRequest = error.config;
+
+    // If there's no user or access token, return the error
+    const { user, accessToken } = useUserStore.getState();
+    if (!user && !accessToken) {
+      return Promise.reject(error);
+    }
 
     // if not a 401 or already retried or is refresh/login endpoint
     if (
@@ -105,7 +111,7 @@ axiosInstance.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default axiosInstance;
