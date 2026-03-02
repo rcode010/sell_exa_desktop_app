@@ -9,7 +9,8 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   products: [],
 
   getProducts: async () => {
-    set({ loading: true });
+    const hasData = get().products.length > 0;
+    if (!hasData) set({ loading: true });
 
     try {
       const response = await axiosInstance.get("/api/product/all");

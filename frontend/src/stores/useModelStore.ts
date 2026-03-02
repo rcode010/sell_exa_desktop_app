@@ -13,7 +13,8 @@ export const useModelStore = create<ModelStore>((set, get) => ({
 
   // Actions
   getModels: async (companyId: string) => {
-    set({ loading: true });
+    const hasData = get().models.length > 0;
+    if (!hasData) set({ loading: true });
 
     try {
       const response = await axios.get(`/api/model/${companyId}/models`);

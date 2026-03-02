@@ -12,7 +12,8 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
 
   // Actions
   getCompanies: async () => {
-    set({ loading: true });
+    const hasData = get().companies.length > 0;
+    if (!hasData) set({ loading: true });
 
     try {
       const response = await axios.get("/api/company/");

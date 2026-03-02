@@ -51,12 +51,12 @@ const EditCompanyModal = ({
   const updateModel = useModelStore((state) => state.updateModel);
   const deleteModel = useModelStore((state) => state.deleteModel);
 
-  // Fetch models when switching to models tab
+  // Fetch models on mount
   useEffect(() => {
-    if (!isCompanyDetailsVisible && company._id) {
+    if (company._id) {
       getModels(company._id);
     }
-  }, [isCompanyDetailsVisible, company._id, getModels]);
+  }, [company._id, getModels]);
 
   // Handle logo upload
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,21 +182,19 @@ const EditCompanyModal = ({
         <div className="flex border-b border-gray-200 bg-gray-50">
           <button
             onClick={() => setIsCompanyDetailsVisible(true)}
-            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${
-              isCompanyDetailsVisible
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${isCompanyDetailsVisible
                 ? "text-blue-600 border-b-2 border-blue-600 bg-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
+              }`}
           >
             Company Details
           </button>
           <button
             onClick={() => setIsCompanyDetailsVisible(false)}
-            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${
-              !isCompanyDetailsVisible
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${!isCompanyDetailsVisible
                 ? "text-blue-600 border-b-2 border-blue-600 bg-white"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
+              }`}
           >
             Models ({models.length})
           </button>

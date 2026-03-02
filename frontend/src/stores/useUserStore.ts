@@ -203,7 +203,8 @@ export const useUserStore = create(
 
       getProfile: async () => {
         try {
-          set({ loading: true });
+          const hasData = !!get().user;
+          if (!hasData) set({ loading: true });
 
           const res = await axios.get("/api/admin/profile");
 
@@ -226,7 +227,8 @@ export const useUserStore = create(
 
       getAllAdmins: async () => {
         try {
-          set({ loading: true });
+          const hasData = get().admins.length > 0;
+          if (!hasData) set({ loading: true });
 
           const res = await axios.get("/api/admin/all");
 

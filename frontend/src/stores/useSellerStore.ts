@@ -11,7 +11,8 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
 
   getAllSellers: async () => {
     try {
-      set({ loading: true });
+      const hasData = get().sellers.length > 0;
+      if (!hasData) set({ loading: true });
 
       // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
       const response = await axiosInstance.get(

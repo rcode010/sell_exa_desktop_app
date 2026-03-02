@@ -23,7 +23,10 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
   loading: false,
 
   getOrders: async () => {
-    set({ loading: true });
+    // Only show the spinner on the very first load — if we already have data,
+    // skip the spinner and silently update in the background (stale-while-revalidate)
+    const hasData = get().orders.length > 0;
+    if (!hasData) set({ loading: true });
 
     try {
       const res = await axios.get("/api/order/some");
