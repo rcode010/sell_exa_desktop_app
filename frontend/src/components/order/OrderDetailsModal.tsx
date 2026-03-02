@@ -1,63 +1,45 @@
 import React, { useState } from "react";
 import { X, User, Building2, Calendar, DollarSign } from "lucide-react";
-import { Order } from "../../types/order";
+import { Order, OrderStatus } from "../../types/order";
 
 // Helper to get status badge styles
-const getStatusStyles = (status: Order["status"]) => {
-  const styles = {
-    delivered: "bg-green-100 text-green-700 border-green-200",
-    shipped: "bg-purple-100 text-purple-700 border-purple-200",
-    processing: "bg-blue-100 text-blue-700 border-blue-200",
-    pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
-    cancelled: "bg-red-100 text-red-700 border-red-200",
+const getStatusStyles = (status: OrderStatus) => {
+  const styles: Record<OrderStatus, string> = {
+    Delivered: "bg-green-100 text-green-700 border-green-200",
+    Shipped: "bg-purple-100 text-purple-700 border-purple-200",
+    Processing: "bg-blue-100 text-blue-700 border-blue-200",
+    Pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+    Cancelled: "bg-red-100 text-red-700 border-red-200",
   };
 
   return styles[status];
 };
 
-// The Component - Passing the order and closing function from the parent (OrdersPage.tsx)
 const OrderDetailsModal = ({
   order,
+  onStatusUpdate,
   onClose,
 }: {
   order: Order;
+  onStatusUpdate: (orderId: string, status: OrderStatus) => Promise<void>;
   onClose: () => void;
 }) => {
-  const [currentStatus, setCurrentStatus] = useState<Order["status"]>(
-    order.status
+  const [currentStatus, setCurrentStatus] = useState<OrderStatus>(
+    order.status,
   );
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleStatusUpdate = () => {
-    console.log("Updating order status to:", currentStatus);
-    // PATCH REQUEST TO UPDATE STATUS
+  const handleStatusUpdate = async () => {
+    // Skip the API call if status hasn't changed
+    if (currentStatus === order.status) {
+      onClose();
+      return;
+    }
 
-    // Close the modal
+    setIsUpdating(true);
+    await onStatusUpdate(order._id, currentStatus);
+    setIsUpdating(false);
     onClose();
-  };
-
-  // Mock product names
-  const getProductName = (productId: number) => {
-    const products: Record<number, string> = {
-      1: "Engine Oil Filter",
-      2: "Brake Pads Set",
-      3: "Shock Absorber",
-      4: "Spark Plugs (Set of 4)",
-      5: "Air Filter",
-    };
-
-    return products[productId] || `Product #${productId}`;
-  };
-
-  const getProductPrice = (productId: number) => {
-    const prices: Record<number, number> = {
-      1: 45,
-      2: 89,
-      3: 125,
-      4: 32,
-      5: 28,
-    };
-
-    return prices[productId] || 0;
   };
 
   return (
@@ -68,7 +50,7 @@ const OrderDetailsModal = ({
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Order Details</h2>
-            <p className="text-sm text-gray-500 mt-1">Order #{order.orderId}</p>
+            <p className="text-sm text-gray-500 mt-1">Order #{order._id}</p>
           </div>
           <button
             onClick={onClose}
@@ -162,22 +144,21 @@ const OrderDetailsModal = ({
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {order.products.map((product, index) => {
-                    const price = getProductPrice(product.productId);
-                    const subtotal = price * product.quantity;
+                    const subtotal = product.price * product.quantity;
 
                     return (
                       <tr key={index} className="bg-white">
                         <td className="px-4 py-3 text-sm text-gray-900">
-                          {getProductName(product.productId)}
+                          {product.name}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900">
-                          ${price}
+                          ${product.price.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-900">
                           {product.quantity}
                         </td>
                         <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                          ${subtotal}
+                          ${subtotal.toLocaleString()}
                         </td>
                       </tr>
                     );
@@ -195,21 +176,20 @@ const OrderDetailsModal = ({
             <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
               {(
                 [
-                  "pending",
-                  "processing",
-                  "shipped",
-                  "delivered",
-                  "cancelled",
+                  "Pending",
+                  "Processing",
+                  "Shipped",
+                  "Delivered",
+                  "Cancelled",
                 ] as const
               ).map((status) => (
                 <button
                   key={status}
                   onClick={() => setCurrentStatus(status)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all cursor-pointer ${
-                    currentStatus === status
-                      ? getStatusStyles(status)
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all cursor-pointer ${currentStatus === status
+                    ? getStatusStyles(status)
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   {status}
                 </button>
@@ -222,15 +202,17 @@ const OrderDetailsModal = ({
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
             onClick={onClose}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            disabled={isUpdating}
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={handleStatusUpdate}
-            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            disabled={isUpdating}
+            className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Update Status
+            {isUpdating ? "Updating..." : "Update Status"}
           </button>
         </div>
       </div>
