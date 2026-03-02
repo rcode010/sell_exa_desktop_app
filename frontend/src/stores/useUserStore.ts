@@ -7,6 +7,11 @@ import { newUser } from "../types/user";
 import { User } from "../types/user";
 import { AxiosError } from "axios";
 
+// Module-level lock: prevents initAuth from running twice concurrently.
+// React StrictMode double-fires effects — without this guard the second call
+// would try to refresh with an already-rotated token and get a 401.
+let isAuthInitializing = false;
+
 export const useUserStore = create(
   persist(
     (set, get) => ({
@@ -90,14 +95,16 @@ export const useUserStore = create(
         }
       },
 
-      refreshAuth: async () => {
+      refreshAuth: async (silent = false) => {
         set({ checkingAuth: true });
 
         try {
           const refreshToken = await window.secureToken?.get();
 
           if (!refreshToken) {
-            throw new Error("No refresh token available!");
+            // No token = normal "not logged in" state, not an error
+            set({ checkingAuth: false });
+            return false;
           }
 
           const res = await axios.post(
@@ -118,7 +125,8 @@ export const useUserStore = create(
           if (!newAccessToken)
             throw new Error("Backend did not return an access token");
 
-          if (refreshToken) {
+          // Only update the stored refresh token if the server issued a new one
+          if (newRefreshToken) {
             await window.secureToken?.save(newRefreshToken);
           }
 
@@ -127,17 +135,26 @@ export const useUserStore = create(
         } catch (error: any) {
           console.error("Auth refresh failed: ", error);
 
+          // Only treat as "explicit invalid" when the server explicitly tells us
+          // the token is invalid/expired via a specific message — NOT just any 401,
+          // because the interceptor itself can generate 401s for other reasons.
+          const serverMsg: string = error.response?.data?.message ?? "";
           const isExplicitInvalid =
-            error.response?.data?.message === "Invalid refresh token";
+            serverMsg.toLowerCase().includes("invalid") ||
+            serverMsg.toLowerCase().includes("expired");
 
           // Clear everything on refresh failure
           set({ user: null, accessToken: null, checkingAuth: false });
           await window.secureToken?.clear();
 
-          if (isExplicitInvalid) {
-            toast.error("Session expired. Please login again.");
-          } else {
-            toast.error("Auth refresh failed");
+          // When called silently (initAuth on startup) never show any toast —
+          // the router will quietly redirect to /login if user is null.
+          if (!silent) {
+            if (isExplicitInvalid) {
+              toast.error("Session expired. Please login again.");
+            } else {
+              toast.error("Auth refresh failed");
+            }
           }
 
           return false;
@@ -145,30 +162,42 @@ export const useUserStore = create(
       },
 
       initAuth: async () => {
+        // Guard: if another initAuth call is already in-flight, bail out immediately.
+        // This prevents React StrictMode's double-effect from running two parallel
+        // refreshes — which would consume a rotated refresh token prematurely.
+        if (isAuthInitializing) return;
+        isAuthInitializing = true;
+
         set({ checkingAuth: true });
 
         try {
-          // Check if refresh token exists
           const refreshToken = await window.secureToken.get();
 
-          if (refreshToken && !get().accessToken) {
-            // We have refresh token but no access token refresh the access token
-            const success = await get().refreshAuth();
+          if (refreshToken) {
+            // Silently exchange the stored refresh token for a fresh access token
+            const success = await get().refreshAuth(true);
 
             if (success) {
+              // Access token refreshed — now hydrate the user profile
               await get().getProfile();
+            } else {
+              // Refresh failed — token is invalid/expired; clear stale state quietly
+              set({ user: null, accessToken: null });
             }
           } else if (get().accessToken && !get().user) {
-            // We have access token but no user profile, fetch the profile
+            // In-memory access token exists but profile missing — fetch it
             await get().getProfile();
-          } else if (get().user && !refreshToken && !get().accessToken) {
-            // No tokens but user exists, logout to clear inconsistent state
-            await useUserStore.getState().logout();
+          } else {
+            // No tokens at all — clear any stale persisted user and let the
+            // router redirect to /login naturally (no toast needed)
+            set({ user: null, accessToken: null });
           }
         } catch (error) {
-          console.error("Auth initialization error: ", error);
+          console.error("Auth initialization error:", error);
+          set({ user: null, accessToken: null });
         } finally {
           set({ checkingAuth: false });
+          isAuthInitializing = false;
         }
       },
 

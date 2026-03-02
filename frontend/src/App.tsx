@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore.ts";
@@ -20,14 +20,20 @@ const AdminsPage = lazy(() => import("./pages/AdminsPage.tsx"));
 
 const App = () => {
   // Get states and actions from user store | the individual selectors help in preventing unnecessary re-renders
-  const user: User = useUserStore((state) => state.user);
+  const user: User | null = useUserStore((state) => state.user);
   const isHydrated = useUserStore((state) => state.isHydrated);
   const checkingAuth = useUserStore((state) => state.checkingAuth);
   const initAuth = useUserStore((state) => state.initAuth);
 
+  // Ref guard: ensures initAuth fires exactly once per app mount.
+  // React StrictMode in development intentionally unmounts + remounts components
+  // to detect side-effects, which would double-call initAuth and consume a
+  // one-time-use rotated refresh token. This ref prevents the second invocation.
+  const hasInitialized = useRef(false);
+
   useEffect(() => {
-    // Function to initialize authentication state at app startup
-    if (isHydrated) {
+    if (isHydrated && !hasInitialized.current) {
+      hasInitialized.current = true;
       initAuth();
     }
   }, [initAuth, isHydrated]);

@@ -100,14 +100,15 @@ axiosInstance.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } else {
-        // Refresh failed - logout
+        // Refresh failed — clear state silently (refreshAuth already showed the right toast)
         processQueue(new Error("Authentication refresh failed"));
-        await useUserStore.getState().logout();
+        useUserStore.setState({ user: null, accessToken: null });
         return Promise.reject(error);
       }
     } catch (refreshError) {
       processQueue(refreshError);
-      await useUserStore.getState().logout();
+      // Clear state silently — avoid a redundant "Logged out" toast
+      useUserStore.setState({ user: null, accessToken: null });
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
