@@ -9,9 +9,21 @@ import {
   Popup,
 } from "react-leaflet";
 import toast from "react-hot-toast";
-import { LeafletMouseEvent } from "leaflet";
+import L, { LeafletMouseEvent } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
 import { useSellerStore } from "../../stores/useSellerStore";
+
+// Fix for missing marker icons in production builds
+const DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 interface Position {
   lat: number;
@@ -202,11 +214,10 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 {/* Add loading overlay */}
                 <div className="relative">
                   <div
-                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${
-                      loading
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-crosshair hover:border-blue-400"
-                    }`}
+                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${loading
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-crosshair hover:border-blue-400"
+                      }`}
                   >
                     <MapContainer
                       center={[35.5558, 45.4333]}
