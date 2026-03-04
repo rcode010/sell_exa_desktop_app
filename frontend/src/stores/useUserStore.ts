@@ -21,7 +21,7 @@ export const useUserStore = create(
       accessToken: null,
       isHydrated: false,
       loading: false,
-      checkingAuth: false,
+      checkingAuth: true,
 
       // Actions
       setHydrated: () => set({ isHydrated: true }),
