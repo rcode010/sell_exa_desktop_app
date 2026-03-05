@@ -16,7 +16,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
 
       // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
       const response = await axiosInstance.get(
-        `/api/seller/all?limit=${PAGINATION.DEFAULT_LIMIT}&page=${PAGINATION.DEFAULT_PAGE}`
+        `/api/seller/all?limit=${PAGINATION.DEFAULT_LIMIT}&page=${PAGINATION.DEFAULT_PAGE}`,
       );
 
       if (response.status !== 200) {
@@ -51,13 +51,13 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
       } catch (refreshError) {
         console.error(
           "Failed to refresh, using server response:",
-          refreshError
+          refreshError,
         );
 
         // Optimistically update with server response
         set((state) => ({
           sellers: state.sellers.map((c) =>
-            c._id === response.data.data._id ? response.data.data : c
+            c._id === response.data.data._id ? response.data.data : c,
           ),
         }));
       }
@@ -82,25 +82,20 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
     try {
       const response = await axiosInstance.delete(`/api/seller?sellerId=${id}`);
 
-      if (response.status !== 200) {
+      // Backend returns 204 (No Content) on successful deletion
+      if (response.status !== 204) {
         throw new Error("Failed to delete seller");
       }
 
-      // Update sellers state after deletion
-      // Try updating sellers state after creation by fetching them from backend
+      // Update sellers state after deletion by fetching them from backend
       try {
         await get().getAllSellers(); // Try to refresh
       } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError
-        );
+        console.error("Failed to refresh sellers list:", refreshError);
 
-        // Optimistically update with server response
+        // Optimistically update by removing the deleted seller
         set((state) => ({
-          sellers: state.sellers.map((c) =>
-            c._id === response.data.data._id ? response.data.data : c
-          ),
+          sellers: state.sellers.filter((seller) => seller._id !== id),
         }));
       }
 
@@ -118,7 +113,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
     }
   },
 
-  updateSeller: async (id: string, seller: Seller) => {
+  updateSeller: async (id: string, seller: Partial<Seller>) => {
     set({ loading: true });
 
     try {
@@ -131,7 +126,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
 
       const response = await axiosInstance.patch(
         `/api/seller?sellerId=${id}`,
-        updateData
+        updateData,
       );
 
       if (response.status !== 200) {
@@ -145,13 +140,13 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
       } catch (refreshError) {
         console.error(
           "Failed to refresh, using server response:",
-          refreshError
+          refreshError,
         );
 
         // Optimistically update with server response
         set((state) => ({
           sellers: state.sellers.map((c) =>
-            c._id === response.data.data._id ? response.data.data : c
+            c._id === response.data.data._id ? response.data.data : c,
           ),
         }));
       }
