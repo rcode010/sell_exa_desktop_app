@@ -20,6 +20,8 @@ const SideBar = () => {
   const logout = useUserStore((state) => state.logout);
   const user = useUserStore((state) => state.user);
 
+  const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+
   const menuItems = [
     {
       icon: ShoppingCart,
@@ -45,13 +47,6 @@ const SideBar = () => {
       path: "/products",
       active: location.pathname === "/products",
     },
-    // {
-    //   icon: Logs,
-    //   label: "Logs",
-    //   path: "/logs",
-    //   active: location.pathname === "/logs",
-    //   superAdminOnly: true,
-    // },
     {
       icon: UserCog,
       label: "Admins",
@@ -69,16 +64,55 @@ const SideBar = () => {
     return true;
   });
 
-  const handleLogout = async () => {
-    const success = await logout();
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
 
-    if (success) {
-      navigate("/login");
+  const handleLogoutConfirm = async (confirm: boolean) => {
+    setShowLogoutConfirm(false);
+    if (confirm) {
+      const success = await logout();
+      if (success) {
+        navigate("/login");
+      }
     }
   };
 
   return (
     <div className="h-full bg-white border-r border-gray-200 flex flex-col">
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <LogOut className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Log Out?
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Are you sure you want to log out? You will need to sign in again to access the management system.
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => handleLogoutConfirm(true)}
+                  className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-colors cursor-pointer"
+                >
+                  Yes, log out
+                </button>
+                <button
+                  onClick={() => handleLogoutConfirm(false)}
+                  className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition-colors cursor-pointer"
+                >
+                  No, stay logged in
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Logo Section */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
