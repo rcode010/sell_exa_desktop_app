@@ -103,19 +103,44 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
     fetchModels();
   }, [companyId, getModels]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const MAX_IMAGE_SIZE_MB = 5;
 
-    if (files.length > 3) {
-      toast.error("You can only upload up to 3 images");
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const incoming = Array.from(e.target.files || []);
+    // Reset the input value so the same file can be re-selected after removal
+    e.target.value = "";
+
+    // Validate sizes
+    const oversized = incoming.filter(
+      (f) => f.size > MAX_IMAGE_SIZE_MB * 1024 * 1024
+    );
+    if (oversized.length > 0) {
+      toast.error(
+        `Each image must be under ${MAX_IMAGE_SIZE_MB} MB. ${oversized.map((f) => f.name).join(", ")} exceeded the limit.`
+      );
       return;
     }
 
-    setImages(files);
+    // Merge with existing selection, cap at 3
+    setImages((prev) => {
+      const merged = [...prev, ...incoming].slice(0, 3);
+      if (prev.length + incoming.length > 3) {
+        toast.error("Only 3 images are allowed. Extra images were ignored.");
+      }
+      // Rebuild preview URLs for the merged set
+      const previews = merged.map((file) => URL.createObjectURL(file));
+      setImagePreviews(previews);
+      return merged;
+    });
+  };
 
-    // Create preview URLs
-    const previews = files.map((file) => URL.createObjectURL(file));
-    setImagePreviews(previews);
+  const handleRemoveImage = (index: number) => {
+    setImages((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      const previews = updated.map((file) => URL.createObjectURL(file));
+      setImagePreviews(previews);
+      return updated;
+    });
   };
 
   const handleSubmit = async () => {
@@ -624,9 +649,17 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-cover rounded-lg border border-gray-200"
                       />
-                      <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                      <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                         {index + 1}
                       </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold transition-colors cursor-pointer"
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
                     </div>
                   ))}
                 </div>
