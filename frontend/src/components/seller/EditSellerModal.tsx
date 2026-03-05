@@ -18,6 +18,7 @@ const EditSellerModal = ({
     _id: seller._id,
     storeName: seller.storeName,
     phoneNo: seller.phoneNo,
+    city: seller.city,
     products: seller.products,
     location: seller.location,
   });

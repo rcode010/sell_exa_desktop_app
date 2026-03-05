@@ -39,7 +39,7 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
 
     try {
       // Token is automatically added by interceptor
-      const response = await axiosInstance.post("/api/seller/create", seller);
+      const response = await axiosInstance.post("/api/seller", seller);
 
       if (response.status !== 201) {
         throw new Error("Failed to create seller");

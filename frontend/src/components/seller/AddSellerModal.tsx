@@ -48,10 +48,11 @@ function LocationMarker({
 
       setFormData((prev: Partial<Seller>) => ({
         ...prev,
+        city: prev.city ?? "",
         location: {
           locationName: prev.location?.locationName ?? "",
-          latitude: Number.parseFloat(lat.toFixed(6)),
-          longitude: Number.parseFloat(lng.toFixed(6)),
+          latitude: lat.toFixed(6),
+          longitude: lng.toFixed(6),
         },
       }));
     },
@@ -76,22 +77,23 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const [formData, setFormData] = useState<Partial<Seller>>({
     storeName: "",
     phoneNo: "",
+    city: "",
     location: {
       locationName: "",
-      latitude: 0,
-      longitude: 0,
+      latitude: "",
+      longitude: "",
     },
     products: [],
   });
 
   const handleSubmit = async () => {
     // Validation
-    if (!formData.storeName || !formData.phoneNo) {
+    if (!formData.storeName || !formData.phoneNo || !formData.city) {
       alert("Please fill in all required fields");
       return;
     }
 
-    if (!formData.location?.locationName || formData.location.latitude === 0) {
+    if (!formData.location?.locationName || formData.location.latitude === "") {
       alert("Please set a location on the map and provide a location name");
       return;
     }
@@ -172,6 +174,27 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                   />
                 </div>
               </div>
+
+              {/* City Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City *
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    disabled={loading}
+                    type="text"
+                    value={formData.city}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    placeholder="e.g., Baghdad"
+                    className="w-full pl-10 pr-4 py-3 placeholder:text-gray-500 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Location Section */}
@@ -195,8 +218,8 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                       ...formData,
                       location: {
                         locationName: e.target.value,
-                        latitude: formData.location?.latitude ?? 0,
-                        longitude: formData.location?.longitude ?? 0,
+                        latitude: formData.location?.latitude ?? "",
+                        longitude: formData.location?.longitude ?? "",
                       },
                     })
                   }
@@ -214,10 +237,11 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 {/* Add loading overlay */}
                 <div className="relative">
                   <div
-                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${loading
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-crosshair hover:border-blue-400"
-                      }`}
+                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${
+                      loading
+                        ? "opacity-50 cursor-not-allowed"
+                        : "cursor-crosshair hover:border-blue-400"
+                    }`}
                   >
                     <MapContainer
                       center={[35.5558, 45.4333]}
