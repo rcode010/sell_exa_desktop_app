@@ -45,7 +45,7 @@ const OrderInstance = ({
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-medium text-gray-900">
-          ${order.total.toLocaleString()}
+          {order.total.toLocaleString()} IQD
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">

@@ -1,6 +1,8 @@
-import React, { useState } from "react";
-import { X, User, Building2, Calendar, DollarSign } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, User, Building2, Calendar, Banknote, Loader } from "lucide-react";
 import { Order, OrderStatus } from "../../types/order";
+import toast from "react-hot-toast";
+import { useProductStore } from "../../stores/useProductStore";
 
 // Helper to get status badge styles
 const getStatusStyles = (status: OrderStatus) => {
@@ -24,10 +26,86 @@ const OrderDetailsModal = ({
   onStatusUpdate: (orderId: string, status: OrderStatus) => Promise<void>;
   onClose: () => void;
 }) => {
-  const [currentStatus, setCurrentStatus] = useState<OrderStatus>(
-    order.status,
-  );
+  const [currentStatus, setCurrentStatus] = useState<OrderStatus>(order.status);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [productsData, setProductsData] = useState<
+    Array<{ productId: string; name: string; price: number; quantity: number }>
+  >([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
+  const getProductById = useProductStore((state) => state.getProductById);
+
+  // Fetch product details for all products in the order
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      setIsLoadingProducts(true);
+      try {
+        console.log(
+          "[OrderDetailsModal] Fetching products for order:",
+          order._id,
+        );
+        console.log("[OrderDetailsModal] Products to fetch:", order.products);
+
+        // Use product data already in order if available, otherwise fetch by ID
+        const productDetailsPromises = order.products.map(async (product) => {
+          // If product already has name and price in order data, use it
+          if (product.name && product.price && product.price > 0) {
+            console.log(
+              "[OrderDetailsModal] Using product from order data:",
+              product,
+            );
+            return {
+              productId: product.productId,
+              name: product.name,
+              price: product.price,
+              quantity: product.quantity,
+            };
+          }
+
+          // Otherwise try to fetch from backend
+          console.log(
+            `[OrderDetailsModal] Fetching product: ${product.productId}`,
+          );
+          const productDetails = await getProductById(product.productId);
+
+          if (productDetails) {
+            console.log(
+              `[OrderDetailsModal] Got product details:`,
+              productDetails,
+            );
+            return {
+              productId: product.productId,
+              name: productDetails.name,
+              price: productDetails.price,
+              quantity: product.quantity,
+            };
+          }
+
+          console.warn(
+            `[OrderDetailsModal] Failed to fetch product ${product.productId}, using order data`,
+          );
+          // Return fallback data from order if product fetch fails
+          return {
+            productId: product.productId,
+            name: product.name || "Unknown Product",
+            price: product.price || 0,
+            quantity: product.quantity,
+          };
+        });
+
+        const enrichedProducts = await Promise.all(productDetailsPromises);
+        console.log("[OrderDetailsModal] Enriched products:", enrichedProducts);
+        setProductsData(enrichedProducts);
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+        toast.error("Failed to load product details");
+      } finally {
+        setIsLoadingProducts(false);
+      }
+    };
+
+    fetchProductDetails();
+  }, [order.products, getProductById]);
 
   const handleStatusUpdate = async () => {
     // Skip the API call if status hasn't changed
@@ -106,14 +184,14 @@ const OrderDetailsModal = ({
             {/* Total */}
             <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
               <div className="p-2 bg-yellow-100 rounded-lg">
-                <DollarSign className="w-5 h-5 text-yellow-600" />
+                <Banknote className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-500 font-medium">
                   Total Amount
                 </p>
                 <p className="text-base font-semibold text-gray-900">
-                  ${order.total.toLocaleString()}
+                  {order.total.toLocaleString()} IQD
                 </p>
               </div>
             </div>
@@ -124,48 +202,55 @@ const OrderDetailsModal = ({
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Products
             </h3>
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Product
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Price
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Quantity
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                      Subtotal
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {order.products.map((product, index) => {
-                    const subtotal = product.price * product.quantity;
+            {isLoadingProducts ? (
+              <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                <Loader className="w-5 h-5 animate-spin text-gray-400 mr-2" />
+                <p className="text-gray-500">Loading product details...</p>
+              </div>
+            ) : (
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Product
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Price
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Quantity
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Subtotal
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {productsData.map((product, index) => {
+                      const subtotal = product.price * product.quantity;
 
-                    return (
-                      <tr key={index} className="bg-white">
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {product.name}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          ${product.price.toLocaleString()}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {product.quantity}
-                        </td>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                          ${subtotal.toLocaleString()}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      return (
+                        <tr key={index} className="bg-white">
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {product.name}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {product.price.toLocaleString()} IQD
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-900">
+                            {product.quantity}
+                          </td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                            {subtotal.toLocaleString()} IQD
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
           {/* Status Update Section */}
@@ -186,10 +271,11 @@ const OrderDetailsModal = ({
                 <button
                   key={status}
                   onClick={() => setCurrentStatus(status)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all cursor-pointer ${currentStatus === status
-                    ? getStatusStyles(status)
-                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                    }`}
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all cursor-pointer ${
+                    currentStatus === status
+                      ? getStatusStyles(status)
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                  }`}
                 >
                   {status}
                 </button>

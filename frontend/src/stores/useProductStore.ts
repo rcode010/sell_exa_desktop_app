@@ -1,5 +1,10 @@
 import { create } from "zustand";
-import { Product, ProductStore, CreateProductParams } from "../types/product";
+import {
+  Product,
+  ProductStore,
+  CreateProductParams,
+  ProductDetails,
+} from "../types/product";
 import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
@@ -53,7 +58,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
       } catch (refreshError) {
         console.error(
           "Failed to refresh, using server response:",
-          refreshError
+          refreshError,
         );
         // Optimistically update with server response
         if (response.data.data) {
@@ -80,7 +85,10 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   updateProduct: async (id: string, product: Partial<Product>) => {
     set({ loading: true });
     try {
-      const response = await axiosInstance.patch(`/api/product/?productId=${id}`, product);
+      const response = await axiosInstance.patch(
+        `/api/product/?productId=${id}`,
+        product,
+      );
 
       if (response.status !== 200) {
         throw new Error("Failed to update product");
@@ -91,12 +99,12 @@ export const useProductStore = create<ProductStore>((set, get) => ({
       } catch (refreshError) {
         console.error(
           "Failed to refresh, using server response:",
-          refreshError
+          refreshError,
         );
         // Optimistically update with server response
         set((state) => ({
           products: state.products.map((product) =>
-            product._id === id ? response.data.data : product
+            product._id === id ? response.data.data : product,
           ),
         }));
       }
@@ -129,7 +137,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
       } catch (refreshError) {
         console.error(
           "Failed to refresh, using server response:",
-          refreshError
+          refreshError,
         );
 
         // Optimistically update with server response
@@ -149,6 +157,74 @@ export const useProductStore = create<ProductStore>((set, get) => ({
 
       set({ loading: false });
       return false;
+    }
+  },
+
+  getProductById: async (productId: string): Promise<ProductDetails | null> => {
+    try {
+      console.log(`[ProductStore] Fetching product: ${productId}`);
+
+      const response = await axiosInstance.get(
+        `/api/product?productId=${productId}`,
+      );
+
+      console.log(`[ProductStore] Response status: ${response.status}`);
+      console.log(`[ProductStore] Response data:`, response.data);
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch product");
+      }
+
+      const data = response.data.data;
+
+      if (!data) {
+        console.error(
+          `[ProductStore] No data returned for product ${productId}`,
+        );
+        return null;
+      }
+
+      console.log(`[ProductStore] Transforming product data:`, data);
+
+      // Transform the response to match ProductDetails interface
+      // Handle multilingual name and description
+      const productDetails: ProductDetails = {
+        name:
+          typeof data.name === "string"
+            ? data.name
+            : data.name?.english || "Unknown",
+        description:
+          typeof data.description === "string"
+            ? data.description
+            : data.description?.english || "No description",
+        company: data.company || "Unknown",
+        model: data.model || "Unknown",
+        seller: data.seller || "Unknown",
+        imageLink:
+          data.imageLink ||
+          (Array.isArray(data.images) && data.images[0]?.imageLink) ||
+          "",
+        price: data.price || 0,
+        weight: data.weight,
+        quality: data.quality,
+        city: data.city,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+      };
+
+      console.log(`[ProductStore] Transformed product:`, productDetails);
+      return productDetails;
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.error(`[ProductStore] Error fetching product ${productId}:`, {
+        message: err.message,
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        fullError: err,
+      });
+      return null;
     }
   },
 }));

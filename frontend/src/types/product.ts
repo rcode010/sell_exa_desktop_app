@@ -37,6 +37,7 @@ export interface Product {
   createdAt?: string;
   updatedAt?: string;
   weight?: number;
+  quantity?: number;
   dimensions?: {
     width: number;
     height: number;
@@ -51,6 +52,21 @@ export interface CreateProductParams {
   modelId: string;
 }
 
+export interface ProductDetails {
+  name: string;
+  description: string;
+  company: string;
+  model: string;
+  seller: string;
+  imageLink: string;
+  price: number;
+  weight?: number;
+  quality: string;
+  city: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ProductStore {
   loading: boolean;
   products: Product[];
@@ -59,4 +75,5 @@ export interface ProductStore {
   createProduct: (params: CreateProductParams) => Promise<boolean>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;
+  getProductById: (productId: string) => Promise<ProductDetails | null>;
 }
