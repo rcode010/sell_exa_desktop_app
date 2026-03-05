@@ -4,7 +4,7 @@ import { useUserStore } from "../stores/useUserStore";
 
 const axiosInstance = axios.create({
   baseURL: "https://solution-squad-backend-development.onrender.com",
-  timeout: 30000, // 30 seconds timeout to prevent hanging requests
+  timeout: 30000,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -26,54 +26,35 @@ const processQueue = (error: any = null) => {
       promise.resolve();
     }
   });
-
   failedQueue = [];
 };
 
-// Add request interceptor to automatically include token
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = useUserStore.getState().accessToken;
-
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-
     return config;
   },
-
-  // If there's an error in the request setup
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor to handle 401 errors | token refresh
 axiosInstance.interceptors.response.use(
-  // If the response is successful, just return it
   (response) => response,
-
-  // If there's an error response
   async (error) => {
     const originalRequest = error.config;
 
-    // If there's no user or access token, return the error
-    const { user, accessToken } = useUserStore.getState();
-    if (!user || !accessToken) {
-      return Promise.reject(error);
-    }
-
-    // if not a 401 or already retried or is refresh/login endpoint
-    if (
-      error.response?.status !== 401 ||
-      originalRequest._retry ||
+    // Avoid infinite loops on auth endpoints
+    const isAuthRequest = 
       originalRequest.url.includes("/api/admin/refresh-token") ||
-      originalRequest.url.includes("/api/admin/login") ||
-      originalRequest.url.includes("/api/admin/logout")
-    ) {
+      originalRequest.url.includes("/api/admin/login");
+
+    if (error.response?.status !== 401 || originalRequest._retry || isAuthRequest) {
       return Promise.reject(error);
     }
 
     if (isRefreshing) {
-      // Queue the request while refresh is in progress
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
       })
@@ -89,31 +70,24 @@ axiosInstance.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // Attempt to refresh the token
-      const success = await useUserStore.getState().refreshAuth();
+      const success = await useUserStore.getState().refreshAuth(true);
 
       if (success) {
-        // Refresh succeeded - retry all queued requests
         processQueue();
-
         const newToken = useUserStore.getState().accessToken;
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return axiosInstance(originalRequest);
       } else {
-        // Refresh failed — clear state silently (refreshAuth already showed the right toast)
-        processQueue(new Error("Authentication refresh failed"));
-        useUserStore.setState({ user: null, accessToken: null });
+        processQueue(new Error("Refresh failed"));
         return Promise.reject(error);
       }
     } catch (refreshError) {
       processQueue(refreshError);
-      // Clear state silently — avoid a redundant "Logged out" toast
-      useUserStore.setState({ user: null, accessToken: null });
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }
-  },
+  }
 );
 
 export default axiosInstance;
