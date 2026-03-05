@@ -177,14 +177,20 @@ export const useUserStore = create(
         }
       },
 
-      updateAdmin: async (data: any) => {
+      updateAdmin: async (id: string, data: any) => {
         try {
           set({ loading: true });
-          await axios.patch(`/api/admin`, data);
+          const res = await axios.patch(`/api/admin/edit-info?adminId=${id}`, data);
           set({ loading: false });
-          return true;
+          if (res.status === 200) {
+            toast.success("Admin updated successfully");
+            await get().getAllAdmins();
+            return true;
+          }
+          return false;
         } catch (error: any) {
           set({ loading: false });
+          toast.error(error.response?.data?.message || "Failed to update admin");
           return false;
         }
       },
