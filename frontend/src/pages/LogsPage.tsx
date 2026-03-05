@@ -17,13 +17,13 @@ interface Log {
   adminName: string;
   action: string;
   actionType:
-    | "order"
-    | "product"
-    | "company"
-    | "seller"
-    | "delete"
-    | "edit"
-    | "add";
+  | "order"
+  | "product"
+  | "company"
+  | "seller"
+  | "delete"
+  | "edit"
+  | "add";
   details: string;
   timestamp: Date;
 }
@@ -91,7 +91,7 @@ const MOCK_LOGS: Log[] = [
     adminName: "Admin User",
     action: "Updated product price",
     actionType: "edit",
-    details: "Updated price for 'Engine Oil Filter' from $40 to $45",
+    details: "Updated price for 'Engine Oil Filter' from 40,000 IQD to 45,000 IQD",
     timestamp: new Date(Date.now() - 172800000), // 2 days ago
   },
 ];

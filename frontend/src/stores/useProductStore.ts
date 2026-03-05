@@ -80,7 +80,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   updateProduct: async (id: string, product: Partial<Product>) => {
     set({ loading: true });
     try {
-      const response = await axiosInstance.put(`/api/product/${id}`, product);
+      const response = await axiosInstance.patch(`/api/product/?productId=${id}`, product);
 
       if (response.status !== 200) {
         throw new Error("Failed to update product");

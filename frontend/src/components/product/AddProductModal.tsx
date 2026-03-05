@@ -204,6 +204,7 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
     data.append("englishDescription", formData.englishDescription);
     data.append("arabicDescription", formData.arabicDescription);
     data.append("price", formData.price);
+    data.append("weight", formData.weight);
     data.append("quality", formData.quality);
 
     const success = await createProduct({

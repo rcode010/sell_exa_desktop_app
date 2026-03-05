@@ -93,9 +93,8 @@ const ProductsPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${
-                  isRefreshing ? "animate-spin" : ""
-                }`}
+                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
+                  }`}
               />
             </button>
 
@@ -156,7 +155,7 @@ const ProductsPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm font-medium text-gray-900">
-                        ${product.price}
+                        {product.price.toLocaleString()} IQD
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

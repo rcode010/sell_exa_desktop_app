@@ -3,12 +3,18 @@ import {
   X,
   Package,
   Tag,
-  DollarSign,
+  Banknote,
   Trash2,
   Weight,
-  Ruler,
+  FileText,
+  MapPin,
+  Image,
 } from "lucide-react";
 import { Product } from "../../types/product";
+import { useProductStore } from "../../stores/useProductStore";
+import toast from "react-hot-toast";
+
+const qualityOptions = ["Very good", "Good", "Basic"] as const;
 
 const EditProductModal = ({
   product,
@@ -17,52 +23,79 @@ const EditProductModal = ({
   product: Product;
   onClose: () => void;
 }) => {
+  const updateProduct = useProductStore((state) => state.updateProduct);
+  const deleteProduct = useProductStore((state) => state.deleteProduct);
+  const loading = useProductStore((state) => state.loading);
+
   const [formData, setFormData] = useState({
-    name: product.name,
-    category: product.category,
-    price: product.price.toString(),
-    weight: product.weight?.toString() || "",
-    dimensions: {
-      width: product.dimensions?.width?.toString() || "",
-      height: product.dimensions?.height?.toString() || "",
-      length: product.dimensions?.length?.toString() || "",
-    },
+    // Multilingual names
+    englishName: product.name?.english ?? "",
+    kurdishName: product.name?.kurdish ?? "",
+    arabicName: product.name?.arabic ?? "",
+
+    // Multilingual descriptions
+    englishDescription: product.description?.english ?? "",
+    kurdishDescription: product.description?.kurdish ?? "",
+    arabicDescription: product.description?.arabic ?? "",
+
+    // Core fields
+    price: product.price?.toString() ?? "",
+    weight: product.weight?.toString() ?? "",
+    quality: product.quality ?? "Good",
+    city: product.city ?? "",
   });
 
-  const categories = [
-    "Tire",
-    "Cleaning",
-    "Car Repair",
-    "Spare Parts",
-    "Accessories",
-    "Others",
-  ];
+  const setField = (field: string, value: string) =>
+    setFormData((prev) => ({ ...prev, [field]: value }));
 
-  const handleUpdate = () => {
-    console.log("Updating product:", formData);
+  const handleUpdate = async () => {
+    if (!formData.englishName || !formData.kurdishName || !formData.arabicName) {
+      toast.error("Please fill in all name fields");
+      return;
+    }
+    if (!formData.englishDescription || !formData.kurdishDescription || !formData.arabicDescription) {
+      toast.error("Please fill in all description fields");
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
 
-    // PATCH REQUEST TO UPDATE PRODUCT
+    const payload: Partial<Product> = {
+      name: {
+        english: formData.englishName,
+        kurdish: formData.kurdishName,
+        arabic: formData.arabicName,
+      },
+      description: {
+        english: formData.englishDescription,
+        kurdish: formData.kurdishDescription,
+        arabic: formData.arabicDescription,
+      },
+      price: parseFloat(formData.price),
+      weight: formData.weight ? parseFloat(formData.weight) : undefined,
+      quality: formData.quality as Product["quality"],
+      city: formData.city,
+    };
 
-    onClose();
+    const success = await updateProduct(product._id, payload);
+    if (success) onClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (
-      window.confirm(`Are you sure you want to delete ${product.name.english}?`)
+      globalThis.confirm(`Are you sure you want to delete ${product.name.english}?`)
     ) {
-      console.log("Deleting product:", product._id);
-
-      // DELETE REQUEST TO DELETE PRODUCT
-
-      onClose();
+      const success = await deleteProduct(product._id);
+      if (success) onClose();
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      {/* Modal Container */}
-      <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Modal Header */}
+      <div className="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Edit Product</h2>
@@ -72,182 +105,239 @@ const EditProductModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            disabled={loading}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
 
-        {/* Scrollable Modal Body */}
+        {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Edit Form */}
-          <div className="space-y-5">
-            {/* Product Name Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product Name *
-              </label>
-              <div className="relative">
-                <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={formData.name.english}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      name: { ...formData.name, english: e.target.value },
-                    })
-                  }
-                  placeholder="Enter product name"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-            </div>
+          <div className="space-y-6">
 
-            {/* Category Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category *
-              </label>
-              <div className="relative">
-                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <select
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      category: e.target.value as Product["category"],
-                    })
-                  }
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
-                  required
-                >
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
+            {/* Existing Images (read-only preview) */}
+            {product.images && product.images.length > 0 && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Image className="w-4 h-4 text-gray-500" />
+                  <h3 className="text-sm font-semibold text-gray-700">
+                    Current Images
+                  </h3>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {product.images.map((img, i) => (
+                    <div key={img.imageId ?? i} className="relative aspect-square">
+                      <img
+                        src={img.imageLink}
+                        alt={`Product image ${i + 1}`}
+                        className="w-full h-full object-cover rounded-lg border border-gray-200"
+                      />
+                      <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        {i + 1}
+                      </div>
+                    </div>
                   ))}
-                </select>
+                </div>
+              </div>
+            )}
+
+            {/* Product Names */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Product Names
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    English Name *
+                  </label>
+                  <div className="relative">
+                    <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.englishName}
+                      onChange={(e) => setField("englishName", e.target.value)}
+                      placeholder="Enter product name in English"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kurdish Name (کوردی) *
+                  </label>
+                  <div className="relative">
+                    <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.kurdishName}
+                      onChange={(e) => setField("kurdishName", e.target.value)}
+                      placeholder="ناوی بەرهەم بە کوردی بنووسە"
+                      dir="rtl"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Arabic Name (عربي) *
+                  </label>
+                  <div className="relative">
+                    <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={formData.arabicName}
+                      onChange={(e) => setField("arabicName", e.target.value)}
+                      placeholder="أدخل اسم المنتج بالعربية"
+                      dir="rtl"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Price Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price *
-              </label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData({ ...formData, price: e.target.value })
-                  }
-                  placeholder="0.00"
-                  min="0"
-                  step="0.01"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
+            {/* Product Descriptions */}
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Product Descriptions
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    English Description *
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <textarea
+                      value={formData.englishDescription}
+                      onChange={(e) => setField("englishDescription", e.target.value)}
+                      placeholder="Enter product description in English"
+                      rows={3}
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Kurdish Description (کوردی) *
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <textarea
+                      value={formData.kurdishDescription}
+                      onChange={(e) => setField("kurdishDescription", e.target.value)}
+                      placeholder="وەسفی بەرهەم بە کوردی بنووسە"
+                      rows={3}
+                      dir="rtl"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Arabic Description (عربي) *
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                    <textarea
+                      value={formData.arabicDescription}
+                      onChange={(e) => setField("arabicDescription", e.target.value)}
+                      placeholder="أدخل وصف المنتج بالعربية"
+                      rows={3}
+                      dir="rtl"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Weight Field */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Weight (KG)
-              </label>
-              <div className="relative">
-                <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="number"
-                  value={formData.weight}
-                  onChange={(e) =>
-                    setFormData({ ...formData, weight: e.target.value })
-                  }
-                  placeholder="0.00"
-                  min="0"
-                  step="0.01"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Dimensions */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Dimensions (m)
-              </label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Price & Quality */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price (IQD) *
+                </label>
                 <div className="relative">
-                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="number"
-                    value={formData.dimensions.width}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dimensions: {
-                          ...formData.dimensions,
-                          width: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder="Width"
+                    value={formData.price}
+                    onChange={(e) => setField("price", e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    step="1"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Quality *
+                </label>
+                <div className="relative">
+                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10" />
+                  <select
+                    value={formData.quality}
+                    onChange={(e) => setField("quality", e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+                  >
+                    {qualityOptions.map((q) => (
+                      <option key={q} value={q}>
+                        {q}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Weight & City */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Weight (KG)
+                </label>
+                <div className="relative">
+                  <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="number"
+                    value={formData.weight}
+                    onChange={(e) => setField("weight", e.target.value)}
+                    placeholder="0.00"
                     min="0"
                     step="0.01"
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
+              </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  City *
+                </label>
                 <div className="relative">
-                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type="number"
-                    value={formData.dimensions.height}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dimensions: {
-                          ...formData.dimensions,
-                          height: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder="Height"
-                    min="0"
-                    step="0.01"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div className="relative">
-                  <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="number"
-                    value={formData.dimensions.length}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        dimensions: {
-                          ...formData.dimensions,
-                          length: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder="Length"
-                    min="0"
-                    step="0.01"
+                    type="text"
+                    value={formData.city}
+                    onChange={(e) => setField("city", e.target.value)}
+                    placeholder="Enter city"
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Delete Section */}
-            <div className="pt-6 border-t border-gray-200">
+            {/* Delete Zone */}
+            <div className="pt-4 border-t border-gray-200">
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-red-100 rounded-lg">
@@ -263,7 +353,8 @@ const EditProductModal = ({
                     </p>
                     <button
                       onClick={handleDelete}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer"
+                      disabled={loading}
+                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Delete Product
                     </button>
@@ -271,22 +362,25 @@ const EditProductModal = ({
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
-        {/* Modal Footer */}
+        {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
             onClick={onClose}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            disabled={loading}
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={handleUpdate}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            disabled={loading}
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Changes
+            {loading ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
