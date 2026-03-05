@@ -3,17 +3,37 @@ import { useUserStore } from "../stores/useUserStore.ts";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Loader, Eye, EyeOff } from "lucide-react";
 
+const IRAQI_PHONE_REGEX = /^07[0-9]{9}$/;
+
 const LoginPage = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
 
   const loading = useUserStore((state) => state.loading);
   const login = useUserStore((state) => state.login);
   const navigate = useNavigate();
 
+  const validatePhone = (value: string) => {
+    if (!value) {
+      setPhoneError("");
+      return;
+    }
+    if (!IRAQI_PHONE_REGEX.test(value)) {
+      setPhoneError("Please enter a valid Iraqi phone number (07XXXXXXXXX)");
+    } else {
+      setPhoneError("");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!IRAQI_PHONE_REGEX.test(phone)) {
+      setPhoneError("Please enter a valid Iraqi phone number (07XXXXXXXXX)");
+      return;
+    }
 
     const success = await login(phone, password);
 
@@ -58,10 +78,21 @@ const LoginPage = () => {
               value={phone}
               required
               disabled={loading}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Enter your phone number"
-              className="bg-gray-50 border placeholder:text-gray-400 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-800 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              onChange={(e) => {
+                setPhone(e.target.value);
+                validatePhone(e.target.value);
+              }}
+              onBlur={(e) => validatePhone(e.target.value)}
+              placeholder="07501234567"
+              className={`bg-gray-50 border placeholder:text-gray-400 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed ${
+                phoneError
+                  ? "border-red-400 focus:ring-red-400"
+                  : "border-gray-200 focus:ring-red-800"
+              }`}
             />
+            {phoneError && (
+              <p className="text-red-600 text-sm mt-1">{phoneError}</p>
+            )}
           </div>
 
           <div className="flex flex-col mb-6">

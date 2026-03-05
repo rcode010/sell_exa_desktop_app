@@ -30,6 +30,8 @@ interface Position {
   lng: number;
 }
 
+const IRAQI_PHONE_REGEX = /^07[0-9]{9}$/;
+
 function LocationMarker({
   setFormData,
   disabled,
@@ -72,6 +74,7 @@ function LocationMarker({
 const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const createSeller = useSellerStore((state) => state.createSeller);
   const loading = useSellerStore((state) => state.loading);
+  const [phoneError, setPhoneError] = useState("");
 
   // const [products, setProducts] = useState<Product[]>([]);
   const [formData, setFormData] = useState<Partial<Seller>>({
@@ -86,10 +89,27 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
     products: [],
   });
 
+  const validatePhone = (value: string) => {
+    if (!value) {
+      setPhoneError("");
+      return;
+    }
+    if (!IRAQI_PHONE_REGEX.test(value)) {
+      setPhoneError("Please enter a valid Iraqi phone number (07XXXXXXXXX)");
+    } else {
+      setPhoneError("");
+    }
+  };
+
   const handleSubmit = async () => {
     // Validation
     if (!formData.storeName || !formData.phoneNo || !formData.city) {
       alert("Please fill in all required fields");
+      return;
+    }
+
+    if (!IRAQI_PHONE_REGEX.test(formData.phoneNo)) {
+      alert("Please enter a valid Iraqi phone number (07XXXXXXXXX)");
       return;
     }
 
@@ -165,13 +185,22 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                     disabled={loading}
                     type="tel"
                     value={formData.phoneNo}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phoneNo: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, phoneNo: e.target.value });
+                      validatePhone(e.target.value);
+                    }}
+                    onBlur={(e) => validatePhone(e.target.value)}
                     placeholder="07501234567"
-                    className="w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className={`w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+                      phoneError
+                        ? "border-red-400 focus:ring-red-400"
+                        : "border-gray-200 focus:ring-blue-500"
+                    }`}
                     required
                   />
+                  {phoneError && (
+                    <p className="text-red-600 text-sm mt-1">{phoneError}</p>
+                  )}
                 </div>
               </div>
 

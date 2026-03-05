@@ -3,6 +3,8 @@ import { Seller } from "../../types/seller";
 import { Loader, Phone, Trash2, User, X } from "lucide-react";
 import { useSellerStore } from "../../stores/useSellerStore";
 
+const IRAQI_PHONE_REGEX = /^07[0-9]{9}$/;
+
 const EditSellerModal = ({
   seller,
   onClose,
@@ -14,6 +16,7 @@ const EditSellerModal = ({
   const deleteSeller = useSellerStore((state) => state.deleteSeller);
   const loading = useSellerStore((state) => state.loading);
 
+  const [phoneError, setPhoneError] = useState("");
   const [formData, setFormData] = useState<Seller>({
     _id: seller._id,
     storeName: seller.storeName,
@@ -23,7 +26,27 @@ const EditSellerModal = ({
     location: seller.location,
   });
 
+  const validatePhone = (value: string) => {
+    if (!value) {
+      setPhoneError("");
+      return;
+    }
+    if (!IRAQI_PHONE_REGEX.test(value)) {
+      setPhoneError("Please enter a valid Iraqi phone number (07XXXXXXXXX)");
+    } else {
+      setPhoneError("");
+    }
+  };
+
   const handleUpdate = async () => {
+    if (!formData.storeName || !formData.phoneNo) {
+      return alert("Fill in all required fields");
+    }
+
+    if (!IRAQI_PHONE_REGEX.test(formData.phoneNo)) {
+      return alert("Please enter a valid Iraqi phone number (07XXXXXXXXX)");
+    }
+
     const success = await updateSeller(seller._id, formData);
 
     if (success) {
@@ -33,7 +56,7 @@ const EditSellerModal = ({
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
-      "Are you sure you want to delete this seller? This action cannot be undone."
+      "Are you sure you want to delete this seller? This action cannot be undone.",
     );
 
     if (!confirmed) return;
@@ -101,14 +124,23 @@ const EditSellerModal = ({
                 <input
                   type="tel"
                   value={formData.phoneNo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phoneNo: e.target.value })
-                  }
-                  placeholder="(555) 123-4567"
+                  onChange={(e) => {
+                    setFormData({ ...formData, phoneNo: e.target.value });
+                    validatePhone(e.target.value);
+                  }}
+                  onBlur={(e) => validatePhone(e.target.value)}
+                  placeholder="07501234567"
                   disabled={loading}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
+                    phoneError
+                      ? "border-red-400 focus:ring-red-400"
+                      : "border-gray-200 focus:ring-blue-500"
+                  }`}
                   required
                 />
+                {phoneError && (
+                  <p className="text-red-600 text-sm mt-1">{phoneError}</p>
+                )}
               </div>
             </div>
 
@@ -130,7 +162,7 @@ const EditSellerModal = ({
                     <button
                       onClick={() => handleDelete(seller._id)}
                       disabled={loading}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm cursor-pointer"
                     >
                       Delete Seller
                     </button>
