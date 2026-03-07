@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Building2, RefreshCw } from "lucide-react";
+import { Plus, Search, Building2, RefreshCw, EyeOff } from "lucide-react";
 import { Company } from "../types/company";
 import AddCompanyModal from "../components/company/AddCompanyModal";
 import EditCompanyModal from "../components/company/EditCompanyModal";
+import HiddenCompaniesModal from "../components/company/HiddenCompaniesModal";
 import { useCompanyStore } from "../stores/useCompanyStore";
 import Loader from "../components/ui/Loader";
 import CompanyInstance from "../components/company/CompanyInstance";
@@ -20,6 +21,7 @@ const CompaniesPage = () => {
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   const filteredCompanies = useMemo(() => {
@@ -27,7 +29,7 @@ const CompaniesPage = () => {
 
     const value = search.toLowerCase();
     return companies.filter((company) =>
-      company.name.toLowerCase().includes(value)
+      company.name.toLowerCase().includes(value),
     );
   }, [search, companies]);
 
@@ -51,6 +53,7 @@ const CompaniesPage = () => {
       </div>
     );
   }
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Page Header */}
@@ -60,13 +63,23 @@ const CompaniesPage = () => {
           <p className="text-gray-500 mt-1">Manage companies</p>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
-        >
-          <Plus className="w-5 h-5" />
-          Add Company
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsHiddenModalOpen(true)}
+            className="flex items-center gap-2 bg-white text-gray-700 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+          >
+            <EyeOff className="w-5 h-5" />
+            Hidden Companies
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+          >
+            <Plus className="w-5 h-5" />
+            Add Company
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -94,8 +107,7 @@ const CompaniesPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
-                  }`}
+                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""}`}
               />
             </button>
 
@@ -106,7 +118,7 @@ const CompaniesPage = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search orders..."
+                placeholder="Search companies..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
               />
             </div>
@@ -170,6 +182,10 @@ const CompaniesPage = () => {
           company={selectedCompany}
           onClose={() => setIsEditModalOpen(false)}
         />
+      )}
+
+      {isHiddenModalOpen && (
+        <HiddenCompaniesModal onClose={() => setIsHiddenModalOpen(false)} />
       )}
     </div>
   );

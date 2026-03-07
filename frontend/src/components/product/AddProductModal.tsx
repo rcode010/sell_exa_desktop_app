@@ -8,7 +8,6 @@ import {
   FileText,
   Users,
   Weight,
-  Ruler,
 } from "lucide-react";
 import { useProductStore } from "../../stores/useProductStore";
 import toast from "react-hot-toast";

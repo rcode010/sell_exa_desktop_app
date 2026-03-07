@@ -7,6 +7,7 @@ import { CompanyStore } from "../types/company";
 export const useCompanyStore = create<CompanyStore>((set, get) => ({
   // States
   companies: [],
+  hiddenCompanies: [],
   companiesCount: 0,
   loading: false,
 
@@ -30,6 +31,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     }
   },
 
+
   createCompany: async (file: FormData) => {
     set({ loading: true });
 
@@ -47,11 +49,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
       try {
         await get().getCompanies();
       } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError
-        );
-        // Optimistically update with server response
+        console.error("Failed to refresh, using server response:", refreshError);
         set((state) => ({
           companies: state.companies.map((company) =>
             company._id === response.data.data._id
@@ -98,11 +96,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
       try {
         await get().getCompanies();
       } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError
-        );
-        // Optimistically update with server response
+        console.error("Failed to refresh, using server response:", refreshError);
         set((state) => ({
           companies: state.companies.map((company) =>
             company._id === response.data.data._id
@@ -111,6 +105,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
           ),
         }));
       }
+
       toast.success("Company updated successfully!");
       set({ loading: false });
       return true;
@@ -138,11 +133,7 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
       try {
         await get().getCompanies();
       } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError
-        );
-        // Optimistically update with server response
+        console.error("Failed to refresh, using server response:", refreshError);
         set((state) => ({
           companies: state.companies.map((company) =>
             company._id === id ? response.data.data : company
@@ -163,4 +154,5 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
       return false;
     }
   },
+
 }));
