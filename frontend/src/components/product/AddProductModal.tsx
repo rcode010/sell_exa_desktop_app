@@ -3,7 +3,7 @@ import {
   X,
   Package,
   Tag,
-  DollarSign,
+  Banknote,
   Building2,
   FileText,
   Users,
@@ -394,10 +394,10 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price *
+                  Price (IQD) *
                 </label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="number"
                     value={formData.price}
