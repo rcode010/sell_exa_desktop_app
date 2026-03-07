@@ -4,6 +4,7 @@ export interface CompanyModel {
 }
 
 export interface Company {
+  isHidden: boolean;
   _id: string;
   name: string;
   logoLink: string | null;
@@ -34,6 +35,8 @@ export interface ModelStore {
   // Actions
   getModels: (companyId: string) => Promise<boolean>;
   createModel: (companyId: string, modelName: string) => Promise<boolean>;
+  hideModel: (companyId: string, modelId: string) => Promise<boolean>;
+
   updateModel: (
     companyId: string,
     modelId: string,

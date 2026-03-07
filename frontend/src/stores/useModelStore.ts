@@ -107,4 +107,28 @@ export const useModelStore = create<ModelStore>((set, get) => ({
       return false;
     }
   },
+
+  hideModel: async (companyId: string, modelId: string) => {
+    set({ loading: true });
+    try {
+      const response = await axios.patch(
+        `/api/model/${companyId}/models/${modelId}/toggle`
+      );
+
+      toast.success(response.data.message || "Model visibility updated");
+
+      await get().getModels(companyId);
+
+      set({ loading: false });
+      return true;
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.log("Error: " + err.message);
+      toast.error(err.response?.data?.message || "Failed to update model visibility");
+
+      set({ loading: false });
+      return false;
+    }
+  },
 }));
