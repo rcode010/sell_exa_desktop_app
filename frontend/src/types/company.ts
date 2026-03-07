@@ -19,6 +19,7 @@ export interface CompanyStore {
 
   // Actions
   getCompanies: () => Promise<void>;
+  hideCompany: (id: string) => Promise<boolean>;
   createCompany: (file: FormData) => Promise<boolean>;
   updateCompany: (file: FormData, id: string) => Promise<boolean>;
   deleteCompany: (id: string) => Promise<boolean>;
@@ -36,7 +37,7 @@ export interface ModelStore {
   updateModel: (
     companyId: string,
     modelId: string,
-    newName: string
+    newName: string,
   ) => Promise<boolean>;
   deleteModel: (companyId: string, modelId: string) => Promise<boolean>;
 }

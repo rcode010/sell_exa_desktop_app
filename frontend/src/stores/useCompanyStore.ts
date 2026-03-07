@@ -155,4 +155,38 @@ export const useCompanyStore = create<CompanyStore>((set, get) => ({
     }
   },
 
+  hideCompany: async (id: string) => {
+    try {
+      set({ loading: true });
+
+      const response = await axios.patch(`/api/company/${id}/toggle`);
+
+      if (!response.data.success) {
+        throw new Error("Toggle company visibility failed");
+      }
+
+      try {
+        await get().getCompanies();
+      } catch (refreshError) {
+        console.error("Failed to refresh, using server response:", refreshError);
+        set((state) => ({
+          companies: state.companies.map((company) =>
+            company._id === id ? response.data.data : company
+          ),
+        }));
+      }
+
+      toast.success("Company visibility updated!");
+      set({ loading: false });
+      return true;
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.log("Error: " + err.message);
+      toast.error(err.response?.data?.message || "Something went wrong");
+
+      set({ loading: false });
+      return false;
+    }
+  },
 }));
