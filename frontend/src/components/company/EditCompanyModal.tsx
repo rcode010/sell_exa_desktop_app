@@ -170,9 +170,9 @@ const EditCompanyModal = ({
             </p>
           </div>
           <button
-            disabled={companyLoading}
+            disabled={companyLoading || modelsLoading}
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -181,19 +181,21 @@ const EditCompanyModal = ({
         {/* Tab Buttons */}
         <div className="flex border-b border-gray-200 bg-gray-50">
           <button
+            disabled={companyLoading || modelsLoading}
             onClick={() => setIsCompanyDetailsVisible(true)}
-            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${isCompanyDetailsVisible
-                ? "text-blue-600 border-b-2 border-blue-600 bg-white"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isCompanyDetailsVisible
+              ? "text-blue-600 border-b-2 border-blue-600 bg-white"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
           >
             Company Details
           </button>
           <button
+            disabled={companyLoading || modelsLoading}
             onClick={() => setIsCompanyDetailsVisible(false)}
-            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer ${!isCompanyDetailsVisible
-                ? "text-blue-600 border-b-2 border-blue-600 bg-white"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${!isCompanyDetailsVisible
+              ? "text-blue-600 border-b-2 border-blue-600 bg-white"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
           >
             Models ({models.length})
@@ -262,7 +264,8 @@ const EditCompanyModal = ({
 
                 <label
                   htmlFor="edit-company-logo"
-                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors ${companyLoading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                    }`}
                 >
                   {imagePreview ? (
                     <img
@@ -291,7 +294,7 @@ const EditCompanyModal = ({
                       setFormData({ ...formData, logoFile: null });
                       setImagePreview(null);
                     }}
-                    className="mt-2 text-sm text-red-600 hover:underline"
+                    className="mt-2 text-sm text-red-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Remove logo
                   </button>
@@ -437,7 +440,7 @@ const EditCompanyModal = ({
                           <button
                             onClick={() => handleEditModel(model._id)}
                             disabled={modelsLoading}
-                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all text-sm font-medium disabled:opacity-50 cursor-pointer"
+                            className="px-3 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {modelsLoading ? (
                               <Loader className="w-4 h-4 animate-spin" />
@@ -451,7 +454,7 @@ const EditCompanyModal = ({
                               setEditingModelName("");
                             }}
                             disabled={modelsLoading}
-                            className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all text-sm font-medium disabled:opacity-50 cursor-pointer"
+                            className="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-all text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             Cancel
                           </button>
@@ -468,7 +471,7 @@ const EditCompanyModal = ({
                                 setEditingModelName(model.name);
                               }}
                               disabled={modelsLoading}
-                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                              className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Edit model"
                             >
                               <Edit2 className="w-4 h-4" />
@@ -478,7 +481,7 @@ const EditCompanyModal = ({
                                 handleDeleteModel(model._id, model.name)
                               }
                               disabled={modelsLoading}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                               title="Delete model"
                             >
                               <Trash2 className="w-4 h-4" />

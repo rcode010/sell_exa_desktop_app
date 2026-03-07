@@ -132,7 +132,8 @@ const OrderDetailsModal = ({
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            disabled={isUpdating}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -270,12 +271,12 @@ const OrderDetailsModal = ({
               ).map((status) => (
                 <button
                   key={status}
+                  disabled={isUpdating}
                   onClick={() => setCurrentStatus(status)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all cursor-pointer ${
-                    currentStatus === status
+                  className={`px-4 py-2 text-sm font-medium rounded-lg border transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${currentStatus === status
                       ? getStatusStyles(status)
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {status}
                 </button>
@@ -289,7 +290,7 @@ const OrderDetailsModal = ({
           <button
             onClick={onClose}
             disabled={isUpdating}
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50"
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>

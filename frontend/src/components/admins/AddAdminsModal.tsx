@@ -45,7 +45,7 @@ const AddAdminsModal = ({ onClose }: { onClose: () => void }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isSubmitting}
           >
             <X className="w-6 h-6 text-gray-500" />
@@ -199,16 +199,16 @@ const AddAdminsModal = ({ onClose }: { onClose: () => void }) => {
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-6 py-3 bg-black  text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            className="px-6 py-3 bg-black  text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? <Loader className="animate-spin" /> : "Add admin"}
+            {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : "Add admin"}
           </button>
         </div>
       </div>

@@ -96,7 +96,7 @@ const EditAdminsModal = ({
           <button
             onClick={onClose}
             disabled={loading || isDeleting}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -222,14 +222,14 @@ const EditAdminsModal = ({
                 type="button"
                 onClick={onClose}
                 disabled={loading}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer disabled:opacity-50"
+                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center min-w-[140px] cursor-pointer disabled:opacity-50"
+                className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? <Loader className="w-5 h-5 animate-spin" /> : "Save Changes"}
               </button>
@@ -254,7 +254,7 @@ const EditAdminsModal = ({
                     type="button"
                     disabled={loading || isDeleting}
                     onClick={handleDelete}
-                    className="mt-4 px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                    className="mt-4 px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-semibold transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isDeleting ? <Loader className="w-5 h-5 animate-spin mx-auto" /> : "Delete Admin Account"}
                   </button>

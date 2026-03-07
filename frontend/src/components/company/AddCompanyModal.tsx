@@ -66,7 +66,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -114,7 +114,8 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
                 />
                 <label
                   htmlFor="company-image"
-                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors ${isSubmitting ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+                    }`}
                 >
                   {imagePreview ? (
                     <img
@@ -156,7 +157,7 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
                       setFormData({ ...formData, image: null });
                       setImagePreview(null);
                     }}
-                    className="p-1 hover:bg-gray-200 rounded transition-colors"
+                    className="p-1 hover:bg-gray-200 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <X className="w-4 h-4 text-gray-500" />
                   </button>
@@ -174,16 +175,16 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
           <button
             disabled={isSubmitting}
             onClick={onClose}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             disabled={isSubmitting}
             onClick={handleSubmit}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isSubmitting ? <Loader className="animate-spin" /> : "Add Company"}
+            {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : "Add Company"}
           </button>
         </div>
       </div>

@@ -85,7 +85,7 @@ const EditSellerModal = ({
           <button
             disabled={loading}
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -134,8 +134,8 @@ const EditSellerModal = ({
                   placeholder="07501234567"
                   disabled={loading}
                   className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
-                      ? "border-red-400 focus:ring-red-400"
-                      : "border-gray-200 focus:ring-blue-500"
+                    ? "border-red-400 focus:ring-red-400"
+                    : "border-gray-200 focus:ring-blue-500"
                     }`}
                   required
                 />
@@ -191,7 +191,7 @@ const EditSellerModal = ({
           <button
             onClick={handleUpdate}
             disabled={loading}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all font-medium flex items-center justify-center gap-2 min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>

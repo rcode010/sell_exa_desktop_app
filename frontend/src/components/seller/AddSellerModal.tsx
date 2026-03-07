@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Phone, User, X, MapPin } from "lucide-react";
+import { Phone, User, X, MapPin, Loader } from "lucide-react";
 import { Seller } from "../../types/seller";
 import {
   MapContainer,
@@ -142,7 +142,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
           <button
             disabled={loading}
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-6 h-6 text-gray-500" />
           </button>
@@ -191,11 +191,10 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                     }}
                     onBlur={(e) => validatePhone(e.target.value)}
                     placeholder="07501234567"
-                    className={`w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
-                      phoneError
-                        ? "border-red-400 focus:ring-red-400"
-                        : "border-gray-200 focus:ring-blue-500"
-                    }`}
+                    className={`w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
+                      ? "border-red-400 focus:ring-red-400"
+                      : "border-gray-200 focus:ring-blue-500"
+                      }`}
                     required
                   />
                   {phoneError && (
@@ -266,11 +265,10 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 {/* Add loading overlay */}
                 <div className="relative">
                   <div
-                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${
-                      loading
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-crosshair hover:border-blue-400"
-                    }`}
+                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${loading
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-crosshair hover:border-blue-400"
+                      }`}
                   >
                     <MapContainer
                       center={[35.5558, 45.4333]}
@@ -329,16 +327,16 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
           <button
             disabled={loading}
             onClick={onClose}
-            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             disabled={loading}
             onClick={handleSubmit}
-            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex justify-center items-center min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Add Seller
+            {loading ? <Loader className="w-5 h-5 animate-spin" /> : "Add Seller"}
           </button>
         </div>
       </div>
