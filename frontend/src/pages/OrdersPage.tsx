@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Package, Search, RefreshCw } from "lucide-react";
 import OrderDetailsModal from "../components/order/OrderDetailsModal";
+import ManageDeliveryPricesModal from "../components/order/ManageDeliveryPricesModal";
 import OrderInstance from "../components/order/OrderInstance";
 import { Order } from "../types/order";
 import { useOrderStore } from "../stores/useOrderStore.ts";
@@ -21,6 +22,7 @@ const OrdersPage = () => {
   const [search, setSearch] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isManagePricesOpen, setIsManagePricesOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { orders, loading, getOrders, changeOrderStatus } = useOrderStore();
@@ -68,6 +70,13 @@ const OrdersPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
           <p className="text-gray-500 mt-1">Manage buyer orders</p>
         </div>
+        <button
+          onClick={() => setIsManagePricesOpen(true)}
+          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <Package className="w-5 h-5" />
+          Manage Delivery Prices
+        </button>
       </div>
 
       {/* Orders Table Card */}
@@ -167,6 +176,13 @@ const OrdersPage = () => {
             setIsModalOpen(false);
             setSelectedOrder(null);
           }}
+        />
+      )}
+
+      {/* Manage Delivery Prices Modal */}
+      {isManagePricesOpen && (
+        <ManageDeliveryPricesModal
+          onClose={() => setIsManagePricesOpen(false)}
         />
       )}
     </div>
