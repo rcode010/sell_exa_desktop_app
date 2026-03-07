@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Eye, Package, RefreshCw } from "lucide-react";
+import { Plus, Search, Eye, EyeOff, Package, RefreshCw } from "lucide-react";
 import { Product } from "../types/product";
 import AddProductModal from "../components/product/AddProductModal";
 import EditProductModal from "../components/product/EditProductModal";
+import HiddenProductsModal from "../components/product/HiddenProductsModal";
 import { useProductStore } from "../stores/useProductStore";
 import { useUserStore } from "../stores/useUserStore";
 import Loader from "../components/ui/Loader";
@@ -12,6 +13,7 @@ const ProductsPage = () => {
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const isHydrated: boolean = useUserStore((state) => state.isHydrated);
@@ -59,13 +61,22 @@ const ProductsPage = () => {
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-500 mt-1">View and manage products</p>
         </div>
-        <button
-          className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
-          onClick={() => setIsAddModalOpen(true)}
-        >
-          <Plus className="w-5 h-5" />
-          Add Product
-        </button>
+        <div className="flex gap-3">
+          <button
+            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
+            onClick={() => setIsHiddenModalOpen(true)}
+          >
+            <EyeOff className="w-5 h-5" />
+            <span className="hidden sm:inline">View Hidden Products</span>
+          </button>
+          <button
+            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <Plus className="w-5 h-5" />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -114,7 +125,7 @@ const ProductsPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          {loading ? (
+          {loading || isRefreshing ? (
             <div className="overflow-hidden">
               <Loader />
             </div>
@@ -187,8 +198,12 @@ const ProductsPage = () => {
           />
         )}
 
+        {isHiddenModalOpen && (
+          <HiddenProductsModal onClose={() => setIsHiddenModalOpen(false)} />
+        )}
+
         {/* Empty State */}
-        {filteredProducts.length === 0 && !loading && (
+        {filteredProducts.length === 0 && !loading && !isRefreshing && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

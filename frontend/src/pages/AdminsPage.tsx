@@ -86,9 +86,8 @@ const AdminsPage = () => {
               title="Refresh admins"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${
-                  isRefreshing ? "animate-spin" : ""
-                }`}
+                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
+                  }`}
               />
             </button>
 
@@ -108,7 +107,7 @@ const AdminsPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          {loading ? (
+          {loading || isRefreshing ? (
             <Loader />
           ) : (
             <table className="w-full">
@@ -149,7 +148,7 @@ const AdminsPage = () => {
         </div>
 
         {/* Empty State */}
-        {!loading && filteredAdmins.length === 0 && (
+        {!loading && !isRefreshing && filteredAdmins.length === 0 && (
           <div className="py-12 text-center">
             <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

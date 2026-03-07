@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Package, Plus, RefreshCw, Search, Users } from "lucide-react";
+import { Package, Plus, RefreshCw, Search, Users, EyeOff } from "lucide-react";
 import AddSellerModal from "../components/seller/AddSellerModal";
 import EditSellerModal from "../components/seller/EditSellerModal";
+import HiddenSellersModal from "../components/seller/HiddenSellersModal";
 import { useSellerStore } from "../stores/useSellerStore";
 import { useUserStore } from "../stores/useUserStore";
 import Loader from "../components/ui/Loader";
@@ -22,6 +23,7 @@ const SellersPage = () => {
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
 
   const filteredSellers = useMemo(() => {
@@ -69,13 +71,22 @@ const SellersPage = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
-        >
-          <Plus size={20} />
-          Add Seller
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsHiddenModalOpen(true)}
+            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            <EyeOff size={20} />
+            <span className="hidden sm:inline">View Hidden Sellers</span>
+          </button>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+          >
+            <Plus size={20} />
+            Add Seller
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -101,9 +112,8 @@ const SellersPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${
-                  isRefreshing ? "animate-spin" : ""
-                }`}
+                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
+                  }`}
               />
             </button>
 
@@ -123,7 +133,7 @@ const SellersPage = () => {
 
         {/* Table Body */}
         <div className="overflow-x-auto">
-          {loading ? (
+          {loading || isRefreshing ? (
             <Loader />
           ) : (
             <table className="w-full">
@@ -157,14 +167,14 @@ const SellersPage = () => {
           )}
         </div>
 
-        {!loading && filteredSellers.length === 0 && !search && (
+        {!loading && !isRefreshing && filteredSellers.length === 0 && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No sellers to show.</p>
           </div>
         )}
 
-        {!loading && filteredSellers.length === 0 && search && (
+        {!loading && !isRefreshing && filteredSellers.length === 0 && search && (
           <div className="py-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">
@@ -184,6 +194,10 @@ const SellersPage = () => {
           seller={selectedSeller}
           onClose={() => setIsEditModalOpen(false)}
         />
+      )}
+
+      {isHiddenModalOpen && (
+        <HiddenSellersModal onClose={() => setIsHiddenModalOpen(false)} />
       )}
     </div>
   );

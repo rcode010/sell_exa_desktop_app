@@ -113,6 +113,44 @@ export const useSellerStore = create<SellerStore>((set, get) => ({
     }
   },
 
+  hideSeller: async (id: string) => {
+    set({ loading: true });
+
+    try {
+      const response = await axiosInstance.patch(`/api/seller/hide?sellerId=${id}`);
+
+      if (response.status !== 200) {
+        throw new Error("Failed to toggle seller visibility");
+      }
+
+      // Update sellers state after hiding
+      try {
+        await get().getAllSellers(); // Try to refresh
+      } catch (refreshError) {
+        console.error("Failed to refresh sellers list:", refreshError);
+
+        // Optimistically update
+        set((state) => ({
+          sellers: state.sellers.map((seller) =>
+            seller._id === id ? { ...seller, isHidden: !seller.isHidden } : seller
+          ),
+        }));
+      }
+
+      set({ loading: false });
+      toast.success(response.data.message || "Seller visibility toggled successfully!");
+      return true;
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.error("Error toggling seller visibility:", err.message);
+      toast.error(err.response?.data?.message || "Failed to toggle seller visibility");
+
+      set({ loading: false });
+      return false;
+    }
+  },
+
   updateSeller: async (id: string, seller: Partial<Seller>) => {
     set({ loading: true });
 

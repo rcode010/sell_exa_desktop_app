@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Seller } from "../../types/seller";
-import { Loader, Phone, Trash2, User, X } from "lucide-react";
+import { Loader, Phone, Trash2, User, X, Eye, EyeOff } from "lucide-react";
 import { useSellerStore } from "../../stores/useSellerStore";
 
 const IRAQI_PHONE_REGEX = /^07[0-9]{9}$/;
@@ -13,7 +13,7 @@ const EditSellerModal = ({
   onClose: () => void;
 }) => {
   const updateSeller = useSellerStore((state) => state.updateSeller);
-  const deleteSeller = useSellerStore((state) => state.deleteSeller);
+  const hideSeller = useSellerStore((state) => state.hideSeller);
   const loading = useSellerStore((state) => state.loading);
 
   const [phoneError, setPhoneError] = useState("");
@@ -54,14 +54,16 @@ const EditSellerModal = ({
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleHide = async (id: string) => {
+    const isCurrentlyHidden = seller.isHidden;
+    const action = isCurrentlyHidden ? "show" : "hide";
     const confirmed = window.confirm(
-      "Are you sure you want to delete this seller? This action cannot be undone.",
+      `Are you sure you want to ${action} this seller?`
     );
 
     if (!confirmed) return;
 
-    const success = await deleteSeller(id);
+    const success = await hideSeller(id);
 
     if (success) {
       onClose();
@@ -131,11 +133,10 @@ const EditSellerModal = ({
                   onBlur={(e) => validatePhone(e.target.value)}
                   placeholder="07501234567"
                   disabled={loading}
-                  className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${
-                    phoneError
+                  className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
                       ? "border-red-400 focus:ring-red-400"
                       : "border-gray-200 focus:ring-blue-500"
-                  }`}
+                    }`}
                   required
                 />
                 {phoneError && (
@@ -144,27 +145,32 @@ const EditSellerModal = ({
               </div>
             </div>
 
-            {/* Delete Section */}
+            {/* Hide/Show Section */}
             <div className="pt-6 border-t border-gray-200">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className={`${seller.isHidden ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border rounded-lg p-4`}>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <Trash2 className="w-5 h-5 text-red-600" />
+                  <div className={`p-2 ${seller.isHidden ? 'bg-green-100' : 'bg-red-100'} rounded-lg`}>
+                    {seller.isHidden ? (
+                      <Eye className={`w-5 h-5 text-green-600`} />
+                    ) : (
+                      <EyeOff className={`w-5 h-5 text-red-600`} />
+                    )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-sm font-semibold text-red-900">
-                      Delete Seller
+                    <h4 className={`text-sm font-semibold ${seller.isHidden ? 'text-green-900' : 'text-red-900'}`}>
+                      {seller.isHidden ? "Show Seller" : "Hide Seller"}
                     </h4>
-                    <p className="text-sm text-red-700 mt-1">
-                      This action cannot be undone. All seller data will be
-                      permanently removed.
+                    <p className={`text-sm ${seller.isHidden ? 'text-green-700' : 'text-red-700'} mt-1`}>
+                      {seller.isHidden
+                        ? "This will make the seller visible again."
+                        : "This will hide the seller from view instead of deleting it."}
                     </p>
                     <button
-                      onClick={() => handleDelete(seller._id)}
+                      onClick={() => handleHide(seller._id)}
                       disabled={loading}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm cursor-pointer"
+                      className={`mt-3 px-4 py-2 ${seller.isHidden ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm cursor-pointer`}
                     >
-                      Delete Seller
+                      {seller.isHidden ? "Show Seller" : "Hide Seller"}
                     </button>
                   </div>
                 </div>

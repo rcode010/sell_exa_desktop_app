@@ -11,6 +11,7 @@ export interface Seller {
   location: Location;
   city: string;
   products: string[];
+  isHidden?: boolean;
 }
 
 export interface SellerStore {
@@ -22,6 +23,7 @@ export interface SellerStore {
   getAllSellers: () => Promise<void>;
   createSeller: (seller: Partial<Seller>) => Promise<boolean>;
   deleteSeller: (id: string) => Promise<boolean>;
+  hideSeller: (id: string) => Promise<boolean>;
   updateSeller: (id: string, seller: Partial<Seller>) => Promise<boolean>;
 }
 

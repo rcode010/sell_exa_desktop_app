@@ -160,6 +160,47 @@ export const useProductStore = create<ProductStore>((set, get) => ({
     }
   },
 
+  hideProduct: async (id: string) => {
+    set({ loading: true });
+    try {
+      const response = await axiosInstance.patch(`/api/product/hide?productId=${id}`);
+
+      if (response.status !== 200) {
+        throw new Error("Failed to toggle product visibility");
+      }
+
+      try {
+        await get().getProducts();
+      } catch (refreshError) {
+        console.error(
+          "Failed to refresh, using server response:",
+          refreshError,
+        );
+
+        // Optimistically update
+        set((state) => ({
+          products: state.products.map((product) =>
+            product._id === id
+              ? { ...product, isHidden: !product.isHidden }
+              : product
+          ),
+        }));
+      }
+
+      set({ loading: false });
+      toast.success(response.data.message || "Product visibility toggled successfully!");
+      return true;
+    } catch (error) {
+      const err = error as AxiosError<{ message?: string }>;
+
+      console.error("Error toggling product visibility:", err.message);
+      toast.error(err.response?.data?.message || "Failed to toggle product visibility");
+
+      set({ loading: false });
+      return false;
+    }
+  },
+
   getProductById: async (productId: string): Promise<ProductDetails | null> => {
     try {
       console.log(`[ProductStore] Fetching product: ${productId}`);

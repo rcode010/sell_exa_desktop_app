@@ -9,6 +9,8 @@ import {
   FileText,
   MapPin,
   Image,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Product } from "../../types/product";
 import { useProductStore } from "../../stores/useProductStore";
@@ -24,7 +26,7 @@ const EditProductModal = ({
   onClose: () => void;
 }) => {
   const updateProduct = useProductStore((state) => state.updateProduct);
-  const deleteProduct = useProductStore((state) => state.deleteProduct);
+  const hideProduct = useProductStore((state) => state.hideProduct);
   const loading = useProductStore((state) => state.loading);
 
   const [formData, setFormData] = useState({
@@ -83,11 +85,13 @@ const EditProductModal = ({
     if (success) onClose();
   };
 
-  const handleDelete = async () => {
+  const handleHide = async () => {
+    const isCurrentlyHidden = product.isHidden;
+    const action = isCurrentlyHidden ? "show" : "hide";
     if (
-      globalThis.confirm(`Are you sure you want to delete ${product.name.english}?`)
+      globalThis.confirm(`Are you sure you want to ${action} ${product.name.english}?`)
     ) {
-      const success = await deleteProduct(product._id);
+      const success = await hideProduct(product._id);
       if (success) onClose();
     }
   };
@@ -336,27 +340,32 @@ const EditProductModal = ({
               </div>
             </div>
 
-            {/* Delete Zone */}
+            {/* Hide/Show Zone */}
             <div className="pt-4 border-t border-gray-200">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className={`${product.isHidden ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} border rounded-lg p-4`}>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <Trash2 className="w-5 h-5 text-red-600" />
+                  <div className={`p-2 ${product.isHidden ? 'bg-green-100' : 'bg-red-100'} rounded-lg`}>
+                    {product.isHidden ? (
+                      <Eye className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <EyeOff className="w-5 h-5 text-red-600" />
+                    )}
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-sm font-semibold text-red-900">
-                      Delete Product
+                    <h4 className={`text-sm font-semibold ${product.isHidden ? 'text-green-900' : 'text-red-900'}`}>
+                      {product.isHidden ? "Show Product" : "Hide Product"}
                     </h4>
-                    <p className="text-sm text-red-700 mt-1">
-                      This action cannot be undone. This product will be
-                      permanently removed from inventory.
+                    <p className={`text-sm ${product.isHidden ? 'text-green-700' : 'text-red-700'} mt-1`}>
+                      {product.isHidden
+                        ? "This will make the product visible again."
+                        : "This will hide the product from view instead of deleting it."}
                     </p>
                     <button
-                      onClick={handleDelete}
+                      onClick={handleHide}
                       disabled={loading}
-                      className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={`mt-3 px-4 py-2 ${product.isHidden ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-colors font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
-                      Delete Product
+                      {product.isHidden ? "Show Product" : "Hide Product"}
                     </button>
                   </div>
                 </div>

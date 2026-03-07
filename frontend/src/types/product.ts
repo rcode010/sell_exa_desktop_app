@@ -43,6 +43,7 @@ export interface Product {
     height: number;
     length: number;
   };
+  isHidden?: boolean;
 }
 
 export interface CreateProductParams {
@@ -75,5 +76,6 @@ export interface ProductStore {
   createProduct: (params: CreateProductParams) => Promise<boolean>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;
+  hideProduct: (id: string) => Promise<boolean>;
   getProductById: (productId: string) => Promise<ProductDetails | null>;
 }
