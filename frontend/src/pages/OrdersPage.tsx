@@ -75,7 +75,7 @@ const OrdersPage = () => {
           className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center gap-2 cursor-pointer"
         >
           <Package className="w-5 h-5" />
-          Manage Delivery Prices
+          Manage Weight Prices
         </button>
       </div>
 
@@ -179,7 +179,7 @@ const OrdersPage = () => {
         />
       )}
 
-      {/* Manage Delivery Prices Modal */}
+      {/* Manage Weight Prices Modal */}
       {isManagePricesOpen && (
         <ManageDeliveryPricesModal
           onClose={() => setIsManagePricesOpen(false)}

@@ -38,11 +38,7 @@ export interface Product {
   updatedAt?: string;
   weight?: number;
   quantity?: number;
-  dimensions?: {
-    width: number;
-    height: number;
-    length: number;
-  };
+
   isHidden?: boolean;
 }
 

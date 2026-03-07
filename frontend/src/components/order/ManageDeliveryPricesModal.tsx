@@ -67,7 +67,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
     };
 
     const handleDelete = async (id: string, rangeValue: number) => {
-        if (window.confirm(`Are you sure you want to delete the delivery setting for range ${rangeValue}KM?`)) {
+        if (window.confirm(`Are you sure you want to delete the delivery setting for weight ${rangeValue}KG?`)) {
             await deleteWeight(id);
         }
     };
@@ -117,7 +117,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                 <div>
                                     <label className="block text-xs font-medium text-gray-600 mb-1">
-                                        Distance Range (Max KM) *
+                                        Weight Range (Max KG) *
                                     </label>
                                     <div className="relative">
                                         <Map className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -179,12 +179,12 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                 <thead className="bg-gray-50 border-b border-gray-200 hidden md:table-header-group">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Range (Max KM)
+                                            Range (Max KG)
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Price (IQD)
+                                            Delivery Price (IQD)
                                         </th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[160px]">
                                             Actions
                                         </th>
                                     </tr>
@@ -212,28 +212,30 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                                             className="w-full md:w-32 px-2 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                         />
                                                     </td>
-                                                    <td className="px-6 py-4 text-right md:table-cell flex gap-2 justify-end mt-2 md:mt-0">
-                                                        <button
-                                                            onClick={cancelEdit}
-                                                            disabled={loading}
-                                                            className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleUpdate(w._id)}
-                                                            disabled={loading}
-                                                            className="px-3 py-1.5 text-xs font-medium bg-black text-white rounded-md hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[60px]"
-                                                        >
-                                                            {loading ? <Loader className="w-3 h-3 animate-spin" /> : "Save"}
-                                                        </button>
+                                                    <td className="px-6 py-4 text-right md:table-cell block">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <button
+                                                                onClick={() => handleUpdate(w._id)}
+                                                                disabled={loading}
+                                                                className="px-3 py-1.5 text-xs font-medium bg-black text-white rounded-md hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[60px]"
+                                                            >
+                                                                {loading ? <Loader className="w-3 h-3 animate-spin" /> : "Save"}
+                                                            </button>
+                                                            <button
+                                                                onClick={cancelEdit}
+                                                                disabled={loading}
+                                                                className="px-3 py-1.5 text-xs font-medium border border-gray-300 rounded-md hover:bg-gray-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </>
                                             ) : (
                                                 <>
                                                     <td className="px-6 py-4 whitespace-nowrap md:table-cell flex justify-between">
                                                         <span className="md:hidden text-gray-500 text-sm font-medium">Range:</span>
-                                                        <span className="text-sm font-medium text-gray-900">Up to {w.range} KM</span>
+                                                        <span className="text-sm font-medium text-gray-900">Up to {w.range} KG</span>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap md:table-cell flex justify-between">
                                                         <span className="md:hidden text-gray-500 text-sm font-medium">Price:</span>
