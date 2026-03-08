@@ -10,8 +10,7 @@ const ProfilePage = () => {
   const loading = useUserStore((state) => state.loading);
   const getProfile = useUserStore((state) => state.getProfile);
 
-  const updateAdmin = useUserStore((state) => state.updateAdmin);
-
+  const changePassword = useUserStore((state) => state.changePassword);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
@@ -49,21 +48,25 @@ const ProfilePage = () => {
       return toast.error("Fill in all required fields.");
     }
 
+    if (formData.newPassword.length < 6) {
+      return toast.error("Password must be at least 6 characters long");
+    }
+
     if (formData.newPassword !== formData.confirmPassword) {
       return toast.error("Passwords do not match");
     }
 
     if (formData.oldPassword === formData.newPassword) {
       return toast.error(
-        "New password must be different from the current password."
+        "New password must be different from the current password.",
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, ...dataToBeSent } = formData;
-
     setIsSubmitting(true);
-    const success = await updateAdmin(dataToBeSent, user._id);
+    const success = await changePassword(
+      formData.oldPassword,
+      formData.newPassword,
+    );
     setIsSubmitting(false);
 
     if (success) {
@@ -83,7 +86,6 @@ const ProfilePage = () => {
       <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
       <p className="text-gray-500 mt-2 mb-8">
         Manage your account settings and preferences
-
       </p>
 
       <div className="border border-gray-200 rounded-lg p-8 bg-white w-[40%]">
@@ -192,6 +194,11 @@ const ProfilePage = () => {
                       )}
                     </button>
                   </div>
+                  {formData.newPassword && formData.newPassword.length < 6 && (
+                    <p className="text-red-600 text-sm mt-2">
+                      Password must be at least 6 characters long
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   <label
@@ -229,14 +236,29 @@ const ProfilePage = () => {
                       )}
                     </button>
                   </div>
+                  {formData.confirmPassword &&
+                    formData.newPassword !== formData.confirmPassword && (
+                      <p className="text-red-600 text-sm mt-2">
+                        Passwords do not match
+                      </p>
+                    )}
                 </div>
                 <button
+                  onClick={handleUpdate}
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-6 py-3 mt-4 cursor-pointer bg-black text-white rounded-lg hover:bg-gray-800 self-start text-sm"
+                  disabled={
+                    isSubmitting ||
+                    !formData.newPassword ||
+                    !formData.confirmPassword ||
+                    formData.newPassword.length < 6 ||
+                    formData.newPassword !== formData.confirmPassword
+                  }
+                  className="px-6 py-3 mt-4 cursor-pointer bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed self-start text-sm"
                 >
                   {isSubmitting ? (
-                    <div className="flex items-center gap-2 text-sm"><Loader className="animate-spin w-4 h-4" /> Updating...</div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Loader className="animate-spin w-4 h-4" /> Updating...
+                    </div>
                   ) : (
                     "Update Password"
                   )}

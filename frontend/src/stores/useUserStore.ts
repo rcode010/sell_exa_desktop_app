@@ -56,9 +56,13 @@ export const useUserStore = create(
           const refreshToken = await window.secureToken.get();
           set({ user: null, accessToken: null, admins: [] });
           if (refreshToken) {
-            await axios.post("/api/admin/logout", {}, {
-              headers: { "refresh-token": refreshToken },
-            });
+            await axios.post(
+              "/api/admin/logout",
+              {},
+              {
+                headers: { "refresh-token": refreshToken },
+              },
+            );
           }
           toast.success("Logged out successfully");
         } catch (error) {
@@ -73,13 +77,18 @@ export const useUserStore = create(
           const refreshToken = await window.secureToken?.get();
           if (!refreshToken) return false;
 
-          const res = await axios.post("/api/admin/refresh-token", {}, {
-            headers: { "x-refresh-token": refreshToken },
-          });
+          const res = await axios.post(
+            "/api/admin/refresh-token",
+            {},
+            {
+              headers: { "x-refresh-token": refreshToken },
+            },
+          );
 
           const data = res.data.data;
           const newAccessToken = data.accessToken || data.tokens?.accessToken;
-          const newRefreshToken = data.refreshToken || data.tokens?.refreshToken;
+          const newRefreshToken =
+            data.refreshToken || data.tokens?.refreshToken;
 
           if (!newAccessToken) throw new Error("No access token");
 
@@ -90,7 +99,10 @@ export const useUserStore = create(
         } catch (e) {
           const error = e as AxiosError<{ message?: string }>;
           // If the refresh token itself is expired/invalid (401/403)
-          if (error.response?.status === 401 || error.response?.status === 403) {
+          if (
+            error.response?.status === 401 ||
+            error.response?.status === 403
+          ) {
             set({ user: null, accessToken: null });
             await window.secureToken?.clear();
             if (!silent) toast.error("Session expired. Please login again.");
@@ -197,7 +209,32 @@ export const useUserStore = create(
         } catch (e) {
           const error = e as AxiosError<{ message?: string }>;
           set({ loading: false });
-          toast.error(error.response?.data?.message || "Failed to update admin");
+          toast.error(
+            error.response?.data?.message || "Failed to update admin",
+          );
+          return false;
+        }
+      },
+
+      changePassword: async (oldPassword: string, newPassword: string) => {
+        try {
+          set({ loading: true });
+          const res = await axios.patch(`/api/admin`, {
+            oldPassword,
+            newPassword,
+          });
+          set({ loading: false });
+          if (res.status === 200) {
+            toast.success("Password changed successfully");
+            return true;
+          }
+          return false;
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
+          set({ loading: false });
+          toast.error(
+            error.response?.data?.message || "Failed to change password",
+          );
           return false;
         }
       },
@@ -208,6 +245,6 @@ export const useUserStore = create(
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },
-    }
-  )
+    },
+  ),
 );
