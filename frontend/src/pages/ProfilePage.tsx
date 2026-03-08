@@ -82,8 +82,8 @@ const ProfilePage = () => {
     <div className="flex flex-col py-8 px-4">
       <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
       <p className="text-gray-500 mt-2 mb-8">
-          Manage your account settings and preferences
-          
+        Manage your account settings and preferences
+
       </p>
 
       <div className="border border-gray-200 rounded-lg p-8 bg-white w-[40%]">
@@ -96,44 +96,30 @@ const ProfilePage = () => {
 
         <form onSubmit={handleUpdate} className="space-y-6">
           <div className="flex flex-col">
-            <label
-              htmlFor="fullName"
-              className="text-sm font-medium text-gray-900 mb-2"
-            >
+            <span className="text-sm font-medium text-gray-900 mb-2">
               Full Name
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={user.firstName + " " + user.lastName}
-              readOnly
-              className="px-4  placeholder:text-gray-400 py-3 border border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            </span>
+            <div className="px-4 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900">
+              {user.firstName} {user.lastName}
+            </div>
           </div>
 
           <div className="flex flex-col">
-            <label
-              htmlFor="phone"
-              className="text-sm font-medium text-gray-900 mb-2"
-            >
+            <span className="text-sm font-medium text-gray-900 mb-2">
               Phone Number
-            </label>
-            <input
-              id="phone"
-              type="tel"
-              value={user.phoneNo}
-              readOnly
-              className="px-4 py-3 border placeholder:text-gray-400 border-gray-200 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            </span>
+            <div className="px-4 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-900">
+              {user.phoneNo}
+            </div>
           </div>
-            <button
-              type="button"
-              onClick={() => setShowPasswordSection((p) => !p)}
-              className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-            >
-              <Key className="w-4 h-4" />
-              Change Password
-            </button>
+          <button
+            type="button"
+            onClick={() => setShowPasswordSection((p) => !p)}
+            className="flex items-center gap-2 px-4 py-2 text-sm cursor-pointer text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+          >
+            <Key className="w-4 h-4" />
+            Change Password
+          </button>
           {showPasswordSection && (
             <>
               <div className="bg-blue-100 rounded-lg  w-full max-w-2xl max-h-[90vh] p-7 overflow-hidden flex flex-col space-y-6">
@@ -244,20 +230,20 @@ const ProfilePage = () => {
                     </button>
                   </div>
                 </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-6 py-3 mt-4 cursor-pointer bg-black text-white rounded-lg hover:bg-gray-800 self-start text-sm"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2 text-sm"><Loader className="animate-spin w-4 h-4" /> Updating...</div>
+                  ) : (
+                    "Update Password"
+                  )}
+                </button>
               </div>
             </>
           )}
-            <button
-              type="submit"
-              disabled={!showPasswordSection}
-              className="px-6 py-3 cursor-pointer bg-black text-white rounded-lg hover:bg-gray-800"
-            >
-              {isSubmitting ? (
-                <Loader className="animate-spin" />
-              ) : (
-                "Update Profile"
-              )}
-            </button>
         </form>
       </div>
     </div>
