@@ -130,7 +130,7 @@ describe("useCompanyStore", () => {
 
     it("should optimistically update if refresh fails", async () => {
       const mockFormData = new FormData();
-      const mockCompany = { _id: "1", name: "Ford", models: [] };
+      const mockCompany = { _id: "1", name: "Ford", models: [], logoLink: null, products: 0, isHidden: false };
 
       useCompanyStore.setState({
         companies: [
@@ -140,6 +140,7 @@ describe("useCompanyStore", () => {
             models: [],
             logoLink: null,
             products: 0,
+            isHidden: false,
           },
         ],
       });
