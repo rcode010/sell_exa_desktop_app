@@ -163,7 +163,7 @@ describe("useCompanyStore", () => {
       const mockFormData = new FormData();
       mockFormData.append("name", "Updated Company");
 
-      const mockUpdated = { _id: "1", name: "Updated Company", models: [] };
+      const mockUpdated = { _id: "1", name: "Updated Company", models: [], logoLink: null, products: 0, isHidden: false };
 
       vi.mocked(axios.patch).mockResolvedValueOnce({
         data: { success: true, data: mockUpdated },

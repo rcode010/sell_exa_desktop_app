@@ -16,7 +16,7 @@ import { useCompanyStore } from "../../stores/useCompanyStore";
 import toast from "react-hot-toast";
 import { FILE_UPLOAD } from "../../constants/config";
 import { useModelStore } from "../../stores/useModelStore";
-import HiddenModelsModal from "./Hiddenmodelsmodal";
+import HiddenModelsModal from "./HiddenModelsModal";
 
 const EditCompanyModal = ({
   company,
@@ -203,22 +203,20 @@ const EditCompanyModal = ({
             <button
               disabled={companyLoading || modelsLoading}
               onClick={() => setIsCompanyDetailsVisible(true)}
-              className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                isCompanyDetailsVisible
+              className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isCompanyDetailsVisible
                   ? "text-blue-600 border-b-2 border-blue-600 bg-white"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
+                }`}
             >
               Company Details
             </button>
             <button
               disabled={companyLoading || modelsLoading}
               onClick={() => setIsCompanyDetailsVisible(false)}
-              className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-                !isCompanyDetailsVisible
+              className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${!isCompanyDetailsVisible
                   ? "text-blue-600 border-b-2 border-blue-600 bg-white"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
+                }`}
             >
               Models ({models.length})
             </button>
