@@ -5,6 +5,11 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  define: {
+    VITE_API_BASE_URL: JSON.stringify(
+      process.env.VITE_API_BASE_URL || "http://localhost:3000",
+    ),
+  },
   plugins: [
     react(),
     tailwindcss(),

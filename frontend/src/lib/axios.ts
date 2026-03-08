@@ -3,7 +3,9 @@ import axios from "axios";
 import { useUserStore } from "../stores/useUserStore";
 
 const axiosInstance = axios.create({
-  baseURL: "https://solution-squad-backend-development.onrender.com",
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    "https://solution-squad-backend-development.onrender.com",
   timeout: 30000,
   withCredentials: true,
   headers: {
@@ -37,7 +39,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 axiosInstance.interceptors.response.use(
@@ -46,11 +48,15 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Avoid infinite loops on auth endpoints
-    const isAuthRequest = 
+    const isAuthRequest =
       originalRequest.url.includes("/api/admin/refresh-token") ||
       originalRequest.url.includes("/api/admin/login");
 
-    if (error.response?.status !== 401 || originalRequest._retry || isAuthRequest) {
+    if (
+      error.response?.status !== 401 ||
+      originalRequest._retry ||
+      isAuthRequest
+    ) {
       return Promise.reject(error);
     }
 
@@ -87,7 +93,7 @@ axiosInstance.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default axiosInstance;
