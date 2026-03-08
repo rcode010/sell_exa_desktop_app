@@ -20,8 +20,10 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "installerHeaderIcon": null
     },
+    "compression": "maximum",
     "asar": true
   },
   "scripts": {
