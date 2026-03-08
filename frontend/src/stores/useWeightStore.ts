@@ -2,6 +2,7 @@ import { create } from "zustand";
 import axiosInstance from "../lib/axios";
 import { Weight } from "../types/weight";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
 interface WeightState {
     weights: Weight[];
@@ -28,7 +29,8 @@ export const useWeightStore = create<WeightState>((set, get) => ({
             } else {
                 toast.error(response.data.message || "Failed to fetch weights");
             }
-        } catch (error: any) {
+        } catch (e) {
+            const error = e as AxiosError<{ message?: string }>;
             toast.error(
                 error.response?.data?.message || "Failed to load weights"
             );
@@ -49,7 +51,8 @@ export const useWeightStore = create<WeightState>((set, get) => ({
             }
             toast.error(response.data.message || "Failed to create delivery price");
             return false;
-        } catch (error: any) {
+        } catch (e) {
+            const error = e as AxiosError<{ message?: string }>;
             toast.error(
                 error.response?.data?.message || "An error occurred while creating delivery price"
             );
@@ -73,7 +76,8 @@ export const useWeightStore = create<WeightState>((set, get) => ({
             }
             toast.error(response.data.message || "Failed to update delivery price");
             return false;
-        } catch (error: any) {
+        } catch (e) {
+            const error = e as AxiosError<{ message?: string }>;
             toast.error(
                 error.response?.data?.message || "An error occurred while updating delivery price"
             );
@@ -92,7 +96,8 @@ export const useWeightStore = create<WeightState>((set, get) => ({
                 weights: state.weights.filter((w) => w._id !== id),
             }));
             return true;
-        } catch (error: any) {
+        } catch (e) {
+            const error = e as AxiosError<{ message?: string }>;
             toast.error(
                 error.response?.data?.message || "An error occurred while deleting delivery price"
             );

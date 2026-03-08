@@ -43,7 +43,8 @@ export const useUserStore = create(
           });
           toast.success("Logged in successfully");
           return true;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           set({ loading: false });
           toast.error(error.response?.data?.message || "Login failed");
           return false;
@@ -86,7 +87,8 @@ export const useUserStore = create(
 
           set({ accessToken: newAccessToken });
           return true;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           // If the refresh token itself is expired/invalid (401/403)
           if (error.response?.status === 401 || error.response?.status === 403) {
             set({ user: null, accessToken: null });
@@ -132,7 +134,8 @@ export const useUserStore = create(
           const res = await axios.get("/api/admin/profile");
           set({ user: res.data.data });
           return true;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           return false;
         }
       },
@@ -143,7 +146,8 @@ export const useUserStore = create(
           const res = await axios.get("/api/admin/all");
           set({ admins: res.data.data, loading: false });
           return true;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           set({ loading: false });
           return false;
         }
@@ -156,7 +160,8 @@ export const useUserStore = create(
           set({ loading: false });
           toast.success("Admin added");
           return true;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           set({ loading: false });
           toast.error(error.response?.data?.message || "Failed");
           return false;
@@ -171,7 +176,8 @@ export const useUserStore = create(
           toast.success("Admin deleted");
           set({ loading: false });
           return true;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           set({ loading: false });
           return false;
         }
@@ -188,7 +194,8 @@ export const useUserStore = create(
             return true;
           }
           return false;
-        } catch (error: any) {
+        } catch (e) {
+          const error = e as AxiosError<{ message?: string }>;
           set({ loading: false });
           toast.error(error.response?.data?.message || "Failed to update admin");
           return false;

@@ -10,7 +10,7 @@ const ProfilePage = () => {
   const loading = useUserStore((state) => state.loading);
   const getProfile = useUserStore((state) => state.getProfile);
 
-  const { updateAdmin } = useUserStore();
+  const updateAdmin = useUserStore((state) => state.updateAdmin);
 
 
   const [isSubmitting, setIsSubmitting] = useState(false);

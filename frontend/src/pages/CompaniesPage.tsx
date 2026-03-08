@@ -8,6 +8,7 @@ import { useCompanyStore } from "../stores/useCompanyStore";
 import Loader from "../components/ui/Loader";
 import CompanyInstance from "../components/company/CompanyInstance";
 import { useUserStore } from "../stores/useUserStore";
+import { useDebounce } from "../hooks/useDebounce";
 
 const CompaniesPage = () => {
   const companies = useCompanyStore((state) => state.companies);
@@ -24,14 +25,16 @@ const CompaniesPage = () => {
   const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
-  const filteredCompanies = useMemo(() => {
-    if (!search) return companies;
+  const debouncedSearch = useDebounce(search, 300);
 
-    const value = search.toLowerCase();
+  const filteredCompanies = useMemo(() => {
+    if (!debouncedSearch) return companies;
+
+    const value = debouncedSearch.toLowerCase();
     return companies.filter((company) =>
       company.name.toLowerCase().includes(value),
     );
-  }, [search, companies]);
+  }, [debouncedSearch, companies]);
 
   useEffect(() => {
     if (isHydrated && accessToken) {

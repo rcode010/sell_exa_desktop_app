@@ -9,6 +9,7 @@ import Loader from "../components/ui/Loader";
 import SellerInstance from "../components/seller/SellerInstance";
 import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
+import { useDebounce } from "../hooks/useDebounce";
 
 const SellersPage = () => {
   // Use individual selectors to prevent unnecessary re-renders
@@ -26,17 +27,18 @@ const SellersPage = () => {
   const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
 
-  const filteredSellers = useMemo(() => {
-    if (!Array.isArray(sellers)) return [];
-    if (!search) return sellers;
+  const debouncedSearch = useDebounce(search, 300);
 
-    const value = search.toLowerCase();
+  const filteredSellers = useMemo(() => {
+    if (!debouncedSearch) return sellers;
+
+    const value = debouncedSearch.toLowerCase();
     return sellers.filter(
       (seller) =>
         seller.storeName?.toLowerCase().includes(value) ||
         seller.phoneNo?.toLowerCase().includes(value)
     );
-  }, [search, sellers]);
+  }, [debouncedSearch, sellers]);
 
   // Fetch sellers once when auth is ready
   useEffect(() => {

@@ -7,6 +7,7 @@ import HiddenProductsModal from "../components/product/HiddenProductsModal";
 import { useProductStore } from "../stores/useProductStore";
 import { useUserStore } from "../stores/useUserStore";
 import Loader from "../components/ui/Loader";
+import { useDebounce } from "../hooks/useDebounce";
 
 const ProductsPage = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -25,19 +26,20 @@ const ProductsPage = () => {
     (state) => state.getProducts
   );
 
+  const debouncedSearch = useDebounce(search, 300);
+
   // Filter products based on search
   const filteredProducts: Product[] = useMemo(() => {
-    if (Array.isArray(products) === false) return [];
-    if (!search) return products;
+    if (!debouncedSearch) return products;
 
-    const value = search.toLowerCase();
+    const value = debouncedSearch.toLowerCase();
     return products.filter((product) => {
       return (
         product.name.english.toLowerCase().includes(value) ||
         product.quality.toLowerCase().includes(value)
       );
     });
-  }, [products, search]);
+  }, [products, debouncedSearch]);
 
   useEffect(() => {
     if (isHydrated && accessToken) {

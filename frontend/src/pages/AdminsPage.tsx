@@ -6,6 +6,7 @@ import { useUserStore } from "../stores/useUserStore";
 import { User } from "../types/user";
 import AdminInstance from "../components/admins/AdminInstance";
 import AddAdminsModal from "../components/admins/AddAdminsModal";
+import { useDebounce } from "../hooks/useDebounce";
 
 const AdminsPage = () => {
   const { admins, loading, getAllAdmins } = useUserStore() as {
@@ -20,9 +21,11 @@ const AdminsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState<User | null>(null);
 
+  const debouncedSearch = useDebounce(search, 300);
+
   const filteredAdmins = useMemo(() => {
-    if (!search) return admins;
-    const value = search.toLowerCase();
+    if (!debouncedSearch) return admins;
+    const value = debouncedSearch.toLowerCase();
     return admins.filter(
       (admin) =>
         admin.firstName.toLowerCase().includes(value) ||
@@ -30,7 +33,7 @@ const AdminsPage = () => {
         admin.phoneNo.toLowerCase().includes(value) ||
         admin.role.toLowerCase().includes(value)
     );
-  }, [search, admins]);
+  }, [debouncedSearch, admins]);
 
   useEffect(() => {
     getAllAdmins();

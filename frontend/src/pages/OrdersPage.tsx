@@ -6,6 +6,7 @@ import OrderInstance from "../components/order/OrderInstance";
 import { Order } from "../types/order";
 import { useOrderStore } from "../stores/useOrderStore.ts";
 import Loader from "../components/ui/Loader.tsx";
+import { useDebounce } from "../hooks/useDebounce";
 
 const ORDER_TABLE_HEADERS: { label: string }[] = [
   { label: "Order #" },
@@ -25,15 +26,20 @@ const OrdersPage = () => {
   const [isManagePricesOpen, setIsManagePricesOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const { orders, loading, getOrders, changeOrderStatus } = useOrderStore();
+  const orders = useOrderStore((state) => state.orders);
+  const loading = useOrderStore((state) => state.loading);
+  const getOrders = useOrderStore((state) => state.getOrders);
+  const changeOrderStatus = useOrderStore((state) => state.changeOrderStatus);
 
   // Fetch orders on mount
   useEffect(() => {
     getOrders();
   }, [getOrders]);
 
+  const debouncedSearch = useDebounce(search, 300);
+
   const filteredOrders: Order[] = useMemo(() => {
-    const value = search.toLowerCase();
+    const value = debouncedSearch.toLowerCase();
 
     return orders.filter((order) => {
       return (
@@ -43,7 +49,7 @@ const OrdersPage = () => {
         order.status.toLowerCase().includes(value)
       );
     });
-  }, [search, orders]);
+  }, [debouncedSearch, orders]);
 
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);

@@ -3,6 +3,7 @@ import { create } from "zustand";
 import axios from "../lib/axios";
 import toast from "react-hot-toast";
 import { Order, OrderStatus } from "../types/order";
+import { AxiosError } from "axios";
 
 interface OrderStore {
   orders: Order[];
@@ -127,7 +128,8 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
 
 
       set({ orders, loading: false });
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as AxiosError<{ message?: string }>;
       console.error("Get orders error:", error);
       set({ loading: false });
 
@@ -156,7 +158,8 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
 
       toast.success("Order status updated");
       return true;
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as AxiosError<{ message?: string }>;
       console.error("Change order status error:", error);
 
       const message =
@@ -179,7 +182,8 @@ export const useOrderStore = create<OrderStore>((set, get) => ({
 
       toast.success("Order deleted");
       return true;
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as AxiosError<{ message?: string }>;
       console.error("Delete order error:", error);
 
       const message =
