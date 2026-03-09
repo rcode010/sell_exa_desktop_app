@@ -70,7 +70,6 @@ const ProfilePage = () => {
     setIsSubmitting(false);
 
     if (success) {
-      toast.success("Password changed successfully");
       setFormData({
         oldPassword: "",
         newPassword: "",
