@@ -1,31 +1,8 @@
 {
   "name": "sell_exa",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
-  "build": {
-    "appId": "com.sellexa.app",
-    "productName": "Sellexa",
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*",
-      "package.json"
-    ],
-    "directories": {
-      "output": "release",
-      "buildResources": "build"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerHeaderIcon": null
-    },
-    "compression": "maximum",
-    "asar": true
-  },
   "scripts": {
     "dev": "vite",
     "dev:staging": "vite --mode staging",
