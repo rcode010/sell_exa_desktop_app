@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { autoUpdater } from "electron-updater";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -80,6 +81,10 @@ ipcMain.handle("delete-token", async () => {
 });
 
 /* ================= APP LIFECYCLE ================= */
+
+app.whenReady().then(() => {
+  autoUpdater.checkForUpdatesAndNotify();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

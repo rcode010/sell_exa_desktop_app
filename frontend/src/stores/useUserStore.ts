@@ -198,7 +198,10 @@ export const useUserStore = create(
       updateAdmin: async (id: string, data: any) => {
         try {
           set({ loading: true });
-          const res = await axios.patch(`/api/admin/edit-info?adminId=${id}`, data);
+          const res = await axios.patch(
+            `/api/admin/edit-info?adminId=${id}`,
+            data,
+          );
           set({ loading: false });
           if (res.status === 200) {
             toast.success("Admin updated successfully");

@@ -14,5 +14,10 @@
     "oneClick": false,
     "allowToChangeInstallationDirectory": true
   },
-  "asar": true
+  "asar": true,
+  "publish": {
+    "provider": "github",
+    "owner": "rcode010",
+    "repo": "sell_exa_desktop_app"
+  }
 }
