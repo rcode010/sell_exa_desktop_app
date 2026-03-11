@@ -48,6 +48,8 @@ const App = () => {
 
   const hasInitialized = useRef(false);
 
+  console.log("Update has been pulled from GitHub Releases");
+
   useEffect(() => {
     if (isHydrated && !hasInitialized.current) {
       hasInitialized.current = true;
