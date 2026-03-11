@@ -8,7 +8,6 @@ import log from 'electron-log';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Import keytar
 const keytar = require("keytar");
 
 const SERVICE_NAME = "SellExa";
@@ -83,6 +82,55 @@ ipcMain.handle("delete-token", async () => {
   }
 });
 
+ipcMain.handle("get-app-version", () => {
+  return app.getVersion();
+});
+
+ipcMain.handle("check-for-updates", async () => {
+  if (VITE_DEV_SERVER_URL) {
+    setTimeout(() => {
+      win?.webContents.send("update-status", { type: "update-not-available" });
+    }, 1500);
+    return;
+  }
+  return autoUpdater.checkForUpdates();
+});
+
+ipcMain.handle("restart-and-install", () => {
+  autoUpdater.quitAndInstall();
+});
+
+/* ================= AUTO UPDATER ================= */
+
+autoUpdater.disableWebInstaller = true;
+autoUpdater.logger = log;
+(autoUpdater.logger as typeof log).transports.file.level = 'info';
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...');
+  win?.webContents.send('update-status', { type: 'checking-for-update' });
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info.version);
+  win?.webContents.send('update-status', { type: 'update-available', version: info.version });
+});
+
+autoUpdater.on('update-not-available', () => {
+  console.log('Already on latest version');
+  win?.webContents.send('update-status', { type: 'update-not-available' });
+});
+
+autoUpdater.on('error', (err) => {
+  console.error('AutoUpdater error:', err);
+  win?.webContents.send('update-status', { type: 'error', message: err.message });
+});
+
+autoUpdater.on('update-downloaded', () => {
+  console.log('Update downloaded, will install on restart');
+  win?.webContents.send('update-status', { type: 'update-downloaded' });
+});
+
 /* ================= APP LIFECYCLE ================= */
 
 app.on("window-all-closed", () => {
@@ -98,30 +146,12 @@ app.on("activate", () => {
   }
 });
 
-autoUpdater.logger = log;
-(autoUpdater.logger as typeof log).transports.file.level = 'info';
-
-autoUpdater.on('checking-for-update', () => {
-  console.log('Checking for update...')
-})
-
-autoUpdater.on('update-available', (info) => {
-  console.log('Update available:', info.version)
-})
-
-autoUpdater.on('update-not-available', () => {
-  console.log('Already on latest version')
-})
-
-autoUpdater.on('error', (err) => {
-  console.error('AutoUpdater error:', err)
-})
-
-autoUpdater.on('update-downloaded', () => {
-  console.log('Update downloaded, will install on restart')
-})
-
 app.whenReady().then(() => {
   createWindow();
-  autoUpdater.checkForUpdatesAndNotify();
+
+  win?.webContents.once('did-finish-load', () => {
+    setTimeout(() => {
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 3000);
+  });
 });

@@ -24,3 +24,13 @@ contextBridge.exposeInMainWorld('secureToken', {
   get: () => ipcRenderer.invoke('get-token'),
   clear: () => ipcRenderer.invoke('delete-token'),
 });
+
+contextBridge.exposeInMainWorld('app', {
+  getVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  onUpdateStatus: (callback: (status: any) => void) => {
+    const subscription = (_event: any, status: any) => callback(status);
+    ipcRenderer.on('update-status', subscription);
+    return () => ipcRenderer.off('update-status', subscription);
+  },
+});
