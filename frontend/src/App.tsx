@@ -25,6 +25,8 @@ const App = () => {
   const checkingAuth = useUserStore((state) => state.checkingAuth);
   const initAuth = useUserStore((state) => state.initAuth);
 
+  console.log("Update has been pulled from GitHub Releases");
+
   // Ref guard: ensures initAuth fires exactly once per app mount.
   // React StrictMode in development intentionally unmounts + remounts components
   // to detect side-effects, which would double-call initAuth and consume a
