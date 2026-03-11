@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore.ts";
@@ -10,7 +10,6 @@ import LoginPage from "./pages/LoginPage.tsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
 import MainLayout from "./components/layout/MainLayout.tsx";
 
-// Laze loaded imports
 const OrdersPage = lazy(() => import("./pages/OrdersPage.tsx"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage.tsx"));
 const ProductsPage = lazy(() => import("./pages/ProductsPage.tsx"));
@@ -18,19 +17,35 @@ const SellersPage = lazy(() => import("./pages/SellersPage.tsx"));
 const CompaniesPage = lazy(() => import("./pages/CompaniesPage.tsx"));
 const AdminsPage = lazy(() => import("./pages/AdminsPage.tsx"));
 
+const UpdateBanner = () => {
+  const handleRestartAndInstall = () => {
+    window.ipcRenderer.invoke("restart-and-install");
+  };
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50 flex items-center justify-between gap-4 bg-green-700 text-white px-5 py-3 rounded-xl shadow-lg">
+      <div>
+        <p className="text-sm font-semibold">Update ready to install</p>
+        <p className="text-xs text-green-200 mt-0.5">Restart the app to apply the latest update</p>
+      </div>
+      <button
+        onClick={handleRestartAndInstall}
+        className="px-4 py-2 text-sm font-medium bg-white text-green-700 rounded-lg hover:bg-green-50 transition-colors whitespace-nowrap"
+      >
+        Restart & Install
+      </button>
+    </div>
+  );
+};
+
 const App = () => {
-  // Get states and actions from user store | the individual selectors help in preventing unnecessary re-renders
   const user: User | null = useUserStore((state) => state.user);
   const isHydrated = useUserStore((state) => state.isHydrated);
   const checkingAuth = useUserStore((state) => state.checkingAuth);
   const initAuth = useUserStore((state) => state.initAuth);
 
-  console.log("Update has been pulled from GitHub Releases");
+  const [updateDownloaded, setUpdateDownloaded] = useState(false);
 
-  // Ref guard: ensures initAuth fires exactly once per app mount.
-  // React StrictMode in development intentionally unmounts + remounts components
-  // to detect side-effects, which would double-call initAuth and consume a
-  // one-time-use rotated refresh token. This ref prevents the second invocation.
   const hasInitialized = useRef(false);
 
   useEffect(() => {
@@ -40,8 +55,17 @@ const App = () => {
     }
   }, [initAuth, isHydrated]);
 
+  // Global update listener — always active regardless of current page
+  useEffect(() => {
+    const unsubscribe = window.app.onUpdateStatus((status) => {
+      if (status.type === "update-downloaded") {
+        setUpdateDownloaded(true);
+      }
+    });
+    return unsubscribe;
+  }, []);
+
   if (!isHydrated || checkingAuth) {
-    // Show loading state while store is hydrating or when access token is being refreshed
     return (
       <div className="min-h-screen w-full flex justify-center items-center bg-gray-50">
         <Loader />
@@ -51,7 +75,6 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      {/* Toaster Notifications */}
       <Toaster
         position="top-center"
         toastOptions={{
@@ -75,20 +98,16 @@ const App = () => {
         }}
       />
 
+      {updateDownloaded && <UpdateBanner />}
+
       <Suspense fallback={<Loader />}>
         <Routes>
-          {/* Public routes */}
           <Route
             path="/login"
             element={user ? <Navigate to="/" replace /> : <LoginPage />}
           />
 
-          {/* 1. OUTER SHELL: The Authentication Checkpoint */}
           <Route element={<ProtectedRoute />}>
-            {/* 2. INNER SHELL: The UI Layout 
-                This route doesn't add to the URL path (no path="..."). 
-                It just wraps everything inside it with the Sidebar. 
-            */}
             <Route
               element={
                 <MainLayout>
@@ -96,18 +115,12 @@ const App = () => {
                 </MainLayout>
               }
             >
-              {/* 3. THE CONTENT: These render INSIDE MainLayout's <Outlet /> */}
               <Route path="/" element={<OrdersPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/sellers" element={<SellersPage />} />
               <Route path="/companies" element={<CompaniesPage />} />
               <Route path="/profile" element={<ProfilePage />} />
 
-              {/* Role Based Route */}
-              {/* 4. SPECIAL CASE: A Route inside a Route inside a Route! 
-                  This is a "Double Protected" route. 
-                  First passed Auth (Layer 1), then got Layout (Layer 2), now checks Role (Layer 4).
-              */}
               <Route element={<ProtectedRoute allowedRoles={["superAdmin"]} />}>
                 <Route path="/admins" element={<AdminsPage />} />
               </Route>
