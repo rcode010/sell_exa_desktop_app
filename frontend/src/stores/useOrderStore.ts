@@ -208,7 +208,6 @@ export const useOrderStore = create<OrderStore>()(
       name: "orders-storage",
       partialize: (state) => ({
         orders: state.orders,
-        isOffline: state.isOffline,
         lastUpdated: state.lastUpdated,
       }),
     },

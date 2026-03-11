@@ -131,7 +131,6 @@ export const useWeightStore = create<WeightState>()(
             name: "sell-exa-weights",
             partialize: (state) => ({
                 weights: state.weights,
-                isOffline: state.isOffline,
                 lastUpdated: state.lastUpdated,
             }),
         }

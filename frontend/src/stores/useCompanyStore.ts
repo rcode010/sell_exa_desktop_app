@@ -203,7 +203,6 @@ export const useCompanyStore = create<CompanyStore>()(
       partialize: (state) => ({
         companies: state.companies,
         companiesCount: state.companiesCount,
-        isOffline: state.isOffline,
         lastUpdated: state.lastUpdated,
       }),
     },

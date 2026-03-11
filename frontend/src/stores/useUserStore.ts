@@ -254,7 +254,6 @@ export const useUserStore = create(
       partialize: (state: any) => ({
         user: state.user,
         admins: state.admins,
-        adminsOffline: state.adminsOffline,
         adminsLastUpdated: state.adminsLastUpdated,
       }),
       onRehydrateStorage: () => (state) => {

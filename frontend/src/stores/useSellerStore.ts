@@ -215,7 +215,6 @@ export const useSellerStore = create<SellerStore>()(
       name: "sellers-storage",
       partialize: (state) => ({
         sellers: state.sellers,
-        isOffline: state.isOffline,
         lastUpdated: state.lastUpdated,
       }),
     },

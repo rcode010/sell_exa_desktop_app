@@ -156,7 +156,6 @@ export const useModelStore = create<ModelStore>()(
       partialize: (state) => ({
         models: state.models,
         modelsCount: state.modelsCount,
-        isOffline: state.isOffline,
         lastUpdated: state.lastUpdated,
       }),
     }
