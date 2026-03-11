@@ -8,6 +8,9 @@ import { useProductStore } from "../stores/useProductStore";
 import { useUserStore } from "../stores/useUserStore";
 import Loader from "../components/ui/Loader";
 import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../components/ui/Pagination";
+
+const ITEMS_PER_PAGE = 10;
 
 const ProductsPage = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -16,6 +19,7 @@ const ProductsPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const isHydrated: boolean = useUserStore((state) => state.isHydrated);
   const accessToken: string = useUserStore((state) => state.accessToken);
@@ -41,6 +45,18 @@ const ProductsPage = () => {
       );
     });
   }, [products, debouncedSearch]);
+
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     if (isHydrated && accessToken) {
@@ -156,7 +172,7 @@ const ProductsPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <tr
                     key={product._id}
                     className="hover:bg-gray-50 transition-colors"
@@ -193,6 +209,15 @@ const ProductsPage = () => {
             </table>
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && !isRefreshing && filteredProducts.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
 
         {isAddModalOpen && (
           <AddProductModal onClose={() => setIsAddModalOpen(false)} />

@@ -10,6 +10,9 @@ import SellerInstance from "../components/seller/SellerInstance";
 import StatsCard from "../components/ui/StatsCard";
 import { Seller } from "../types/seller";
 import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../components/ui/Pagination";
+
+const ITEMS_PER_PAGE = 10;
 
 const SellersPage = () => {
   // Use individual selectors to prevent unnecessary re-renders
@@ -27,6 +30,7 @@ const SellersPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -40,6 +44,18 @@ const SellersPage = () => {
         seller.phoneNo?.toLowerCase().includes(value)
     );
   }, [debouncedSearch, sellers]);
+
+  const paginatedSellers = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredSellers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredSellers, currentPage]);
+
+  const totalPages = Math.ceil(filteredSellers.length / ITEMS_PER_PAGE);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   // Fetch sellers once when auth is ready
   useEffect(() => {
@@ -159,7 +175,7 @@ const SellersPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredSellers.map((seller) => (
+                {paginatedSellers.map((seller) => (
                   <SellerInstance
                     key={seller._id}
                     seller={seller}
@@ -173,6 +189,15 @@ const SellersPage = () => {
             </table>
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && !isRefreshing && filteredSellers.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
 
         {!loading && !isRefreshing && filteredSellers.length === 0 && !search && (
           <div className="py-12 text-center">

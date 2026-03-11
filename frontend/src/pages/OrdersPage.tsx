@@ -7,6 +7,9 @@ import { Order } from "../types/order";
 import { useOrderStore } from "../stores/useOrderStore.ts";
 import Loader from "../components/ui/Loader.tsx";
 import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../components/ui/Pagination";
+
+const ITEMS_PER_PAGE = 10;
 
 const ORDER_TABLE_HEADERS: { label: string }[] = [
   { label: "Order #" },
@@ -25,6 +28,7 @@ const OrdersPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isManagePricesOpen, setIsManagePricesOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const orders = useOrderStore((state) => state.orders);
   const loading = useOrderStore((state) => state.loading);
@@ -51,6 +55,18 @@ const OrdersPage = () => {
       );
     });
   }, [debouncedSearch, orders]);
+
+  const paginatedOrders = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredOrders, currentPage]);
+
+  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);
@@ -142,7 +158,7 @@ const OrdersPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOrders.map((order) => (
+                {paginatedOrders.map((order) => (
                   <OrderInstance
                     key={order._id}
                     order={order}
@@ -156,6 +172,15 @@ const OrdersPage = () => {
             </table>
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && !isRefreshing && filteredOrders.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
 
         {/* No Orders */}
         {!loading && !isRefreshing && filteredOrders.length === 0 && !search && (

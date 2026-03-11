@@ -9,6 +9,9 @@ import Loader from "../components/ui/Loader";
 import CompanyInstance from "../components/company/CompanyInstance";
 import { useUserStore } from "../stores/useUserStore";
 import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../components/ui/Pagination";
+
+const ITEMS_PER_PAGE = 10;
 
 const CompaniesPage = () => {
   const companies = useCompanyStore((state) => state.companies);
@@ -25,6 +28,7 @@ const CompaniesPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isHiddenModalOpen, setIsHiddenModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -36,6 +40,18 @@ const CompaniesPage = () => {
       company.name.toLowerCase().includes(value),
     );
   }, [debouncedSearch, companies]);
+
+  const paginatedCompanies = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredCompanies.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredCompanies, currentPage]);
+
+  const totalPages = Math.ceil(filteredCompanies.length / ITEMS_PER_PAGE);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     if (isHydrated && accessToken) {
@@ -154,7 +170,7 @@ const CompaniesPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCompanies.map((company) => (
+                {paginatedCompanies.map((company) => (
                   <CompanyInstance
                     key={company._id}
                     company={company}
@@ -168,6 +184,15 @@ const CompaniesPage = () => {
             </table>
           )}
         </div>
+
+        {/* Pagination */}
+        {!loading && !isRefreshing && filteredCompanies.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
 
         {/* Empty State */}
         {!loading && !isRefreshing && filteredCompanies.length === 0 && (
