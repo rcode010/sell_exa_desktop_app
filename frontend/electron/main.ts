@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -34,6 +34,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, "preload.mjs"),
+      devTools: false,
     },
   });
 
@@ -47,9 +48,6 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 
-  if (VITE_DEV_SERVER_URL) {
-    win.webContents.openDevTools();
-  }
 }
 
 /* ================= IPC HANDLERS ================= */
@@ -148,6 +146,16 @@ app.on("activate", () => {
 
 app.whenReady().then(() => {
   createWindow();
+  Menu.setApplicationMenu(null);
+
+  win?.webContents.on("before-input-event", (event, input) => {
+    if ((input.control || input.meta) && input.shift && input.key.toLowerCase() === "i") {
+      event.preventDefault();
+    }
+    if (input.key === "F12") {
+      event.preventDefault();
+    }
+  });
 
   win?.webContents.once('did-finish-load', () => {
     setTimeout(() => {
