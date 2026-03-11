@@ -7,6 +7,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
     const {
         weights,
         loading,
+        isOffline,
         getWeights,
         createWeight,
         updateWeight,
@@ -100,8 +101,9 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                         <h3 className="text-lg font-semibold text-gray-900">Pricing List</h3>
                         {!isAdding && (
                             <button
-                                disabled={loading}
+                                disabled={loading || isOffline}
                                 onClick={() => setIsAdding(true)}
+                                title={isOffline ? "Unavailable in offline mode" : ""}
                                 className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Plus className="w-4 h-4" />
@@ -125,7 +127,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                             type="number"
                                             value={range}
                                             onChange={(e) => setRange(e.target.value)}
-                                            disabled={loading}
+                                            disabled={loading || isOffline}
                                             placeholder="e.g., 20"
                                             className="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                         />
@@ -141,7 +143,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                             type="number"
                                             value={price}
                                             onChange={(e) => setPrice(e.target.value)}
-                                            disabled={loading}
+                                            disabled={loading || isOffline}
                                             placeholder="e.g., 5000"
                                             className="w-full pl-9 pr-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                         />
@@ -158,7 +160,8 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                 </button>
                                 <button
                                     onClick={handleCreate}
-                                    disabled={loading}
+                                    disabled={loading || isOffline}
+                                    title={isOffline ? "Unavailable in offline mode" : ""}
                                     className="px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {loading ? <Loader className="w-4 h-4 animate-spin" /> : "Save"}
@@ -199,7 +202,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                                             type="number"
                                                             value={range}
                                                             onChange={(e) => setRange(e.target.value)}
-                                                            disabled={loading}
+                                                            disabled={loading || isOffline}
                                                             className="w-full md:w-32 px-2 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                         />
                                                     </td>
@@ -208,7 +211,7 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                                             type="number"
                                                             value={price}
                                                             onChange={(e) => setPrice(e.target.value)}
-                                                            disabled={loading}
+                                                            disabled={loading || isOffline}
                                                             className="w-full md:w-32 px-2 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                         />
                                                     </td>
@@ -216,7 +219,8 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                                         <div className="flex items-center justify-end gap-2">
                                                             <button
                                                                 onClick={() => handleUpdate(w._id)}
-                                                                disabled={loading}
+                                                                disabled={loading || isOffline}
+                                                                title={isOffline ? "Unavailable in offline mode" : ""}
                                                                 className="px-3 py-1.5 text-xs font-medium bg-black text-white rounded-md hover:bg-gray-800 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[60px]"
                                                             >
                                                                 {loading ? <Loader className="w-3 h-3 animate-spin" /> : "Save"}
@@ -245,17 +249,17 @@ const ManageDeliveryPricesModal = ({ onClose }: { onClose: () => void }) => {
                                                         <div className="flex justify-end gap-2">
                                                             <button
                                                                 onClick={() => startEdit(w)}
-                                                                disabled={loading || isAdding || editingId !== null}
+                                                                disabled={loading || isAdding || editingId !== null || isOffline}
                                                                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                title="Edit"
+                                                                title={isOffline ? "Unavailable in offline mode" : "Edit"}
                                                             >
                                                                 <Edit2 className="w-4 h-4" />
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDelete(w._id, w.range)}
-                                                                disabled={loading || isAdding || editingId !== null}
+                                                                disabled={loading || isAdding || editingId !== null || isOffline}
                                                                 className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                title="Delete"
+                                                                title={isOffline ? "Unavailable in offline mode" : "Delete"}
                                                             >
                                                                 <Trash2 className="w-4 h-4" />
                                                             </button>

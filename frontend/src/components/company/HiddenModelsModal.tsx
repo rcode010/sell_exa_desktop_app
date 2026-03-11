@@ -17,6 +17,7 @@ const HiddenModelsModal = ({
     const [loading, setLoading] = useState(false);
     const [isToggling, setIsToggling] = useState(false);
     const hideModel = useModelStore((state) => state.hideModel);
+    const isOffline = useModelStore((state) => state.isOffline);
 
     const fetchHiddenModels = async () => {
         setLoading(true);
@@ -65,9 +66,9 @@ const HiddenModelsModal = ({
                     <div className="flex items-center gap-2">
                         <button
                             onClick={fetchHiddenModels}
-                            disabled={loading || isToggling}
+                            disabled={loading || isToggling || isOffline}
                             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Refresh hidden models"
+                            title={isOffline ? "Unavailable in offline mode" : "Refresh hidden models"}
                         >
                             <RefreshCw className={`w-5 h-5 text-gray-500 ${loading ? "animate-spin" : ""}`} />
                         </button>
@@ -115,8 +116,9 @@ const HiddenModelsModal = ({
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <button
-                                                    disabled={loading || isToggling}
+                                                    disabled={loading || isToggling || isOffline}
                                                     onClick={() => handleShowModel(model._id, model.name)}
+                                                    title={isOffline ? "Unavailable in offline mode" : ""}
                                                     className="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 hover:bg-green-100 rounded-md transition-colors text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     <Eye className="w-4 h-4" />

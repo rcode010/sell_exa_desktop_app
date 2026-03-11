@@ -22,6 +22,7 @@ const ProductsPage = () => {
 
   const loading: boolean = useProductStore((state) => state.loading);
   const products: Product[] = useProductStore((state) => state.products);
+  const isOffline: boolean = useProductStore((state) => state.isOffline);
   const getProducts: () => Promise<void> = useProductStore(
     (state) => state.getProducts
   );
@@ -65,15 +66,19 @@ const ProductsPage = () => {
         </div>
         <div className="flex gap-3">
           <button
-            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer"
+            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setIsHiddenModalOpen(true)}
+            disabled={isOffline}
+            title={isOffline ? "Unavailable in offline mode" : "View hidden products"}
           >
             <EyeOff className="w-5 h-5" />
             <span className="hidden sm:inline">View Hidden Products</span>
           </button>
           <button
-            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setIsAddModalOpen(true)}
+            disabled={isOffline}
+            title={isOffline ? "Unavailable in offline mode" : "Add new product"}
           >
             <Plus className="w-5 h-5" />
             Add Product

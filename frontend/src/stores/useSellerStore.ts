@@ -11,6 +11,8 @@ export const useSellerStore = create<SellerStore>()(
     (set, get) => ({
       sellers: [],
       loading: false,
+      isOffline: false,
+      lastUpdated: null,
 
       getAllSellers: async () => {
         try {
@@ -26,14 +28,17 @@ export const useSellerStore = create<SellerStore>()(
             throw new Error("Failed to fetch sellers");
           }
 
-          set({ sellers: response.data.data, loading: false });
+          set({ sellers: response.data.data, loading: false, isOffline: false, lastUpdated: Date.now() });
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
-
+          const hasData = get().sellers.length > 0;
           console.log("Error: " + err.message);
-          toast.error(err.response?.data?.message || "Something went wrong");
-
-          set({ loading: false });
+          if (hasData) {
+            set({ loading: false, isOffline: true });
+          } else {
+            toast.error(err.response?.data?.message || "Something went wrong");
+            set({ loading: false, isOffline: true });
+          }
         }
       },
 
@@ -208,7 +213,11 @@ export const useSellerStore = create<SellerStore>()(
     }),
     {
       name: "sellers-storage",
-      partialize: (state) => ({ sellers: state.sellers }),
+      partialize: (state) => ({
+        sellers: state.sellers,
+        isOffline: state.isOffline,
+        lastUpdated: state.lastUpdated,
+      }),
     },
   ),
 );

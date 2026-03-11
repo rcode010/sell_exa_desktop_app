@@ -17,6 +17,8 @@ export interface CompanyStore {
   companies: Company[];
   companiesCount: number;
   loading: boolean;
+  isOffline: boolean;
+  lastUpdated: number | null;
 
   // Actions
   getCompanies: () => Promise<void>;
@@ -31,6 +33,8 @@ export interface ModelStore {
   models: CompanyModel[];
   modelsCount: number;
   loading: boolean;
+  isOffline: boolean;
+  lastUpdated: number | null;
 
   // Actions
   getModels: (companyId: string) => Promise<boolean>;

@@ -18,6 +18,8 @@ export interface SellerStore {
   // State
   sellers: Seller[];
   loading: boolean;
+  isOffline: boolean;
+  lastUpdated: number | null;
 
   // Actions
   getAllSellers: () => Promise<void>;

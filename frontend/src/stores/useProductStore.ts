@@ -15,6 +15,8 @@ export const useProductStore = create<ProductStore>()(
     (set, get) => ({
       loading: false,
       products: [],
+      isOffline: false,
+      lastUpdated: null,
 
       getProducts: async () => {
         const hasData = get().products.length > 0;
@@ -27,14 +29,17 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to fetch products");
           }
 
-          set({ products: response.data.data, loading: false });
+          set({ products: response.data.data, loading: false, isOffline: false, lastUpdated: Date.now() });
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
-
+          const hasData = get().products.length > 0;
           console.log("Error: " + err.message);
-          toast.error(err.response?.data?.message || "Something went wrong");
-
-          set({ loading: false });
+          if (hasData) {
+            set({ loading: false, isOffline: true });
+          } else {
+            toast.error(err.response?.data?.message || "Something went wrong");
+            set({ loading: false, isOffline: true });
+          }
         }
       },
 
@@ -274,7 +279,11 @@ export const useProductStore = create<ProductStore>()(
     }),
     {
       name: "products-storage",
-      partialize: (state) => ({ products: state.products }),
+      partialize: (state) => ({
+        products: state.products,
+        isOffline: state.isOffline,
+        lastUpdated: state.lastUpdated,
+      }),
     },
   ),
 );

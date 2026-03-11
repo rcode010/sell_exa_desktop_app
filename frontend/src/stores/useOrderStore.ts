@@ -9,6 +9,8 @@ import { AxiosError } from "axios";
 interface OrderStore {
   orders: Order[];
   loading: boolean;
+  isOffline: boolean;
+  lastUpdated: number | null;
 
   // Fetch all orders (admin)
   getOrders: () => Promise<void>;
@@ -25,6 +27,8 @@ export const useOrderStore = create<OrderStore>()(
     (set, get) => ({
       orders: [],
       loading: false,
+      isOffline: false,
+      lastUpdated: null,
 
       getOrders: async () => {
         // Only show the spinner on the very first load — if we already have data,
@@ -130,15 +134,19 @@ export const useOrderStore = create<OrderStore>()(
           }));
 
 
-          set({ orders, loading: false });
+          set({ orders, loading: false, isOffline: false, lastUpdated: Date.now() });
         } catch (e) {
           const error = e as AxiosError<{ message?: string }>;
           console.error("Get orders error:", error);
-          set({ loading: false });
-
-          const message =
-            error.response?.data?.message || "Failed to load orders";
-          toast.error(message);
+          const hasData = get().orders.length > 0;
+          if (hasData) {
+            // Silently show cached data with offline banner instead of error toast
+            set({ loading: false, isOffline: true });
+          } else {
+            set({ loading: false, isOffline: true });
+            const message = error.response?.data?.message || "Failed to load orders";
+            toast.error(message);
+          }
         }
       },
 
@@ -198,7 +206,11 @@ export const useOrderStore = create<OrderStore>()(
     }),
     {
       name: "orders-storage",
-      partialize: (state) => ({ orders: state.orders }),
+      partialize: (state) => ({
+        orders: state.orders,
+        isOffline: state.isOffline,
+        lastUpdated: state.lastUpdated,
+      }),
     },
   ),
 );

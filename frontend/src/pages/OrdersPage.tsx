@@ -28,6 +28,7 @@ const OrdersPage = () => {
 
   const orders = useOrderStore((state) => state.orders);
   const loading = useOrderStore((state) => state.loading);
+  const isOffline = useOrderStore((state) => state.isOffline);
   const getOrders = useOrderStore((state) => state.getOrders);
   const changeOrderStatus = useOrderStore((state) => state.changeOrderStatus);
 
@@ -78,7 +79,9 @@ const OrdersPage = () => {
         </div>
         <button
           onClick={() => setIsManagePricesOpen(true)}
-          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center gap-2 cursor-pointer"
+          disabled={isOffline}
+          title={isOffline ? "Unavailable in offline mode" : "Manage delivery prices"}
+          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Package className="w-5 h-5" />
           Manage Weight Prices

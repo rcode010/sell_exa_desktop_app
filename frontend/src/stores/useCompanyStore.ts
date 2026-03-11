@@ -13,6 +13,8 @@ export const useCompanyStore = create<CompanyStore>()(
       hiddenCompanies: [],
       companiesCount: 0,
       loading: false,
+      isOffline: false,
+      lastUpdated: null,
 
       // Actions
       getCompanies: async () => {
@@ -23,14 +25,17 @@ export const useCompanyStore = create<CompanyStore>()(
           const response = await axios.get("/api/company/");
           const companies = response.data.data;
 
-          set({ companies, loading: false });
+          set({ companies, loading: false, isOffline: false, lastUpdated: Date.now() });
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
-
+          const hasData = get().companies.length > 0;
           console.log("Error: " + err.message);
-          toast.error("Something went wrong");
-
-          set({ loading: false });
+          if (hasData) {
+            set({ loading: false, isOffline: true });
+          } else {
+            toast.error("Something went wrong");
+            set({ loading: false, isOffline: true });
+          }
         }
       },
 
@@ -198,6 +203,8 @@ export const useCompanyStore = create<CompanyStore>()(
       partialize: (state) => ({
         companies: state.companies,
         companiesCount: state.companiesCount,
+        isOffline: state.isOffline,
+        lastUpdated: state.lastUpdated,
       }),
     },
   ),

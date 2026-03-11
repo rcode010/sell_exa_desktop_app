@@ -20,6 +20,7 @@ const qualityOptions = ["Very good", "Good", "Basic"];
 const AddProductModal = ({ onClose }: { onClose: () => void }) => {
   const createProduct = useProductStore((state) => state.createProduct);
   const loading = useProductStore((state) => state.loading);
+  const isOffline = useProductStore((state) => state.isOffline);
 
   const getAllSellers = useSellerStore((state) => state.getAllSellers);
   const sellers = useSellerStore((state) => state.sellers);
@@ -261,8 +262,9 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                           englishName: e.target.value,
                         })
                       }
+                      disabled={loading || isOffline}
                       placeholder="Enter product name in English"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                       required
                     />
                   </div>
@@ -283,8 +285,9 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                           kurdishName: e.target.value,
                         })
                       }
+                      disabled={loading || isOffline}
                       placeholder="ناوی بەرهەم بە کوردی بنووسە"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                       dir="rtl"
                       required
                     />
@@ -303,8 +306,9 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                       onChange={(e) =>
                         setFormData({ ...formData, arabicName: e.target.value })
                       }
+                      disabled={loading || isOffline}
                       placeholder="أدخل اسم المنتج بالعربية"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                       dir="rtl"
                       required
                     />
@@ -333,9 +337,10 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                           englishDescription: e.target.value,
                         })
                       }
+                      disabled={loading || isOffline}
                       placeholder="Enter product description in English"
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                       required
                     />
                   </div>
@@ -355,9 +360,10 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                           kurdishDescription: e.target.value,
                         })
                       }
+                      disabled={loading || isOffline}
                       placeholder="وەسفی بەرهەم بە کوردی بنووسە"
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                       dir="rtl"
                       required
                     />
@@ -378,9 +384,10 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                           arabicDescription: e.target.value,
                         })
                       }
+                      disabled={loading || isOffline}
                       placeholder="أدخل وصف المنتج بالعربية"
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                       dir="rtl"
                       required
                     />
@@ -403,10 +410,11 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                     onChange={(e) =>
                       setFormData({ ...formData, price: e.target.value })
                     }
+                    disabled={loading || isOffline}
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                   />
                 </div>
@@ -423,7 +431,8 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                     onChange={(e) =>
                       setFormData({ ...formData, quality: e.target.value })
                     }
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+                    disabled={loading || isOffline}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                   >
                     {qualityOptions.map((quality) => (
@@ -449,10 +458,11 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                   onChange={(e) =>
                     setFormData({ ...formData, weight: e.target.value })
                   }
+                  disabled={loading || isOffline}
                   placeholder="0.00"
                   min="0"
                   step="0.01"
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -470,9 +480,9 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                   <select
                     value={sellerId}
                     onChange={(e) => setSellerId(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     required
-                    disabled={loadingSellers}
+                    disabled={loadingSellers || isOffline}
                   >
                     <option value="">
                       {loadingSellers ? "Loading..." : "Select seller"}
@@ -495,9 +505,9 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                   <select
                     value={companyId}
                     onChange={(e) => setCompanyId(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     required
-                    disabled={loadingCompanies}
+                    disabled={loadingCompanies || isOffline}
                   >
                     <option value="">
                       {loadingCompanies ? "Loading..." : "Select company"}
@@ -522,7 +532,7 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                     onChange={(e) => setModelId(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     required
-                    disabled={!companyId || loadingModels}
+                    disabled={!companyId || loadingModels || isOffline}
                   >
                     <option value="">
                       {!companyId
@@ -557,7 +567,7 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
                   accept="image/*"
                   multiple
                   onChange={handleImageChange}
-                  disabled={loading}
+                  disabled={loading || isOffline}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   required
                 />
@@ -607,8 +617,9 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
           <button
             onClick={handleSubmit}
             disabled={
-              loading || loadingSellers || loadingCompanies || loadingModels
+              loading || loadingSellers || loadingCompanies || loadingModels || isOffline
             }
+            title={isOffline ? "Unavailable in offline mode" : ""}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Creating..." : "Add Product"}

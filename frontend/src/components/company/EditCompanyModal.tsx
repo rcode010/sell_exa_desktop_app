@@ -47,6 +47,7 @@ const EditCompanyModal = ({
   const updateCompany = useCompanyStore((state) => state.updateCompany);
   const hideCompany = useCompanyStore((state) => state.hideCompany);
   const companyLoading = useCompanyStore((state) => state.loading);
+  const isOffline = useCompanyStore((state) => state.isOffline);
 
   const models = useModelStore((state) => state.models);
   const modelsLoading = useModelStore((state) => state.loading);
@@ -204,8 +205,8 @@ const EditCompanyModal = ({
               disabled={companyLoading || modelsLoading}
               onClick={() => setIsCompanyDetailsVisible(true)}
               className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${isCompanyDetailsVisible
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-white"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                ? "text-blue-600 border-b-2 border-blue-600 bg-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
             >
               Company Details
@@ -214,8 +215,8 @@ const EditCompanyModal = ({
               disabled={companyLoading || modelsLoading}
               onClick={() => setIsCompanyDetailsVisible(false)}
               className={`flex-1 px-6 py-3 text-sm font-medium transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${!isCompanyDetailsVisible
-                  ? "text-blue-600 border-b-2 border-blue-600 bg-white"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                ? "text-blue-600 border-b-2 border-blue-600 bg-white"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 }`}
             >
               Models ({models.length})
@@ -260,8 +261,8 @@ const EditCompanyModal = ({
                           name: e.target.value,
                         })
                       }
-                      disabled={companyLoading}
-                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      disabled={companyLoading || isOffline}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                       required
                     />
                   </div>
@@ -284,7 +285,7 @@ const EditCompanyModal = ({
 
                   <label
                     htmlFor="edit-company-logo"
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors ${companyLoading ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors ${companyLoading || isOffline ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
                   >
                     {imagePreview ? (
                       <img
@@ -307,7 +308,7 @@ const EditCompanyModal = ({
 
                   {imagePreview && (
                     <button
-                      disabled={companyLoading}
+                      disabled={companyLoading || isOffline}
                       type="button"
                       onClick={() => {
                         setFormData({ ...formData, logoFile: null });
@@ -351,8 +352,9 @@ const EditCompanyModal = ({
                         <button
                           type="button"
                           onClick={() => handleHide(company._id)}
-                          disabled={companyLoading}
+                          disabled={companyLoading || isOffline}
                           className={`mt-3 px-4 py-2 ${company.isHidden ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"} text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm cursor-pointer`}
+                          title={isOffline ? "Unavailable in offline mode" : ""}
                         >
                           {company.isHidden ? "Show Company" : "Hide Company"}
                         </button>
@@ -373,7 +375,8 @@ const EditCompanyModal = ({
                   </button>
                   <button
                     type="submit"
-                    disabled={companyLoading}
+                    disabled={companyLoading || isOffline}
+                    title={isOffline ? "Unavailable in offline mode" : ""}
                     className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2 min-w-[140px] cursor-pointer"
                   >
                     {companyLoading ? (
@@ -415,7 +418,8 @@ const EditCompanyModal = ({
                   />
                   <button
                     onClick={handleAddModel}
-                    disabled={modelsLoading || !newModelName.trim()}
+                    disabled={modelsLoading || !newModelName.trim() || isOffline}
+                    title={isOffline ? "Unavailable in offline mode" : "Add model"}
                     className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center gap-2 cursor-pointer"
                   >
                     {modelsLoading ? (
@@ -513,9 +517,9 @@ const EditCompanyModal = ({
                                   setEditingModelId(model._id);
                                   setEditingModelName(model.name);
                                 }}
-                                disabled={modelsLoading}
+                                disabled={modelsLoading || isOffline}
                                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Edit model"
+                                title={isOffline ? "Unavailable in offline mode" : "Edit model"}
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
@@ -523,9 +527,9 @@ const EditCompanyModal = ({
                                 onClick={() =>
                                   handleHideModel(model._id, model.name)
                                 }
-                                disabled={modelsLoading}
+                                disabled={modelsLoading || isOffline}
                                 className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Hide model"
+                                title={isOffline ? "Unavailable in offline mode" : "Hide model"}
                               >
                                 <EyeOff className="w-4 h-4" />
                               </button>
@@ -533,9 +537,9 @@ const EditCompanyModal = ({
                                 onClick={() =>
                                   handleDeleteModel(model._id, model.name)
                                 }
-                                disabled={modelsLoading}
+                                disabled={modelsLoading || isOffline}
                                 className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Delete model"
+                                title={isOffline ? "Unavailable in offline mode" : "Delete model"}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>

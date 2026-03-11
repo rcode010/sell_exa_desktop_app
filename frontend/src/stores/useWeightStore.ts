@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import axiosInstance from "../lib/axios";
 import { Weight } from "../types/weight";
 import toast from "react-hot-toast";
@@ -7,6 +8,8 @@ import { AxiosError } from "axios";
 interface WeightState {
     weights: Weight[];
     loading: boolean;
+    isOffline: boolean;
+    lastUpdated: number | null;
     getWeights: () => Promise<void>;
     createWeight: (data: Omit<Weight, "_id" | "createdAt" | "updatedAt">) => Promise<boolean>;
     updateWeight: (
@@ -16,94 +19,121 @@ interface WeightState {
     deleteWeight: (id: string) => Promise<boolean>;
 }
 
-export const useWeightStore = create<WeightState>((set, get) => ({
-    weights: [],
-    loading: false,
+export const useWeightStore = create<WeightState>()(
+    persist(
+        (set, get) => ({
+            weights: [],
+            loading: false,
+            isOffline: false,
+            lastUpdated: null,
 
-    getWeights: async () => {
-        set({ loading: true });
-        try {
-            const response = await axiosInstance.get("/api/weight/all");
-            if (response.data.success) {
-                set({ weights: response.data.data });
-            } else {
-                toast.error(response.data.message || "Failed to fetch weights");
-            }
-        } catch (e) {
-            const error = e as AxiosError<{ message?: string }>;
-            toast.error(
-                error.response?.data?.message || "Failed to load weights"
-            );
-        } finally {
-            set({ loading: false });
-        }
-    },
+            getWeights: async () => {
+                const hasData = get().weights.length > 0;
+                if (!hasData) set({ loading: true });
 
-    createWeight: async (data) => {
-        set({ loading: true });
-        try {
-            const response = await axiosInstance.post("/api/weight", data);
-            if (response.data.success) {
-                toast.success("Delivery price created successfully");
-                // Refetch after create
-                await get().getWeights();
-                return true;
-            }
-            toast.error(response.data.message || "Failed to create delivery price");
-            return false;
-        } catch (e) {
-            const error = e as AxiosError<{ message?: string }>;
-            toast.error(
-                error.response?.data?.message || "An error occurred while creating delivery price"
-            );
-            return false;
-        } finally {
-            set({ loading: false });
-        }
-    },
+                try {
+                    const response = await axiosInstance.get("/api/weight/all");
+                    if (response.data.success) {
+                        set({
+                            weights: response.data.data,
+                            isOffline: false,
+                            lastUpdated: Date.now(),
+                            loading: false
+                        });
+                    } else {
+                        toast.error(response.data.message || "Failed to fetch weights");
+                        set({ loading: false });
+                    }
+                } catch (e) {
+                    const error = e as AxiosError<{ message?: string }>;
+                    console.log("Error loading weights: ", error.message);
 
-    updateWeight: async (id, data) => {
-        set({ loading: true });
-        try {
-            const response = await axiosInstance.patch(`/api/weight?weightId=${id}`, data);
-            if (response.data.success) {
-                toast.success("Delivery price updated successfully");
-                // Update local state directly to be snappy
-                set((state) => ({
-                    weights: state.weights.map((w) => (w._id === id ? { ...w, ...data } : w)),
-                }));
-                return true;
-            }
-            toast.error(response.data.message || "Failed to update delivery price");
-            return false;
-        } catch (e) {
-            const error = e as AxiosError<{ message?: string }>;
-            toast.error(
-                error.response?.data?.message || "An error occurred while updating delivery price"
-            );
-            return false;
-        } finally {
-            set({ loading: false });
-        }
-    },
+                    if (get().weights.length > 0) {
+                        set({ isOffline: true, loading: false });
+                    } else {
+                        toast.error(
+                            error.response?.data?.message || "Failed to load weights"
+                        );
+                        set({ loading: false });
+                    }
+                }
+            },
 
-    deleteWeight: async (id) => {
-        set({ loading: true });
-        try {
-            await axiosInstance.delete(`/api/weight?weightId=${id}`);
-            toast.success("Delivery price deleted successfully");
-            set((state) => ({
-                weights: state.weights.filter((w) => w._id !== id),
-            }));
-            return true;
-        } catch (e) {
-            const error = e as AxiosError<{ message?: string }>;
-            toast.error(
-                error.response?.data?.message || "An error occurred while deleting delivery price"
-            );
-            return false;
-        } finally {
-            set({ loading: false });
+            createWeight: async (data) => {
+                set({ loading: true });
+                try {
+                    const response = await axiosInstance.post("/api/weight", data);
+                    if (response.data.success) {
+                        toast.success("Delivery price created successfully");
+                        // Refetch after create
+                        await get().getWeights();
+                        return true;
+                    }
+                    toast.error(response.data.message || "Failed to create delivery price");
+                    return false;
+                } catch (e) {
+                    const error = e as AxiosError<{ message?: string }>;
+                    toast.error(
+                        error.response?.data?.message || "An error occurred while creating delivery price"
+                    );
+                    return false;
+                } finally {
+                    set({ loading: false });
+                }
+            },
+
+            updateWeight: async (id, data) => {
+                set({ loading: true });
+                try {
+                    const response = await axiosInstance.patch(`/api/weight?weightId=${id}`, data);
+                    if (response.data.success) {
+                        toast.success("Delivery price updated successfully");
+                        // Update local state directly to be snappy
+                        set((state) => ({
+                            weights: state.weights.map((w) => (w._id === id ? { ...w, ...data } : w)),
+                        }));
+                        return true;
+                    }
+                    toast.error(response.data.message || "Failed to update delivery price");
+                    return false;
+                } catch (e) {
+                    const error = e as AxiosError<{ message?: string }>;
+                    toast.error(
+                        error.response?.data?.message || "An error occurred while updating delivery price"
+                    );
+                    return false;
+                } finally {
+                    set({ loading: false });
+                }
+            },
+
+            deleteWeight: async (id) => {
+                set({ loading: true });
+                try {
+                    await axiosInstance.delete(`/api/weight?weightId=${id}`);
+                    toast.success("Delivery price deleted successfully");
+                    set((state) => ({
+                        weights: state.weights.filter((w) => w._id !== id),
+                    }));
+                    return true;
+                } catch (e) {
+                    const error = e as AxiosError<{ message?: string }>;
+                    toast.error(
+                        error.response?.data?.message || "An error occurred while deleting delivery price"
+                    );
+                    return false;
+                } finally {
+                    set({ loading: false });
+                }
+            },
+        }),
+        {
+            name: "sell-exa-weights",
+            partialize: (state) => ({
+                weights: state.weights,
+                isOffline: state.isOffline,
+                lastUpdated: state.lastUpdated,
+            }),
         }
-    },
-}));
+    )
+);

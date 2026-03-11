@@ -74,6 +74,7 @@ function LocationMarker({
 const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
   const createSeller = useSellerStore((state) => state.createSeller);
   const loading = useSellerStore((state) => state.loading);
+  const isOffline = useSellerStore((state) => state.isOffline);
   const [phoneError, setPhoneError] = useState("");
 
   // const [products, setProducts] = useState<Product[]>([]);
@@ -140,7 +141,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
             </p>
           </div>
           <button
-            disabled={loading}
+            disabled={loading || isOffline}
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -161,14 +162,14 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    disabled={loading}
+                    disabled={loading || isOffline}
                     type="text"
                     value={formData.storeName}
                     onChange={(e) =>
                       setFormData({ ...formData, storeName: e.target.value })
                     }
                     placeholder="Enter seller's full name"
-                    className="w-full pl-10 pr-4 py-3 placeholder:text-gray-500 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 placeholder:text-gray-500 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                   />
                 </div>
@@ -182,7 +183,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    disabled={loading}
+                    disabled={loading || isOffline}
                     type="tel"
                     value={formData.phoneNo}
                     onChange={(e) => {
@@ -191,7 +192,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                     }}
                     onBlur={(e) => validatePhone(e.target.value)}
                     placeholder="07501234567"
-                    className={`w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
+                    className={`w-full pl-10 placeholder:text-gray-400 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed ${phoneError
                       ? "border-red-400 focus:ring-red-400"
                       : "border-gray-200 focus:ring-blue-500"
                       }`}
@@ -211,14 +212,14 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    disabled={loading}
+                    disabled={loading || isOffline}
                     type="text"
                     value={formData.city}
                     onChange={(e) =>
                       setFormData({ ...formData, city: e.target.value })
                     }
                     placeholder="e.g., Baghdad"
-                    className="w-full pl-10 pr-4 py-3 placeholder:text-gray-500 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 placeholder:text-gray-500 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     required
                   />
                 </div>
@@ -238,7 +239,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                   Location Name *
                 </label>
                 <input
-                  disabled={loading}
+                  disabled={loading || isOffline}
                   type="text"
                   value={formData.location?.locationName}
                   onChange={(e) =>
@@ -252,7 +253,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                     })
                   }
                   placeholder="e.g., Downtown Store, Main Branch"
-                  className="w-full px-4 py-3 placeholder:text-gray-400 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 placeholder:text-gray-400 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   required
                 />
               </div>
@@ -265,7 +266,7 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                 {/* Add loading overlay */}
                 <div className="relative">
                   <div
-                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${loading
+                    className={`w-full h-64 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg transition-colors relative overflow-hidden ${loading || isOffline
                       ? "opacity-50 cursor-not-allowed"
                       : "cursor-crosshair hover:border-blue-400"
                       }`}
@@ -274,12 +275,12 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                       center={[35.5558, 45.4333]}
                       zoom={13}
                       style={{ height: "100%", width: "100%" }}
-                      dragging={!loading}
-                      touchZoom={!loading}
-                      doubleClickZoom={!loading}
-                      scrollWheelZoom={!loading}
-                      boxZoom={!loading}
-                      keyboard={!loading}
+                      dragging={!loading && !isOffline}
+                      touchZoom={!loading && !isOffline}
+                      doubleClickZoom={!loading && !isOffline}
+                      scrollWheelZoom={!loading && !isOffline}
+                      boxZoom={!loading && !isOffline}
+                      keyboard={!loading && !isOffline}
                     >
                       <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -287,16 +288,16 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
                       />
                       <LocationMarker
                         setFormData={setFormData}
-                        disabled={loading}
+                        disabled={loading || isOffline}
                       />
                     </MapContainer>
                   </div>
 
                   {/* Loading overlay */}
-                  {loading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
-                      <span className="text-white font-medium">
-                        Map disabled during submission...
+                  {(loading || isOffline) && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg z-[1000]">
+                      <span className="text-white font-medium bg-black/50 px-4 py-2 rounded-lg">
+                        {isOffline ? "Map disabled in offline mode" : "Map disabled during submission..."}
                       </span>
                     </div>
                   )}
@@ -325,15 +326,16 @@ const AddSellerModal = ({ onClose }: { onClose: () => void }) => {
         {/* Modal Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
-            disabled={loading}
+            disabled={loading || isOffline}
             onClick={onClose}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
-            disabled={loading}
+            disabled={loading || isOffline}
             onClick={handleSubmit}
+            title={isOffline ? "Unavailable in offline mode" : ""}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex justify-center items-center min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? <Loader className="w-5 h-5 animate-spin" /> : "Add Seller"}

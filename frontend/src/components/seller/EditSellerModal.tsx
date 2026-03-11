@@ -15,6 +15,7 @@ const EditSellerModal = ({
   const updateSeller = useSellerStore((state) => state.updateSeller);
   const hideSeller = useSellerStore((state) => state.hideSeller);
   const loading = useSellerStore((state) => state.loading);
+  const isOffline = useSellerStore((state) => state.isOffline);
 
   const [phoneError, setPhoneError] = useState("");
   const [formData, setFormData] = useState<Seller>({
@@ -109,8 +110,8 @@ const EditSellerModal = ({
                     setFormData({ ...formData, storeName: e.target.value })
                   }
                   placeholder="Enter seller's full name"
-                  disabled={loading}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={loading || isOffline}
+                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   required
                 />
               </div>
@@ -132,8 +133,8 @@ const EditSellerModal = ({
                   }}
                   onBlur={(e) => validatePhone(e.target.value)}
                   placeholder="07501234567"
-                  disabled={loading}
-                  className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent ${phoneError
+                  disabled={loading || isOffline}
+                  className={`w-full pl-10 pr-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed ${phoneError
                     ? "border-red-400 focus:ring-red-400"
                     : "border-gray-200 focus:ring-blue-500"
                     }`}
@@ -167,7 +168,8 @@ const EditSellerModal = ({
                     </p>
                     <button
                       onClick={() => handleHide(seller._id)}
-                      disabled={loading}
+                      disabled={loading || isOffline}
+                      title={isOffline ? "Unavailable in offline mode" : ""}
                       className={`mt-3 px-4 py-2 ${seller.isHidden ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm cursor-pointer`}
                     >
                       {seller.isHidden ? "Show Seller" : "Hide Seller"}
@@ -190,7 +192,8 @@ const EditSellerModal = ({
           </button>
           <button
             onClick={handleUpdate}
-            disabled={loading}
+            disabled={loading || isOffline}
+            title={isOffline ? "Unavailable in offline mode" : ""}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-all font-medium flex items-center justify-center gap-2 min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (

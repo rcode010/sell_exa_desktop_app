@@ -13,6 +13,7 @@ import { useDebounce } from "../hooks/useDebounce";
 const CompaniesPage = () => {
   const companies = useCompanyStore((state) => state.companies);
   const loading = useCompanyStore((state) => state.loading);
+  const isOffline = useCompanyStore((state) => state.isOffline);
   const getCompanies = useCompanyStore((state) => state.getCompanies);
 
   const isHydrated = useUserStore((state) => state.isHydrated);
@@ -69,7 +70,9 @@ const CompaniesPage = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsHiddenModalOpen(true)}
-            className="flex items-center gap-2 bg-white text-gray-700 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors font-medium cursor-pointer"
+            disabled={isOffline}
+            title={isOffline ? "Unavailable in offline mode" : "View hidden companies"}
+            className="flex items-center gap-2 bg-white text-gray-700 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <EyeOff className="w-5 h-5" />
             Hidden Companies
@@ -77,7 +80,9 @@ const CompaniesPage = () => {
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer"
+            disabled={isOffline}
+            title={isOffline ? "Unavailable in offline mode" : "Add new company"}
+            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-5 h-5" />
             Add Company

@@ -18,6 +18,8 @@ export const useUserStore = create(
       isHydrated: false,
       loading: false,
       checkingAuth: true, // Start true to block Router redirects
+      adminsOffline: false,
+      adminsLastUpdated: null as number | null,
 
       // Actions
       setHydrated: () => set({ isHydrated: true }),
@@ -156,11 +158,16 @@ export const useUserStore = create(
         try {
           if (get().admins.length === 0) set({ loading: true });
           const res = await axios.get("/api/admin/all");
-          set({ admins: res.data.data, loading: false });
+          set({ admins: res.data.data, loading: false, adminsOffline: false, adminsLastUpdated: Date.now() });
           return true;
         } catch (e) {
           const error = e as AxiosError<{ message?: string }>;
-          set({ loading: false });
+          const hasData = (get().admins as any[]).length > 0;
+          if (hasData) {
+            set({ loading: false, adminsOffline: true });
+          } else {
+            set({ loading: false, adminsOffline: true });
+          }
           return false;
         }
       },
@@ -244,7 +251,12 @@ export const useUserStore = create(
     }),
     {
       name: "user-storage",
-      partialize: (state: any) => ({ user: state.user, admins: state.admins }),
+      partialize: (state: any) => ({
+        user: state.user,
+        admins: state.admins,
+        adminsOffline: state.adminsOffline,
+        adminsLastUpdated: state.adminsLastUpdated,
+      }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },

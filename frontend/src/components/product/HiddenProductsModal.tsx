@@ -11,6 +11,7 @@ const HiddenProductsModal = ({ onClose }: { onClose: () => void }) => {
     const [loading, setLoading] = useState(false);
     const [isToggling, setIsToggling] = useState(false);
     const hideProduct = useProductStore((state) => state.hideProduct);
+    const isOffline = useProductStore((state) => state.isOffline);
 
     const fetchHiddenProducts = async () => {
         setLoading(true);
@@ -59,9 +60,9 @@ const HiddenProductsModal = ({ onClose }: { onClose: () => void }) => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={fetchHiddenProducts}
-                            disabled={loading || isToggling}
+                            disabled={loading || isToggling || isOffline}
                             className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                            title="Refresh hidden products"
+                            title={isOffline ? "Unavailable in offline mode" : "Refresh hidden products"}
                         >
                             <RefreshCw className={`w-5 h-5 text-gray-500 ${loading ? 'animate-spin' : ''}`} />
                         </button>
@@ -125,8 +126,9 @@ const HiddenProductsModal = ({ onClose }: { onClose: () => void }) => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <button
-                                                    disabled={loading || isToggling}
+                                                    disabled={loading || isToggling || isOffline}
                                                     onClick={() => handleShowProduct(product._id, product.name?.english || "this product")}
+                                                    title={isOffline ? "Unavailable in offline mode" : ""}
                                                     className="flex items-center gap-1 px-3 py-1.5 bg-green-50 text-green-700 hover:bg-green-100 rounded-md transition-colors text-sm font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     <Eye className="w-4 h-4" />

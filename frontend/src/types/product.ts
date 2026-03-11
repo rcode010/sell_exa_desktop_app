@@ -67,6 +67,8 @@ export interface ProductDetails {
 export interface ProductStore {
   loading: boolean;
   products: Product[];
+  isOffline: boolean;
+  lastUpdated: number | null;
 
   getProducts: () => Promise<void>;
   createProduct: (params: CreateProductParams) => Promise<boolean>;

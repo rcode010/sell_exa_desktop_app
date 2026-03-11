@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 
 const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
   const createCompany = useCompanyStore((state) => state.createCompany);
+  const isOffline = useCompanyStore((state) => state.isOffline);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
@@ -173,15 +174,16 @@ const AddCompanyModal = ({ onClose }: { onClose: () => void }) => {
         {/* Modal Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
           <button
-            disabled={isSubmitting}
+            disabled={isSubmitting || isOffline}
             onClick={onClose}
             className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
-            disabled={isSubmitting}
+            disabled={isSubmitting || isOffline || !formData.name.trim() || !formData.image}
             onClick={handleSubmit}
+            title={isOffline ? "Unavailable in offline mode" : ""}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center min-w-[140px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : "Add Company"}

@@ -18,6 +18,7 @@ const SellersPage = () => {
 
   const loading = useSellerStore((state) => state.loading);
   const sellers = useSellerStore((state) => state.sellers);
+  const isOffline = useSellerStore((state) => state.isOffline);
   const getAllSellers = useSellerStore((state) => state.getAllSellers);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -76,14 +77,18 @@ const SellersPage = () => {
         <div className="flex gap-3">
           <button
             onClick={() => setIsHiddenModalOpen(true)}
-            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            disabled={isOffline}
+            title={isOffline ? "Unavailable in offline mode" : "View hidden sellers"}
+            className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <EyeOff size={20} />
             <span className="hidden sm:inline">View Hidden Sellers</span>
           </button>
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+            disabled={isOffline}
+            title={isOffline ? "Unavailable in offline mode" : "Add new seller"}
+            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus size={20} />
             Add Seller

@@ -28,6 +28,7 @@ const EditProductModal = ({
   const updateProduct = useProductStore((state) => state.updateProduct);
   const hideProduct = useProductStore((state) => state.hideProduct);
   const loading = useProductStore((state) => state.loading);
+  const isOffline = useProductStore((state) => state.isOffline);
 
   const [formData, setFormData] = useState({
     // Multilingual names
@@ -162,8 +163,9 @@ const EditProductModal = ({
                       type="text"
                       value={formData.englishName}
                       onChange={(e) => setField("englishName", e.target.value)}
+                      disabled={loading || isOffline}
                       placeholder="Enter product name in English"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -178,9 +180,10 @@ const EditProductModal = ({
                       type="text"
                       value={formData.kurdishName}
                       onChange={(e) => setField("kurdishName", e.target.value)}
+                      disabled={loading || isOffline}
                       placeholder="ناوی بەرهەم بە کوردی بنووسە"
                       dir="rtl"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -195,9 +198,10 @@ const EditProductModal = ({
                       type="text"
                       value={formData.arabicName}
                       onChange={(e) => setField("arabicName", e.target.value)}
+                      disabled={loading || isOffline}
                       placeholder="أدخل اسم المنتج بالعربية"
                       dir="rtl"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -219,9 +223,10 @@ const EditProductModal = ({
                     <textarea
                       value={formData.englishDescription}
                       onChange={(e) => setField("englishDescription", e.target.value)}
+                      disabled={loading || isOffline}
                       placeholder="Enter product description in English"
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -235,10 +240,11 @@ const EditProductModal = ({
                     <textarea
                       value={formData.kurdishDescription}
                       onChange={(e) => setField("kurdishDescription", e.target.value)}
+                      disabled={loading || isOffline}
                       placeholder="وەسفی بەرهەم بە کوردی بنووسە"
                       rows={3}
                       dir="rtl"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -252,10 +258,11 @@ const EditProductModal = ({
                     <textarea
                       value={formData.arabicDescription}
                       onChange={(e) => setField("arabicDescription", e.target.value)}
+                      disabled={loading || isOffline}
                       placeholder="أدخل وصف المنتج بالعربية"
                       rows={3}
                       dir="rtl"
-                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -274,10 +281,11 @@ const EditProductModal = ({
                     type="number"
                     value={formData.price}
                     onChange={(e) => setField("price", e.target.value)}
+                    disabled={loading || isOffline}
                     placeholder="0"
                     min="0"
                     step="1"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -291,7 +299,8 @@ const EditProductModal = ({
                   <select
                     value={formData.quality}
                     onChange={(e) => setField("quality", e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer"
+                    disabled={loading || isOffline}
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {qualityOptions.map((q) => (
                       <option key={q} value={q}>
@@ -315,10 +324,11 @@ const EditProductModal = ({
                     type="number"
                     value={formData.weight}
                     onChange={(e) => setField("weight", e.target.value)}
+                    disabled={loading || isOffline}
                     placeholder="0.00"
                     min="0"
                     step="0.01"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -333,8 +343,9 @@ const EditProductModal = ({
                     type="text"
                     value={formData.city}
                     onChange={(e) => setField("city", e.target.value)}
+                    disabled={loading || isOffline}
                     placeholder="Enter city"
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -362,8 +373,9 @@ const EditProductModal = ({
                     </p>
                     <button
                       onClick={handleHide}
-                      disabled={loading}
+                      disabled={loading || isOffline}
                       className={`mt-3 px-4 py-2 ${product.isHidden ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white rounded-lg transition-colors font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+                      title={isOffline ? "Unavailable in offline mode" : ""}
                     >
                       {product.isHidden ? "Show Product" : "Hide Product"}
                     </button>
@@ -386,7 +398,8 @@ const EditProductModal = ({
           </button>
           <button
             onClick={handleUpdate}
-            disabled={loading}
+            disabled={loading || isOffline}
+            title={isOffline ? "Unavailable in offline mode" : ""}
             className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Saving..." : "Save Changes"}

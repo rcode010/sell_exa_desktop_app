@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import SideBar from "./SideBar.tsx";
+import OfflineBanner from "../ui/OfflineBanner.tsx";
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -13,6 +14,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </div>
       {/* The margin is now contained where the sidebar logic lives */}
       <main className="flex-1 ml-80 transition-all duration-300">
+        <OfflineBanner />
         {children}
       </main>
     </div>

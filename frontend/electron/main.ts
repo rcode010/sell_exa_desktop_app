@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { autoUpdater } from "electron-updater";
+import log from 'electron-log';
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -47,7 +48,9 @@ function createWindow() {
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
   }
 
-  win.webContents.openDevTools();
+  if (VITE_DEV_SERVER_URL) {
+    win.webContents.openDevTools();
+  }
 }
 
 /* ================= IPC HANDLERS ================= */
@@ -82,10 +85,6 @@ ipcMain.handle("delete-token", async () => {
 
 /* ================= APP LIFECYCLE ================= */
 
-app.whenReady().then(() => {
-  autoUpdater.checkForUpdatesAndNotify();
-});
-
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     app.quit();
@@ -99,4 +98,30 @@ app.on("activate", () => {
   }
 });
 
-app.whenReady().then(createWindow);
+autoUpdater.logger = log;
+(autoUpdater.logger as typeof log).transports.file.level = 'info';
+
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...')
+})
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info.version)
+})
+
+autoUpdater.on('update-not-available', () => {
+  console.log('Already on latest version')
+})
+
+autoUpdater.on('error', (err) => {
+  console.error('AutoUpdater error:', err)
+})
+
+autoUpdater.on('update-downloaded', () => {
+  console.log('Update downloaded, will install on restart')
+})
+
+app.whenReady().then(() => {
+  createWindow();
+  autoUpdater.checkForUpdatesAndNotify();
+});
