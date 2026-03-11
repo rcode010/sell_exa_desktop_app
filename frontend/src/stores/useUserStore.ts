@@ -244,7 +244,7 @@ export const useUserStore = create(
     }),
     {
       name: "user-storage",
-      partialize: (state: any) => ({ user: state.user }),
+      partialize: (state: any) => ({ user: state.user, admins: state.admins }),
       onRehydrateStorage: () => (state) => {
         state?.setHydrated();
       },

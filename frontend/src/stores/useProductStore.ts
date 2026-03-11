@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import {
   Product,
   ProductStore,
@@ -9,263 +10,271 @@ import axiosInstance from "../lib/axios";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
-export const useProductStore = create<ProductStore>((set, get) => ({
-  loading: false,
-  products: [],
+export const useProductStore = create<ProductStore>()(
+  persist(
+    (set, get) => ({
+      loading: false,
+      products: [],
 
-  getProducts: async () => {
-    const hasData = get().products.length > 0;
-    if (!hasData) set({ loading: true });
+      getProducts: async () => {
+        const hasData = get().products.length > 0;
+        if (!hasData) set({ loading: true });
 
-    try {
-      const response = await axiosInstance.get("/api/product/all");
+        try {
+          const response = await axiosInstance.get("/api/product/all");
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch products");
-      }
+          if (response.status !== 200) {
+            throw new Error("Failed to fetch products");
+          }
 
-      set({ products: response.data.data, loading: false });
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
+          set({ products: response.data.data, loading: false });
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
 
-      console.log("Error: " + err.message);
-      toast.error(err.response?.data?.message || "Something went wrong");
+          console.log("Error: " + err.message);
+          toast.error(err.response?.data?.message || "Something went wrong");
 
-      set({ loading: false });
-    }
-  },
-
-  createProduct: async (params: CreateProductParams) => {
-    set({ loading: true });
-    try {
-      const { formData, sellerId, companyId, modelId } = params;
-
-      // Send as query parameters as the backend expects
-      const url = `/api/product/?sellerId=${sellerId}&companyId=${companyId}&modelId=${modelId}`;
-
-      const response = await axiosInstance.post(url, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if (response.status !== 201) {
-        throw new Error("Failed to create product");
-      }
-
-      try {
-        await get().getProducts(); // Try to refresh
-      } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError,
-        );
-        // Optimistically update with server response
-        if (response.data.data) {
-          set((state) => ({
-            products: [...state.products, response.data.data],
-          }));
+          set({ loading: false });
         }
-      }
+      },
 
-      set({ loading: false });
-      toast.success("Product created successfully!");
-      return true;
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
+      createProduct: async (params: CreateProductParams) => {
+        set({ loading: true });
+        try {
+          const { formData, sellerId, companyId, modelId } = params;
 
-      console.error("Error creating product:", err.message);
-      toast.error(err.response?.data?.message || "Failed to create product");
+          // Send as query parameters as the backend expects
+          const url = `/api/product/?sellerId=${sellerId}&companyId=${companyId}&modelId=${modelId}`;
 
-      set({ loading: false });
-      return false;
-    }
-  },
+          const response = await axiosInstance.post(url, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
 
-  updateProduct: async (id: string, product: Partial<Product>) => {
-    set({ loading: true });
-    try {
-      const response = await axiosInstance.patch(
-        `/api/product/?productId=${id}`,
-        product,
-      );
+          if (response.status !== 201) {
+            throw new Error("Failed to create product");
+          }
 
-      if (response.status !== 200) {
-        throw new Error("Failed to update product");
-      }
+          try {
+            await get().getProducts(); // Try to refresh
+          } catch (refreshError) {
+            console.error(
+              "Failed to refresh, using server response:",
+              refreshError,
+            );
+            // Optimistically update with server response
+            if (response.data.data) {
+              set((state) => ({
+                products: [...state.products, response.data.data],
+              }));
+            }
+          }
 
-      try {
-        await get().getProducts(); // Try to refresh
-      } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError,
-        );
-        // Optimistically update with server response
-        set((state) => ({
-          products: state.products.map((product) =>
-            product._id === id ? response.data.data : product,
-          ),
-        }));
-      }
+          set({ loading: false });
+          toast.success("Product created successfully!");
+          return true;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
 
-      set({ loading: false });
-      toast.success("Product updated successfully!");
-      return true;
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
+          console.error("Error creating product:", err.message);
+          toast.error(err.response?.data?.message || "Failed to create product");
 
-      console.error("Error updating product:", err.message);
-      toast.error(err.response?.data?.message || "Failed to update product");
+          set({ loading: false });
+          return false;
+        }
+      },
 
-      set({ loading: false });
-      return false;
-    }
-  },
+      updateProduct: async (id: string, product: Partial<Product>) => {
+        set({ loading: true });
+        try {
+          const response = await axiosInstance.patch(
+            `/api/product/?productId=${id}`,
+            product,
+          );
 
-  deleteProduct: async (id: string) => {
-    set({ loading: true });
-    try {
-      const response = await axiosInstance.delete(`/api/product/${id}`);
+          if (response.status !== 200) {
+            throw new Error("Failed to update product");
+          }
 
-      if (response.status !== 200) {
-        throw new Error("Failed to delete product");
-      }
+          try {
+            await get().getProducts(); // Try to refresh
+          } catch (refreshError) {
+            console.error(
+              "Failed to refresh, using server response:",
+              refreshError,
+            );
+            // Optimistically update with server response
+            set((state) => ({
+              products: state.products.map((product) =>
+                product._id === id ? response.data.data : product,
+              ),
+            }));
+          }
 
-      try {
-        await get().getProducts();
-      } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError,
-        );
+          set({ loading: false });
+          toast.success("Product updated successfully!");
+          return true;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
 
-        // Optimistically update with server response
-        set((state) => ({
-          products: state.products.filter((product) => product._id !== id),
-        }));
-      }
+          console.error("Error updating product:", err.message);
+          toast.error(err.response?.data?.message || "Failed to update product");
 
-      set({ loading: false });
-      toast.success("Product deleted successfully!");
-      return true;
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
+          set({ loading: false });
+          return false;
+        }
+      },
 
-      console.error("Error deleting product:", err.message);
-      toast.error(err.response?.data?.message || "Failed to delete product");
+      deleteProduct: async (id: string) => {
+        set({ loading: true });
+        try {
+          const response = await axiosInstance.delete(`/api/product/${id}`);
 
-      set({ loading: false });
-      return false;
-    }
-  },
+          if (response.status !== 200) {
+            throw new Error("Failed to delete product");
+          }
 
-  hideProduct: async (id: string) => {
-    set({ loading: true });
-    try {
-      const response = await axiosInstance.patch(`/api/product/hide?productId=${id}`);
+          try {
+            await get().getProducts();
+          } catch (refreshError) {
+            console.error(
+              "Failed to refresh, using server response:",
+              refreshError,
+            );
 
-      if (response.status !== 200) {
-        throw new Error("Failed to toggle product visibility");
-      }
+            // Optimistically update with server response
+            set((state) => ({
+              products: state.products.filter((product) => product._id !== id),
+            }));
+          }
 
-      try {
-        await get().getProducts();
-      } catch (refreshError) {
-        console.error(
-          "Failed to refresh, using server response:",
-          refreshError,
-        );
+          set({ loading: false });
+          toast.success("Product deleted successfully!");
+          return true;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
 
-        // Optimistically update
-        set((state) => ({
-          products: state.products.map((product) =>
-            product._id === id
-              ? { ...product, isHidden: !product.isHidden }
-              : product
-          ),
-        }));
-      }
+          console.error("Error deleting product:", err.message);
+          toast.error(err.response?.data?.message || "Failed to delete product");
 
-      set({ loading: false });
-      toast.success(response.data.message || "Product visibility toggled successfully!");
-      return true;
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
+          set({ loading: false });
+          return false;
+        }
+      },
 
-      console.error("Error toggling product visibility:", err.message);
-      toast.error(err.response?.data?.message || "Failed to toggle product visibility");
+      hideProduct: async (id: string) => {
+        set({ loading: true });
+        try {
+          const response = await axiosInstance.patch(`/api/product/hide?productId=${id}`);
 
-      set({ loading: false });
-      return false;
-    }
-  },
+          if (response.status !== 200) {
+            throw new Error("Failed to toggle product visibility");
+          }
 
-  getProductById: async (productId: string): Promise<ProductDetails | null> => {
-    try {
-      console.log(`[ProductStore] Fetching product: ${productId}`);
+          try {
+            await get().getProducts();
+          } catch (refreshError) {
+            console.error(
+              "Failed to refresh, using server response:",
+              refreshError,
+            );
 
-      const response = await axiosInstance.get(
-        `/api/product?productId=${productId}`,
-      );
+            // Optimistically update
+            set((state) => ({
+              products: state.products.map((product) =>
+                product._id === id
+                  ? { ...product, isHidden: !product.isHidden }
+                  : product
+              ),
+            }));
+          }
 
-      console.log(`[ProductStore] Response status: ${response.status}`);
-      console.log(`[ProductStore] Response data:`, response.data);
+          set({ loading: false });
+          toast.success(response.data.message || "Product visibility toggled successfully!");
+          return true;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch product");
-      }
+          console.error("Error toggling product visibility:", err.message);
+          toast.error(err.response?.data?.message || "Failed to toggle product visibility");
 
-      const data = response.data.data;
+          set({ loading: false });
+          return false;
+        }
+      },
 
-      if (!data) {
-        console.error(
-          `[ProductStore] No data returned for product ${productId}`,
-        );
-        return null;
-      }
+      getProductById: async (productId: string): Promise<ProductDetails | null> => {
+        try {
+          console.log(`[ProductStore] Fetching product: ${productId}`);
 
-      console.log(`[ProductStore] Transforming product data:`, data);
+          const response = await axiosInstance.get(
+            `/api/product?productId=${productId}`,
+          );
 
-      // Transform the response to match ProductDetails interface
-      // Handle multilingual name and description
-      const productDetails: ProductDetails = {
-        name:
-          typeof data.name === "string"
-            ? data.name
-            : data.name?.english || "Unknown",
-        description:
-          typeof data.description === "string"
-            ? data.description
-            : data.description?.english || "No description",
-        company: data.company || "Unknown",
-        model: data.model || "Unknown",
-        seller: data.seller || "Unknown",
-        imageLink:
-          data.imageLink ||
-          (Array.isArray(data.images) && data.images[0]?.imageLink) ||
-          "",
-        price: data.price || 0,
-        weight: data.weight,
-        quality: data.quality,
-        city: data.city,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
-      };
+          console.log(`[ProductStore] Response status: ${response.status}`);
+          console.log(`[ProductStore] Response data:`, response.data);
 
-      console.log(`[ProductStore] Transformed product:`, productDetails);
-      return productDetails;
-    } catch (error) {
-      const err = error as AxiosError<{ message?: string }>;
+          if (response.status !== 200) {
+            throw new Error("Failed to fetch product");
+          }
 
-      console.error(`[ProductStore] Error fetching product ${productId}:`, {
-        message: err.message,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data,
-        fullError: err,
-      });
-      return null;
-    }
-  },
-}));
+          const data = response.data.data;
+
+          if (!data) {
+            console.error(
+              `[ProductStore] No data returned for product ${productId}`,
+            );
+            return null;
+          }
+
+          console.log(`[ProductStore] Transforming product data:`, data);
+
+          // Transform the response to match ProductDetails interface
+          // Handle multilingual name and description
+          const productDetails: ProductDetails = {
+            name:
+              typeof data.name === "string"
+                ? data.name
+                : data.name?.english || "Unknown",
+            description:
+              typeof data.description === "string"
+                ? data.description
+                : data.description?.english || "No description",
+            company: data.company || "Unknown",
+            model: data.model || "Unknown",
+            seller: data.seller || "Unknown",
+            imageLink:
+              data.imageLink ||
+              (Array.isArray(data.images) && data.images[0]?.imageLink) ||
+              "",
+            price: data.price || 0,
+            weight: data.weight,
+            quality: data.quality,
+            city: data.city,
+            createdAt: data.createdAt,
+            updatedAt: data.updatedAt,
+          };
+
+          console.log(`[ProductStore] Transformed product:`, productDetails);
+          return productDetails;
+        } catch (error) {
+          const err = error as AxiosError<{ message?: string }>;
+
+          console.error(`[ProductStore] Error fetching product ${productId}:`, {
+            message: err.message,
+            status: err.response?.status,
+            statusText: err.response?.statusText,
+            data: err.response?.data,
+            fullError: err,
+          });
+          return null;
+        }
+      },
+    }),
+    {
+      name: "products-storage",
+      partialize: (state) => ({ products: state.products }),
+    },
+  ),
+);
