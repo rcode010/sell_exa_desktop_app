@@ -27,7 +27,7 @@ const OrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isManagePricesOpen, setIsManagePricesOpen] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const orders = useOrderStore((state) => state.orders);
@@ -39,14 +39,17 @@ const OrdersPage = () => {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  // Reset to first page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch]);
-
   // Fetch orders on mount or page change
   useEffect(() => {
-    getOrders(currentPage, ITEMS_PER_PAGE);
+    let mounted = true;
+    const fetch = async () => {
+      setIsFetching(true);
+      await getOrders(currentPage, ITEMS_PER_PAGE);
+      if (mounted) setIsFetching(false);
+    };
+
+    fetch();
+    return () => { mounted = false; };
   }, [getOrders, currentPage]);
 
   const filteredOrders: Order[] = useMemo(() => {
@@ -63,9 +66,9 @@ const OrdersPage = () => {
   }, [debouncedSearch, orders]);
 
   const refresh = async (): Promise<void> => {
-    setIsRefreshing(true);
+    setIsFetching(true);
     await getOrders(currentPage, ITEMS_PER_PAGE);
-    setIsRefreshing(false);
+    setIsFetching(false);
   };
 
   const handleStatusUpdate = async (
@@ -113,12 +116,12 @@ const OrdersPage = () => {
             {/* Refresh Button */}
             <button
               onClick={refresh}
-              disabled={isRefreshing || loading}
+              disabled={isFetching}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isRefreshing || loading ? "animate-spin" : ""
+                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
                   }`}
               />
             </button>
@@ -139,10 +142,10 @@ const OrdersPage = () => {
 
         {/* Table Body */}
         <div className="overflow-x-auto">
-          {loading || isRefreshing ? (
+          {loading && orders.length === 0 ? (
             <Loader />
           ) : (
-            <table className="w-full">
+            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {ORDER_TABLE_HEADERS.map((header, index) => (
@@ -170,23 +173,25 @@ const OrdersPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && orders.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+        {!loading && orders.length > 0 && (
+          <div className={isFetching ? "opacity-50 pointer-events-none" : ""}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
 
         {/* No Orders */}
-        {!loading && !isRefreshing && orders.length === 0 && !search && (
+        {!loading && !isFetching && orders.length === 0 && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No orders to show.</p>
           </div>
         )}
 
-        {!loading && !isRefreshing && orders.length === 0 && search && (
+        {!loading && !isFetching && orders.length === 0 && search && (
           <div className="py-12 text-center">
             <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

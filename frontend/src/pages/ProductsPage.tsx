@@ -13,7 +13,7 @@ import Pagination from "../components/ui/Pagination";
 const ITEMS_PER_PAGE = 10;
 
 const ProductsPage = () => {
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -44,23 +44,25 @@ const ProductsPage = () => {
     });
   }, [products, debouncedSearch]);
 
-  // Reset to first page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch]);
-
   // Fetch products on mount or when page/search changes
   useEffect(() => {
+    let mounted = true;
+    const fetch = async () => {
+      setIsFetching(true);
+      await getProducts(currentPage, ITEMS_PER_PAGE, debouncedSearch);
+      if (mounted) setIsFetching(false);
+    };
+
     if (isHydrated && accessToken) {
-      getProducts(currentPage, ITEMS_PER_PAGE, debouncedSearch);
+      fetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHydrated, accessToken, currentPage, debouncedSearch]);
 
   const refresh = async () => {
-    setIsRefreshing(true);
+    setIsFetching(true);
     await getProducts(currentPage, ITEMS_PER_PAGE, debouncedSearch);
-    setIsRefreshing(false);
+    setIsFetching(false);
   };
 
   return (
@@ -113,12 +115,13 @@ const ProductsPage = () => {
             {/* Refresh Button */}
             <button
               onClick={refresh}
-              disabled={isRefreshing}
+              disabled={isFetching}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""}`}
+                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
+                  }`}
               />
             </button>
 
@@ -138,12 +141,12 @@ const ProductsPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          {loading || isRefreshing ? (
+          {loading && products.length === 0 ? (
             <div className="overflow-hidden">
               <Loader />
             </div>
           ) : (
-            <table className="w-full">
+            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -201,12 +204,14 @@ const ProductsPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && products.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+        {!loading && products.length > 0 && (
+          <div className={isFetching ? "opacity-50 pointer-events-none" : ""}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
 
         {isAddModalOpen && (
@@ -224,14 +229,14 @@ const ProductsPage = () => {
           <HiddenProductsModal onClose={() => setIsHiddenModalOpen(false)} />
         )}
 
-        {!loading && !isRefreshing && filteredProducts.length === 0 && !search && (
+        {!loading && !isFetching && filteredProducts.length === 0 && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No products to show.</p>
           </div>
         )}
 
-        {!loading && !isRefreshing && filteredProducts.length === 0 && search && (
+        {!loading && !isFetching && filteredProducts.length === 0 && search && (
           <div className="py-12 text-center">
             <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

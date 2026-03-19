@@ -25,7 +25,7 @@ const SellersPage = () => {
   const isOffline = useSellerStore((state) => state.isOffline);
   const getAllSellers = useSellerStore((state) => state.getAllSellers);
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -46,22 +46,25 @@ const SellersPage = () => {
     );
   }, [debouncedSearch, sellers]);
 
-  // Reset to first page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch]);
-
   // Fetch sellers when auth, page, or search changes
   useEffect(() => {
+    let mounted = true;
+    const fetch = async () => {
+      setIsFetching(true);
+      await getAllSellers(currentPage, ITEMS_PER_PAGE, debouncedSearch);
+      if (mounted) setIsFetching(false);
+    };
+
     if (isHydrated && accessToken) {
-      getAllSellers(currentPage, ITEMS_PER_PAGE, debouncedSearch);
+      fetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHydrated, accessToken, currentPage, debouncedSearch]);
 
   const refresh = async () => {
-    setIsRefreshing(true);
+    setIsFetching(true);
     await getAllSellers(currentPage, ITEMS_PER_PAGE, debouncedSearch);
-    setIsRefreshing(false);
+    setIsFetching(false);
   };
 
   if (!isHydrated) {
@@ -128,12 +131,12 @@ const SellersPage = () => {
             {/* Refresh Button */}
             <button
               onClick={refresh}
-              disabled={isRefreshing}
+              disabled={isFetching}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
+                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
                   }`}
               />
             </button>
@@ -154,10 +157,10 @@ const SellersPage = () => {
 
         {/* Table Body */}
         <div className="overflow-x-auto">
-          {loading || isRefreshing ? (
+          {loading && sellers.length === 0 ? (
             <Loader />
           ) : (
-            <table className="w-full">
+            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr className="text-xs uppercase text-gray-500">
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -186,22 +189,24 @@ const SellersPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && sellers.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+        {!loading && sellers.length > 0 && (
+          <div className={isFetching ? "opacity-50 pointer-events-none" : ""}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         )}
 
-        {!loading && !isRefreshing && filteredSellers.length === 0 && !search && (
+        {!loading && !isFetching && filteredSellers.length === 0 && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No sellers to show.</p>
           </div>
         )}
 
-        {!loading && !isRefreshing && filteredSellers.length === 0 && search && (
+        {!loading && !isFetching && filteredSellers.length === 0 && search && (
           <div className="py-12 text-center">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

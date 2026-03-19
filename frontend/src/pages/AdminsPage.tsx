@@ -15,7 +15,7 @@ const AdminsPage = () => {
     getAllAdmins: () => void;
   };
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [search, setSearch] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -36,14 +36,21 @@ const AdminsPage = () => {
   }, [debouncedSearch, admins]);
 
   useEffect(() => {
-    getAllAdmins();
+    let mounted = true;
+    const fetch = async () => {
+      setIsFetching(true);
+      await getAllAdmins();
+      if (mounted) setIsFetching(false);
+    };
+
+    fetch();
+    return () => { mounted = false; };
   }, [getAllAdmins]);
 
   const refresh = async (): Promise<void> => {
-    setIsRefreshing(true);
+    setIsFetching(true);
     await getAllAdmins();
-
-    setIsRefreshing(false);
+    setIsFetching(false);
   };
 
   const handleViewDetails = (admin: User) => {
@@ -89,12 +96,12 @@ const AdminsPage = () => {
             {/* Refresh Button */}
             <button
               onClick={refresh}
-              disabled={isRefreshing}
+              disabled={isFetching}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               title="Refresh admins"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
+                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
                   }`}
               />
             </button>
@@ -115,10 +122,10 @@ const AdminsPage = () => {
 
         {/* Table */}
         <div className="overflow-x-auto">
-          {loading || isRefreshing ? (
+          {loading && admins?.length === 0 ? (
             <Loader />
           ) : (
-            <table className="w-full">
+            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -153,7 +160,7 @@ const AdminsPage = () => {
         </div>
 
         {/* Empty State */}
-        {!loading && !isRefreshing && filteredAdmins.length === 0 && (
+        {!loading && !isFetching && filteredAdmins.length === 0 && (
           <div className="py-12 text-center">
             <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">
