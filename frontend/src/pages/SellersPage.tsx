@@ -125,7 +125,14 @@ const SellersPage = () => {
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         {/* Table Header */}
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="text-lg font-semibold text-gray-900">All Sellers</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold text-gray-900">All Sellers</h2>
+            {isFetching && (
+              <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full animate-pulse">
+                Loading...
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-3">
             {/* Refresh Button */}
