@@ -61,22 +61,12 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to create product");
           }
 
-          try {
-            await get().getProducts(); // Try to refresh
-          } catch (refreshError) {
-            console.error(
-              "Failed to refresh, using server response:",
-              refreshError,
-            );
-            // Optimistically update with server response
-            if (response.data.data) {
-              set((state) => ({
-                products: [...state.products, response.data.data],
-              }));
-            }
-          }
+          // Optimistic update: prepend the new product returned by the server
+          set((state) => ({
+            products: [response.data.data, ...state.products],
+            loading: false,
+          }));
 
-          set({ loading: false });
           toast.success("Product created successfully!");
           return true;
         } catch (error) {
@@ -102,22 +92,14 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to update product");
           }
 
-          try {
-            await get().getProducts(); // Try to refresh
-          } catch (refreshError) {
-            console.error(
-              "Failed to refresh, using server response:",
-              refreshError,
-            );
-            // Optimistically update with server response
-            set((state) => ({
-              products: state.products.map((product) =>
-                product._id === id ? response.data.data : product,
-              ),
-            }));
-          }
+          // Optimistic update: swap the updated product in-place
+          set((state) => ({
+            products: state.products.map((p) =>
+              p._id === id ? response.data.data : p
+            ),
+            loading: false,
+          }));
 
-          set({ loading: false });
           toast.success("Product updated successfully!");
           return true;
         } catch (error) {
@@ -140,21 +122,12 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to delete product");
           }
 
-          try {
-            await get().getProducts();
-          } catch (refreshError) {
-            console.error(
-              "Failed to refresh, using server response:",
-              refreshError,
-            );
+          // Optimistic update: remove the deleted product from local state
+          set((state) => ({
+            products: state.products.filter((p) => p._id !== id),
+            loading: false,
+          }));
 
-            // Optimistically update with server response
-            set((state) => ({
-              products: state.products.filter((product) => product._id !== id),
-            }));
-          }
-
-          set({ loading: false });
           toast.success("Product deleted successfully!");
           return true;
         } catch (error) {
@@ -177,25 +150,14 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to toggle product visibility");
           }
 
-          try {
-            await get().getProducts();
-          } catch (refreshError) {
-            console.error(
-              "Failed to refresh, using server response:",
-              refreshError,
-            );
+          // Optimistic update: toggle isHidden on the local product
+          set((state) => ({
+            products: state.products.map((p) =>
+              p._id === id ? { ...p, isHidden: !p.isHidden } : p
+            ),
+            loading: false,
+          }));
 
-            // Optimistically update
-            set((state) => ({
-              products: state.products.map((product) =>
-                product._id === id
-                  ? { ...product, isHidden: !product.isHidden }
-                  : product
-              ),
-            }));
-          }
-
-          set({ loading: false });
           toast.success(response.data.message || "Product visibility toggled successfully!");
           return true;
         } catch (error) {

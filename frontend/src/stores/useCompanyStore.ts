@@ -54,21 +54,13 @@ export const useCompanyStore = create<CompanyStore>()(
             throw new Error("Create company failed");
           }
 
-          try {
-            await get().getCompanies();
-          } catch (refreshError) {
-            console.error("Failed to refresh, using server response:", refreshError);
-            set((state) => ({
-              companies: state.companies.map((company) =>
-                company._id === response.data.data._id
-                  ? response.data.data
-                  : company
-              ),
-            }));
-          }
+          // Optimistic update: prepend the new company returned by the server
+          set((state) => ({
+            companies: [response.data.data, ...state.companies],
+            loading: false,
+          }));
 
           toast.success("Company created successfully!");
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
@@ -101,21 +93,15 @@ export const useCompanyStore = create<CompanyStore>()(
             throw new Error("Update company failed");
           }
 
-          try {
-            await get().getCompanies();
-          } catch (refreshError) {
-            console.error("Failed to refresh, using server response:", refreshError);
-            set((state) => ({
-              companies: state.companies.map((company) =>
-                company._id === response.data.data._id
-                  ? response.data.data
-                  : company
-              ),
-            }));
-          }
+          // Optimistic update: swap the updated company in-place
+          set((state) => ({
+            companies: state.companies.map((company) =>
+              company._id === id ? response.data.data : company
+            ),
+            loading: false,
+          }));
 
           toast.success("Company updated successfully!");
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
@@ -138,19 +124,13 @@ export const useCompanyStore = create<CompanyStore>()(
             throw new Error("Delete company failed");
           }
 
-          try {
-            await get().getCompanies();
-          } catch (refreshError) {
-            console.error("Failed to refresh, using server response:", refreshError);
-            set((state) => ({
-              companies: state.companies.map((company) =>
-                company._id === id ? response.data.data : company
-              ),
-            }));
-          }
+          // Optimistic update: remove the deleted company from local state
+          set((state) => ({
+            companies: state.companies.filter((company) => company._id !== id),
+            loading: false,
+          }));
 
           toast.success("Company deleted successfully!");
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
@@ -173,19 +153,15 @@ export const useCompanyStore = create<CompanyStore>()(
             throw new Error("Toggle company visibility failed");
           }
 
-          try {
-            await get().getCompanies();
-          } catch (refreshError) {
-            console.error("Failed to refresh, using server response:", refreshError);
-            set((state) => ({
-              companies: state.companies.map((company) =>
-                company._id === id ? response.data.data : company
-              ),
-            }));
-          }
+          // Optimistic update: swap with the toggled company returned by the server
+          set((state) => ({
+            companies: state.companies.map((company) =>
+              company._id === id ? response.data.data : company
+            ),
+            loading: false,
+          }));
 
           toast.success("Company visibility updated!");
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;

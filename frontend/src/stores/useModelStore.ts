@@ -57,11 +57,15 @@ export const useModelStore = create<ModelStore>()(
             modelName: modelName.trim(),
           });
 
+          // Optimistic update: append the new model returned by the server
+          const newModel = response.data.data as CompanyModel;
+          set((state) => ({
+            models: [...state.models, newModel],
+            modelsCount: state.modelsCount + 1,
+            loading: false,
+          }));
+
           toast.success(response.data.message || "Model added successfully");
-
-          await get().getModels(companyId);
-
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
@@ -84,11 +88,15 @@ export const useModelStore = create<ModelStore>()(
             }
           );
 
+          // Optimistic update: swap the renamed model in-place
+          set((state) => ({
+            models: state.models.map((m) =>
+              m._id === modelId ? { ...m, name: newName.trim() } : m
+            ),
+            loading: false,
+          }));
+
           toast.success(response.data.message || "Model updated successfully");
-
-          await get().getModels(companyId);
-
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
@@ -108,11 +116,14 @@ export const useModelStore = create<ModelStore>()(
             `/api/model/${companyId}/models/${modelId}`
           );
 
+          // Optimistic update: remove the deleted model from local state
+          set((state) => ({
+            models: state.models.filter((m) => m._id !== modelId),
+            modelsCount: state.modelsCount - 1,
+            loading: false,
+          }));
+
           toast.success(response.data.message || "Model deleted successfully");
-
-          await get().getModels(companyId);
-
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
@@ -132,11 +143,16 @@ export const useModelStore = create<ModelStore>()(
             `/api/model/${companyId}/models/${modelId}/toggle`
           );
 
+          // Optimistic update: use the toggled model returned by the server
+          const updatedModel = response.data.data as CompanyModel;
+          set((state) => ({
+            models: state.models.map((m) =>
+              m._id === modelId ? updatedModel : m
+            ),
+            loading: false,
+          }));
+
           toast.success(response.data.message || "Model visibility updated");
-
-          await get().getModels(companyId);
-
-          set({ loading: false });
           return true;
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;

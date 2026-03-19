@@ -53,24 +53,12 @@ export const useSellerStore = create<SellerStore>()(
             throw new Error("Failed to create seller");
           }
 
-          // Try updating sellers state after creation by fetching them from backend
-          try {
-            await get().getAllSellers(); // Try to refresh
-          } catch (refreshError) {
-            console.error(
-              "Failed to refresh, using server response:",
-              refreshError,
-            );
+          // Optimistic update: prepend the new seller returned by the server
+          set((state) => ({
+            sellers: [response.data.data, ...state.sellers],
+            loading: false,
+          }));
 
-            // Optimistically update with server response
-            set((state) => ({
-              sellers: state.sellers.map((c) =>
-                c._id === response.data.data._id ? response.data.data : c,
-              ),
-            }));
-          }
-
-          set({ loading: false });
           toast.success("Seller created successfully!");
           return true;
         } catch (error) {
@@ -95,19 +83,12 @@ export const useSellerStore = create<SellerStore>()(
             throw new Error("Failed to delete seller");
           }
 
-          // Update sellers state after deletion by fetching them from backend
-          try {
-            await get().getAllSellers(); // Try to refresh
-          } catch (refreshError) {
-            console.error("Failed to refresh sellers list:", refreshError);
+          // Optimistic update: remove the deleted seller from local state
+          set((state) => ({
+            sellers: state.sellers.filter((seller) => seller._id !== id),
+            loading: false,
+          }));
 
-            // Optimistically update by removing the deleted seller
-            set((state) => ({
-              sellers: state.sellers.filter((seller) => seller._id !== id),
-            }));
-          }
-
-          set({ loading: false });
           toast.success("Seller deleted successfully!");
           return true;
         } catch (error) {
@@ -131,21 +112,14 @@ export const useSellerStore = create<SellerStore>()(
             throw new Error("Failed to toggle seller visibility");
           }
 
-          // Update sellers state after hiding
-          try {
-            await get().getAllSellers(); // Try to refresh
-          } catch (refreshError) {
-            console.error("Failed to refresh sellers list:", refreshError);
+          // Optimistic update: toggle isHidden on the local seller
+          set((state) => ({
+            sellers: state.sellers.map((seller) =>
+              seller._id === id ? { ...seller, isHidden: !seller.isHidden } : seller
+            ),
+            loading: false,
+          }));
 
-            // Optimistically update
-            set((state) => ({
-              sellers: state.sellers.map((seller) =>
-                seller._id === id ? { ...seller, isHidden: !seller.isHidden } : seller
-              ),
-            }));
-          }
-
-          set({ loading: false });
           toast.success(response.data.message || "Seller visibility toggled successfully!");
           return true;
         } catch (error) {
@@ -179,25 +153,14 @@ export const useSellerStore = create<SellerStore>()(
             throw new Error("Failed to update seller");
           }
 
-          // Update sellers state after update
-          // Try updating sellers state after creation by fetching them from backend
-          try {
-            await get().getAllSellers(); // Try to refresh
-          } catch (refreshError) {
-            console.error(
-              "Failed to refresh, using server response:",
-              refreshError,
-            );
+          // Optimistic update: swap the updated seller in-place
+          set((state) => ({
+            sellers: state.sellers.map((s) =>
+              s._id === id ? response.data.data : s
+            ),
+            loading: false,
+          }));
 
-            // Optimistically update with server response
-            set((state) => ({
-              sellers: state.sellers.map((c) =>
-                c._id === response.data.data._id ? response.data.data : c,
-              ),
-            }));
-          }
-
-          set({ loading: false });
           toast.success("Seller updated successfully!");
           return true;
         } catch (error) {
