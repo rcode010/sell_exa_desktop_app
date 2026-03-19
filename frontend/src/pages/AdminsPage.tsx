@@ -46,6 +46,11 @@ const AdminsPage = () => {
     setIsRefreshing(false);
   };
 
+  const handleViewDetails = (admin: User) => {
+    setSelectedAdmin(admin);
+    setIsEditModalOpen(true);
+  }
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Page Header */}
@@ -139,10 +144,7 @@ const AdminsPage = () => {
                   <AdminInstance
                     key={admin._id}
                     admin={admin}
-                    onViewDetails={() => {
-                      setSelectedAdmin(admin);
-                      setIsEditModalOpen(true);
-                    }}
+                    onViewDetails={handleViewDetails}
                   />
                 ))}
               </tbody>

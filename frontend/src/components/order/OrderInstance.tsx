@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { Order, OrderStatus } from "../../types/order";
 import { Eye } from "lucide-react";
 
@@ -15,12 +15,12 @@ const getStatusStyles = (status: OrderStatus) => {
   return styles[status];
 };
 
-const OrderInstance = ({
+const OrderInstance = memo(({
   order,
   onViewDetails,
 }: {
   order: Order;
-  onViewDetails: () => void;
+  onViewDetails: (order: Order) => void;
 }) => {
   const itemCount: number = order.products.length;
 
@@ -60,13 +60,13 @@ const OrderInstance = ({
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={onViewDetails}
+          onClick={() => onViewDetails(order)}
         >
           <Eye className="w-5 h-5" />
         </button>
       </td>
     </tr>
   );
-};
+});
 
 export default OrderInstance;

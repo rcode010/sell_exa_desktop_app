@@ -74,6 +74,11 @@ const CompaniesPage = () => {
     );
   }
 
+  const handleViewDetails = (company: Company) => {
+    setSelectedCompany(company);
+    setIsEditModalOpen(true);
+  };
+
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       {/* Page Header */}
@@ -174,10 +179,7 @@ const CompaniesPage = () => {
                   <CompanyInstance
                     key={company._id}
                     company={company}
-                    onViewDetails={() => {
-                      setSelectedCompany(company);
-                      setIsEditModalOpen(true);
-                    }}
+                    onViewDetails={handleViewDetails}
                   />
                 ))}
               </tbody>

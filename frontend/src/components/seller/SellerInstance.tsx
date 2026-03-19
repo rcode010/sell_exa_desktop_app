@@ -7,7 +7,7 @@ const SellerInstance = ({
   onViewDetails,
 }: {
   seller: Seller;
-  onViewDetails: () => void;
+  onViewDetails: (seller: Seller) => void;
 }) => {
   return (
     <tr className="hover:bg-gray-50 transition-colors">
@@ -25,7 +25,7 @@ const SellerInstance = ({
       <td className="px-6 py-4">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={onViewDetails}
+          onClick={() => onViewDetails(seller)}
         >
           <Eye size={18} />
         </button>

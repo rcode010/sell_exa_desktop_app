@@ -79,6 +79,11 @@ const SellersPage = () => {
     );
   }
 
+  const handleViewDetails = (seller: Seller) => {
+    setSelectedSeller(seller);
+    setIsEditModalOpen(true);
+  }
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -179,10 +184,7 @@ const SellersPage = () => {
                   <SellerInstance
                     key={seller._id}
                     seller={seller}
-                    onViewDetails={() => {
-                      setSelectedSeller(seller);
-                      setIsEditModalOpen(true);
-                    }}
+                    onViewDetails={handleViewDetails}
                   />
                 ))}
               </tbody>

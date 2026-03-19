@@ -85,6 +85,11 @@ const OrdersPage = () => {
     }
   };
 
+  const handleViewDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       {/* Header Section */}
@@ -162,10 +167,7 @@ const OrdersPage = () => {
                   <OrderInstance
                     key={order._id}
                     order={order}
-                    onViewDetails={() => {
-                      setSelectedOrder(order);
-                      setIsModalOpen(true);
-                    }}
+                    onViewDetails={handleViewDetails}
                   />
                 ))}
               </tbody>

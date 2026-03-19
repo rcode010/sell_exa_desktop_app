@@ -1,13 +1,13 @@
-import React from "react";
+import React, { memo } from "react";
 import { Company } from "../../types/company";
 import { Building2, Eye } from "lucide-react";
 
-const CompanyInstance = ({
+const CompanyInstance = memo(({
   company,
   onViewDetails,
 }: {
   company: Company;
-  onViewDetails: () => void;
+  onViewDetails: (company: Company) => void;
 }) => {
   return (
     <tr key={company._id} className="hover:bg-gray-50 transition-colors">
@@ -39,13 +39,13 @@ const CompanyInstance = ({
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={onViewDetails}
+          onClick={() => onViewDetails(company)}
         >
           <Eye className="w-5 h-5" />
         </button>
       </td>
     </tr>
   );
-};
+});
 
 export default CompanyInstance;

@@ -7,13 +7,13 @@ const AdminInstance = ({
   onViewDetails,
 }: {
   admin: User;
-  onViewDetails: () => void;
+  onViewDetails: (admin: User) => void;
 }) => {
   return (
     <tr key={admin._id} className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
-          
+
           <span className="text-sm font-medium text-gray-900">
             {admin.firstName}
           </span>
@@ -43,7 +43,7 @@ const AdminInstance = ({
       <td className="px-6 py-4 whitespace-nowrap">
         <button
           className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-          onClick={onViewDetails}
+          onClick={() => onViewDetails(admin)}
         >
           <Eye className="w-5 h-5" />
         </button>
