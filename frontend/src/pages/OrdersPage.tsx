@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Package, Search, RefreshCw } from "lucide-react";
 import OrderDetailsModal from "../components/order/OrderDetailsModal";
 import ManageDeliveryPricesModal from "../components/order/ManageDeliveryPricesModal";
@@ -44,30 +44,21 @@ const OrdersPage = () => {
     let mounted = true;
     const fetch = async () => {
       setIsFetching(true);
-      await getOrders(currentPage, ITEMS_PER_PAGE);
+      await getOrders(currentPage, ITEMS_PER_PAGE, debouncedSearch);
       if (mounted) setIsFetching(false);
     };
 
     fetch();
-    return () => { mounted = false; };
-  }, [getOrders, currentPage]);
+    return () => {
+      mounted = false;
+    };
+  }, [getOrders, currentPage, debouncedSearch]);
 
-  const filteredOrders: Order[] = useMemo(() => {
-    const value = debouncedSearch.toLowerCase();
-
-    return orders.filter((order) => {
-      return (
-        order._id.toLowerCase().includes(value) ||
-        order.buyer.toLowerCase().includes(value) ||
-        order.seller.toLowerCase().includes(value) ||
-        order.status.toLowerCase().includes(value)
-      );
-    });
-  }, [debouncedSearch, orders]);
+  const filteredOrders: Order[] = orders;
 
   const refresh = async (): Promise<void> => {
     setIsFetching(true);
-    await getOrders(currentPage, ITEMS_PER_PAGE);
+    await getOrders(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     setIsFetching(false);
   };
 
@@ -98,7 +89,9 @@ const OrdersPage = () => {
         <button
           onClick={() => setIsManagePricesOpen(true)}
           disabled={isOffline}
-          title={isOffline ? "Unavailable in offline mode" : "Manage delivery prices"}
+          title={
+            isOffline ? "Unavailable in offline mode" : "Manage delivery prices"
+          }
           className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Package className="w-5 h-5" />
@@ -128,8 +121,9 @@ const OrdersPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
-                  }`}
+                className={`w-5 h-5 text-gray-600 ${
+                  isFetching ? "animate-spin" : ""
+                }`}
               />
             </button>
 
@@ -140,7 +134,7 @@ const OrdersPage = () => {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search orders..."
+                placeholder="Search orders by buyer name..."
                 className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
               />
             </div>
@@ -152,7 +146,9 @@ const OrdersPage = () => {
           {loading && orders.length === 0 ? (
             <Loader />
           ) : (
-            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
+            <table
+              className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+            >
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   {ORDER_TABLE_HEADERS.map((header, index) => (

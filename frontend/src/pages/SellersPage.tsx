@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Package, Plus, RefreshCw, Search, Users, EyeOff } from "lucide-react";
 import AddSellerModal from "../components/seller/AddSellerModal";
 import EditSellerModal from "../components/seller/EditSellerModal";
@@ -35,20 +35,11 @@ const SellersPage = () => {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const filteredSellers = useMemo(() => {
-    if (!debouncedSearch) return sellers;
-
-    const value = debouncedSearch.toLowerCase();
-    return sellers.filter(
-      (seller) =>
-        seller.storeName?.toLowerCase().includes(value) ||
-        seller.phoneNo?.toLowerCase().includes(value)
-    );
-  }, [debouncedSearch, sellers]);
+  const filteredSellers = sellers;
 
   // Fetch sellers when auth, page, or search changes
   useEffect(() => {
-    let mounted = true;
+    const mounted = true;
     const fetch = async () => {
       setIsFetching(true);
       await getAllSellers(currentPage, ITEMS_PER_PAGE, debouncedSearch);
@@ -78,7 +69,7 @@ const SellersPage = () => {
   const handleViewDetails = (seller: Seller) => {
     setSelectedSeller(seller);
     setIsEditModalOpen(true);
-  }
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -95,7 +86,9 @@ const SellersPage = () => {
           <button
             onClick={() => setIsHiddenModalOpen(true)}
             disabled={isOffline}
-            title={isOffline ? "Unavailable in offline mode" : "View hidden sellers"}
+            title={
+              isOffline ? "Unavailable in offline mode" : "View hidden sellers"
+            }
             className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <EyeOff size={20} />
@@ -143,8 +136,9 @@ const SellersPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
-                  }`}
+                className={`w-5 h-5 text-gray-600 ${
+                  isFetching ? "animate-spin" : ""
+                }`}
               />
             </button>
 
@@ -167,7 +161,9 @@ const SellersPage = () => {
           {loading && sellers.length === 0 ? (
             <Loader />
           ) : (
-            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
+            <table
+              className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+            >
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr className="text-xs uppercase text-gray-500">
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

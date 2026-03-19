@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Search, Eye, EyeOff, Package, RefreshCw } from "lucide-react";
 import { Product } from "../types/product";
 import AddProductModal from "../components/product/AddProductModal";
@@ -32,21 +32,11 @@ const ProductsPage = () => {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const filteredProducts: Product[] = useMemo(() => {
-    if (!debouncedSearch) return products;
-
-    const value = debouncedSearch.toLowerCase();
-    return products.filter((product) => {
-      return (
-        product.name.english.toLowerCase().includes(value) ||
-        product.quality.toLowerCase().includes(value)
-      );
-    });
-  }, [products, debouncedSearch]);
+  const filteredProducts: Product[] = products;
 
   // Fetch products on mount or when page/search changes
   useEffect(() => {
-    let mounted = true;
+    const mounted = true;
     const fetch = async () => {
       setIsFetching(true);
       await getProducts(currentPage, ITEMS_PER_PAGE, debouncedSearch);
@@ -78,7 +68,9 @@ const ProductsPage = () => {
             className="flex items-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setIsHiddenModalOpen(true)}
             disabled={isOffline}
-            title={isOffline ? "Unavailable in offline mode" : "View hidden products"}
+            title={
+              isOffline ? "Unavailable in offline mode" : "View hidden products"
+            }
           >
             <EyeOff className="w-5 h-5" />
             <span className="hidden sm:inline">View Hidden Products</span>
@@ -87,7 +79,9 @@ const ProductsPage = () => {
             className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setIsAddModalOpen(true)}
             disabled={isOffline}
-            title={isOffline ? "Unavailable in offline mode" : "Add new product"}
+            title={
+              isOffline ? "Unavailable in offline mode" : "Add new product"
+            }
           >
             <Plus className="w-5 h-5" />
             Add Product
@@ -98,7 +92,9 @@ const ProductsPage = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Total Products (Page)</p>
+          <p className="text-gray-500 text-sm font-medium">
+            Total Products (Page)
+          </p>
           <h3 className="text-3xl font-bold mt-2 text-gray-900">
             {products.length}
           </h3>
@@ -110,7 +106,9 @@ const ProductsPage = () => {
         {/* Table Header */}
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-gray-900">All Products</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              All Products
+            </h2>
             {isFetching && (
               <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full animate-pulse">
                 Loading...
@@ -127,8 +125,9 @@ const ProductsPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
-                  }`}
+                className={`w-5 h-5 text-gray-600 ${
+                  isFetching ? "animate-spin" : ""
+                }`}
               />
             </button>
 
@@ -153,7 +152,9 @@ const ProductsPage = () => {
               <Loader />
             </div>
           ) : (
-            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
+            <table
+              className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+            >
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -236,12 +237,15 @@ const ProductsPage = () => {
           <HiddenProductsModal onClose={() => setIsHiddenModalOpen(false)} />
         )}
 
-        {!loading && !isFetching && filteredProducts.length === 0 && !search && (
-          <div className="py-12 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No products to show.</p>
-          </div>
-        )}
+        {!loading &&
+          !isFetching &&
+          filteredProducts.length === 0 &&
+          !search && (
+            <div className="py-12 text-center">
+              <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">No products to show.</p>
+            </div>
+          )}
 
         {!loading && !isFetching && filteredProducts.length === 0 && search && (
           <div className="py-12 text-center">

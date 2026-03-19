@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Plus, Search, Building2, RefreshCw, EyeOff } from "lucide-react";
 import { Company } from "../types/company";
 import AddCompanyModal from "../components/company/AddCompanyModal";
@@ -34,17 +34,10 @@ const CompaniesPage = () => {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const filteredCompanies = useMemo(() => {
-    if (!debouncedSearch) return companies;
-
-    const value = debouncedSearch.toLowerCase();
-    return companies.filter((company) =>
-      company.name.toLowerCase().includes(value),
-    );
-  }, [debouncedSearch, companies]);
+  const filteredCompanies = companies;
 
   useEffect(() => {
-    let mounted = true;
+    const mounted = true;
     const fetch = async () => {
       setIsFetching(true);
       await getCompanies(currentPage, ITEMS_PER_PAGE, debouncedSearch);
@@ -89,7 +82,11 @@ const CompaniesPage = () => {
           <button
             onClick={() => setIsHiddenModalOpen(true)}
             disabled={isOffline}
-            title={isOffline ? "Unavailable in offline mode" : "View hidden companies"}
+            title={
+              isOffline
+                ? "Unavailable in offline mode"
+                : "View hidden companies"
+            }
             className="flex items-center gap-2 bg-white text-gray-700 px-6 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <EyeOff className="w-5 h-5" />
@@ -99,7 +96,9 @@ const CompaniesPage = () => {
           <button
             onClick={() => setIsAddModalOpen(true)}
             disabled={isOffline}
-            title={isOffline ? "Unavailable in offline mode" : "Add new company"}
+            title={
+              isOffline ? "Unavailable in offline mode" : "Add new company"
+            }
             className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus className="w-5 h-5" />
@@ -123,7 +122,9 @@ const CompaniesPage = () => {
         {/* Table Header */}
         <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-gray-900">All Companies</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              All Companies
+            </h2>
             {isFetching && (
               <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full animate-pulse">
                 Loading...
@@ -163,7 +164,9 @@ const CompaniesPage = () => {
           {loading && companies.length === 0 ? (
             <Loader />
           ) : (
-            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
+            <table
+              className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+            >
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
@@ -203,23 +206,29 @@ const CompaniesPage = () => {
         )}
 
         {/* Empty State */}
-        {!loading && !isFetching && filteredCompanies.length === 0 && !search && (
-          <div className="py-12 text-center">
-            <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">
-              No companies found. Start by adding a new company.
-            </p>
-          </div>
-        )}
+        {!loading &&
+          !isFetching &&
+          filteredCompanies.length === 0 &&
+          !search && (
+            <div className="py-12 text-center">
+              <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">
+                No companies found. Start by adding a new company.
+              </p>
+            </div>
+          )}
 
-        {!loading && !isFetching && filteredCompanies.length === 0 && search && (
-          <div className="py-12 text-center">
-            <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">
-              No companies found matching your search.
-            </p>
-          </div>
-        )}
+        {!loading &&
+          !isFetching &&
+          filteredCompanies.length === 0 &&
+          search && (
+            <div className="py-12 text-center">
+              <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">
+                No companies found matching your search.
+              </p>
+            </div>
+          )}
       </div>
 
       {/* Modals */}

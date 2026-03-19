@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Search, Building2, RefreshCw } from "lucide-react";
 import EditAdminsModal from "../components/admins/EditAdminsModal";
 import Loader from "../components/ui/Loader";
@@ -12,7 +12,7 @@ const AdminsPage = () => {
   const { admins, loading, getAllAdmins } = useUserStore() as {
     admins: User[];
     loading: boolean;
-    getAllAdmins: () => void;
+    getAllAdmins: (search?: string) => void;
   };
 
   const [isFetching, setIsFetching] = useState(false);
@@ -23,40 +23,32 @@ const AdminsPage = () => {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const filteredAdmins = useMemo(() => {
-    if (!debouncedSearch) return admins;
-    const value = debouncedSearch.toLowerCase();
-    return admins.filter(
-      (admin) =>
-        admin.firstName.toLowerCase().includes(value) ||
-        admin.lastName.toLowerCase().includes(value) ||
-        admin.phoneNo.toLowerCase().includes(value) ||
-        admin.role.toLowerCase().includes(value)
-    );
-  }, [debouncedSearch, admins]);
+  const filteredAdmins = admins;
 
   useEffect(() => {
     let mounted = true;
     const fetch = async () => {
       setIsFetching(true);
-      await getAllAdmins();
+      await getAllAdmins(debouncedSearch);
       if (mounted) setIsFetching(false);
     };
 
     fetch();
-    return () => { mounted = false; };
-  }, [getAllAdmins]);
+    return () => {
+      mounted = false;
+    };
+  }, [getAllAdmins, debouncedSearch]);
 
   const refresh = async (): Promise<void> => {
     setIsFetching(true);
-    await getAllAdmins();
+    await getAllAdmins(debouncedSearch);
     setIsFetching(false);
   };
 
   const handleViewDetails = (admin: User) => {
     setSelectedAdmin(admin);
     setIsEditModalOpen(true);
-  }
+  };
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
@@ -108,8 +100,9 @@ const AdminsPage = () => {
               title="Refresh admins"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isFetching ? "animate-spin" : ""
-                  }`}
+                className={`w-5 h-5 text-gray-600 ${
+                  isFetching ? "animate-spin" : ""
+                }`}
               />
             </button>
 
@@ -132,7 +125,9 @@ const AdminsPage = () => {
           {loading && admins?.length === 0 ? (
             <Loader />
           ) : (
-            <table className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}>
+            <table
+              className={`w-full transition-opacity duration-200 ${isFetching ? "opacity-50 pointer-events-none" : ""}`}
+            >
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">

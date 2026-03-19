@@ -154,11 +154,20 @@ export const useUserStore = create(
         }
       },
 
-      getAllAdmins: async () => {
+      getAllAdmins: async (search = "") => {
         try {
           if (get().admins.length === 0) set({ loading: true });
-          const res = await axios.get("/api/admin/all");
-          set({ admins: res.data.data, loading: false, adminsOffline: false, adminsLastUpdated: Date.now() });
+          const params = new URLSearchParams({ ...(search && { search }) });
+          const url = params.toString()
+            ? `/api/admin/all?${params}`
+            : "/api/admin/all";
+          const res = await axios.get(url);
+          set({
+            admins: res.data.data,
+            loading: false,
+            adminsOffline: false,
+            adminsLastUpdated: Date.now(),
+          });
           return true;
         } catch (e) {
           const error = e as AxiosError<{ message?: string }>;

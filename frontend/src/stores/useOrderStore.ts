@@ -16,14 +16,19 @@ export const useOrderStore = create<OrderStore>()(
       isOffline: false,
       lastUpdated: null,
 
-      getOrders: async (page = 1, limit = 10) => {
+      getOrders: async (page = 1, limit = 10, search = "") => {
         // Only show the spinner on the very first load — if we already have data,
         // skip the spinner and silently update in the background (stale-while-revalidate)
         const hasData = get().orders.length > 0;
         if (!hasData) set({ loading: true });
 
         try {
-          const res = await axios.get(`/api/order/admin/all?page=${page}&limit=${limit}`);
+          const params = new URLSearchParams({
+            page: String(page),
+            limit: String(limit),
+            ...(search && { search }),
+          });
+          const res = await axios.get(`/api/order/admin/all?${params}`);
 
           // Backend now populates buyerId and products.productId (with nested sellerId)
           const raw: any[] = res.data?.data ?? res.data ?? [];
@@ -48,7 +53,10 @@ export const useOrderStore = create<OrderStore>()(
               const firstProduct = o.products?.[0]?.productId;
               if (firstProduct && typeof firstProduct === "object") {
                 const s = firstProduct.sellerId;
-                if (s && typeof s === "object") return s.storeName ?? `Seller #${String(s._id ?? "").slice(-6)}`;
+                if (s && typeof s === "object")
+                  return (
+                    s.storeName ?? `Seller #${String(s._id ?? "").slice(-6)}`
+                  );
                 if (typeof s === "string") return `Seller #${s.slice(-6)}`;
               }
               return "—";
@@ -96,7 +104,8 @@ export const useOrderStore = create<OrderStore>()(
             set({ loading: false, isOffline: true });
           } else {
             set({ loading: false, isOffline: true });
-            const message = error.response?.data?.message || "Failed to load orders";
+            const message =
+              error.response?.data?.message || "Failed to load orders";
             toast.error(message);
           }
         }
