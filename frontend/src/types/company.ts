@@ -16,12 +16,14 @@ export interface CompanyStore {
   // State
   companies: Company[];
   companiesCount: number;
+  totalPages: number;
+  currentPage: number;
   loading: boolean;
   isOffline: boolean;
   lastUpdated: number | null;
 
   // Actions
-  getCompanies: () => Promise<void>;
+  getCompanies: (page?: number, limit?: number, search?: string) => Promise<void>;
   hideCompany: (id: string) => Promise<boolean>;
   createCompany: (file: FormData) => Promise<boolean>;
   updateCompany: (file: FormData, id: string) => Promise<boolean>;

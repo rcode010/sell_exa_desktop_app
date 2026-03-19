@@ -31,17 +31,23 @@ const OrdersPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const orders = useOrderStore((state) => state.orders);
+  const totalPages = useOrderStore((state) => state.totalPages);
   const loading = useOrderStore((state) => state.loading);
   const isOffline = useOrderStore((state) => state.isOffline);
   const getOrders = useOrderStore((state) => state.getOrders);
   const changeOrderStatus = useOrderStore((state) => state.changeOrderStatus);
 
-  // Fetch orders on mount
-  useEffect(() => {
-    getOrders();
-  }, [getOrders]);
-
   const debouncedSearch = useDebounce(search, 300);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  // Fetch orders on mount or page change
+  useEffect(() => {
+    getOrders(currentPage, ITEMS_PER_PAGE);
+  }, [getOrders, currentPage]);
 
   const filteredOrders: Order[] = useMemo(() => {
     const value = debouncedSearch.toLowerCase();
@@ -56,21 +62,9 @@ const OrdersPage = () => {
     });
   }, [debouncedSearch, orders]);
 
-  const paginatedOrders = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredOrders.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredOrders, currentPage]);
-
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
-
-  // Reset to first page when search changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch]);
-
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);
-    await getOrders();
+    await getOrders(currentPage, ITEMS_PER_PAGE);
     setIsRefreshing(false);
   };
 
@@ -163,7 +157,7 @@ const OrdersPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedOrders.map((order) => (
+                {filteredOrders.map((order) => (
                   <OrderInstance
                     key={order._id}
                     order={order}
@@ -176,7 +170,7 @@ const OrdersPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && filteredOrders.length > 0 && (
+        {!loading && !isRefreshing && orders.length > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -185,17 +179,16 @@ const OrdersPage = () => {
         )}
 
         {/* No Orders */}
-        {!loading && !isRefreshing && filteredOrders.length === 0 && !search && (
+        {!loading && !isRefreshing && orders.length === 0 && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No Orders to Show.</p>
+            <p className="text-gray-500">No orders to show.</p>
           </div>
         )}
 
-        {/* Empty Search Result */}
-        {!loading && !isRefreshing && filteredOrders.length === 0 && search && (
+        {!loading && !isRefreshing && orders.length === 0 && search && (
           <div className="py-12 text-center">
-            <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">
               No orders found matching your search.
             </p>

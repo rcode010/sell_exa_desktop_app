@@ -21,6 +21,7 @@ const SellersPage = () => {
 
   const loading = useSellerStore((state) => state.loading);
   const sellers = useSellerStore((state) => state.sellers);
+  const totalPages = useSellerStore((state) => state.totalPages);
   const isOffline = useSellerStore((state) => state.isOffline);
   const getAllSellers = useSellerStore((state) => state.getAllSellers);
 
@@ -45,29 +46,21 @@ const SellersPage = () => {
     );
   }, [debouncedSearch, sellers]);
 
-  const paginatedSellers = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredSellers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredSellers, currentPage]);
-
-  const totalPages = Math.ceil(filteredSellers.length / ITEMS_PER_PAGE);
-
   // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearch]);
 
-  // Fetch sellers once when auth is ready
+  // Fetch sellers when auth, page, or search changes
   useEffect(() => {
     if (isHydrated && accessToken) {
-      getAllSellers();
+      getAllSellers(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated, accessToken]);
+  }, [isHydrated, accessToken, currentPage, debouncedSearch]);
 
   const refresh = async () => {
     setIsRefreshing(true);
-    await getAllSellers();
+    await getAllSellers(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     setIsRefreshing(false);
   };
 
@@ -120,7 +113,7 @@ const SellersPage = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <StatsCard
-          statsTitle="Total Sellers"
+          statsTitle="Total Sellers (Page)"
           statsValue={Array.isArray(sellers) ? sellers.length : 0}
         />
       </div>
@@ -180,7 +173,7 @@ const SellersPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedSellers.map((seller) => (
+                {filteredSellers.map((seller) => (
                   <SellerInstance
                     key={seller._id}
                     seller={seller}
@@ -193,7 +186,7 @@ const SellersPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && filteredSellers.length > 0 && (
+        {!loading && !isRefreshing && sellers.length > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

@@ -67,10 +67,12 @@ export interface ProductDetails {
 export interface ProductStore {
   loading: boolean;
   products: Product[];
+  totalPages: number;
+  currentPage: number;
   isOffline: boolean;
   lastUpdated: number | null;
 
-  getProducts: () => Promise<void>;
+  getProducts: (page?: number, limit?: number, search?: string) => Promise<void>;
   createProduct: (params: CreateProductParams) => Promise<boolean>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;

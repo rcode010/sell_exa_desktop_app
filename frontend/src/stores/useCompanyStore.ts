@@ -12,20 +12,35 @@ export const useCompanyStore = create<CompanyStore>()(
       companies: [],
       hiddenCompanies: [],
       companiesCount: 0,
+      totalPages: 1,
+      currentPage: 1,
       loading: false,
       isOffline: false,
       lastUpdated: null,
 
       // Actions
-      getCompanies: async () => {
+      getCompanies: async (page = 1, limit = 10, search = "") => {
         const hasData = get().companies.length > 0;
         if (!hasData) set({ loading: true });
 
         try {
-          const response = await axios.get("/api/company/");
-          const companies = response.data.data;
+          const params = new URLSearchParams({
+            page: String(page),
+            limit: String(limit),
+            ...(search && { search }),
+          });
+          const response = await axios.get(`/api/company/?${params}`);
+          const { data, totalCount, totalPages } = response.data;
 
-          set({ companies, loading: false, isOffline: false, lastUpdated: Date.now() });
+          set({
+            companies: data,
+            companiesCount: totalCount,
+            totalPages,
+            currentPage: page,
+            loading: false,
+            isOffline: false,
+            lastUpdated: Date.now(),
+          });
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
           const hasData = get().companies.length > 0;

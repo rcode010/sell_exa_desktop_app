@@ -26,14 +26,12 @@ const ProductsPage = () => {
 
   const loading: boolean = useProductStore((state) => state.loading);
   const products: Product[] = useProductStore((state) => state.products);
+  const totalPages: number = useProductStore((state) => state.totalPages);
   const isOffline: boolean = useProductStore((state) => state.isOffline);
-  const getProducts: () => Promise<void> = useProductStore(
-    (state) => state.getProducts
-  );
+  const getProducts = useProductStore((state) => state.getProducts);
 
   const debouncedSearch = useDebounce(search, 300);
 
-  // Filter products based on search
   const filteredProducts: Product[] = useMemo(() => {
     if (!debouncedSearch) return products;
 
@@ -46,29 +44,22 @@ const ProductsPage = () => {
     });
   }, [products, debouncedSearch]);
 
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredProducts, currentPage]);
-
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-
   // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearch]);
 
+  // Fetch products on mount or when page/search changes
   useEffect(() => {
     if (isHydrated && accessToken) {
-      getProducts();
+      getProducts(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated, accessToken]);
+  }, [isHydrated, accessToken, currentPage, debouncedSearch]);
 
   const refresh = async () => {
     setIsRefreshing(true);
-    await getProducts();
+    await getProducts(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     setIsRefreshing(false);
   };
 
@@ -105,9 +96,9 @@ const ProductsPage = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-          <p className="text-gray-500 text-sm font-medium">Total Products</p>
+          <p className="text-gray-500 text-sm font-medium">Total Products (Page)</p>
           <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {products.length || 0}
+            {products.length}
           </h3>
         </div>
       </div>
@@ -127,8 +118,7 @@ const ProductsPage = () => {
               title="Refresh orders"
             >
               <RefreshCw
-                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""
-                  }`}
+                className={`w-5 h-5 text-gray-600 ${isRefreshing ? "animate-spin" : ""}`}
               />
             </button>
 
@@ -172,7 +162,7 @@ const ProductsPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedProducts.map((product) => (
+                {filteredProducts.map((product) => (
                   <tr
                     key={product._id}
                     className="hover:bg-gray-50 transition-colors"
@@ -211,7 +201,7 @@ const ProductsPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && filteredProducts.length > 0 && (
+        {!loading && !isRefreshing && products.length > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -234,10 +224,16 @@ const ProductsPage = () => {
           <HiddenProductsModal onClose={() => setIsHiddenModalOpen(false)} />
         )}
 
-        {/* Empty State */}
-        {filteredProducts.length === 0 && !loading && !isRefreshing && (
+        {!loading && !isRefreshing && filteredProducts.length === 0 && !search && (
           <div className="py-12 text-center">
             <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">No products to show.</p>
+          </div>
+        )}
+
+        {!loading && !isRefreshing && filteredProducts.length === 0 && search && (
+          <div className="py-12 text-center">
+            <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">
               No products found matching your search.
             </p>

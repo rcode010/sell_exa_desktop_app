@@ -10,25 +10,38 @@ export const useSellerStore = create<SellerStore>()(
   persist(
     (set, get) => ({
       sellers: [],
+      totalPages: 1,
+      currentPage: 1,
       loading: false,
       isOffline: false,
       lastUpdated: null,
 
-      getAllSellers: async () => {
+      getAllSellers: async (page = 1, limit = 10, search = "") => {
         try {
           const hasData = get().sellers.length > 0;
           if (!hasData) set({ loading: true });
 
-          // Token is automatically added by interceptor inside axios.ts | no need to pass it manually!
-          const response = await axiosInstance.get(
-            `/api/seller/all?limit=${PAGINATION.DEFAULT_LIMIT}&page=${PAGINATION.DEFAULT_PAGE}`,
-          );
+          const params = new URLSearchParams({
+            page: String(page),
+            limit: String(limit),
+            ...(search && { searchInput: search }),
+          });
+          const response = await axiosInstance.get(`/api/seller/all?${params}`);
 
           if (response.status !== 200) {
             throw new Error("Failed to fetch sellers");
           }
 
-          set({ sellers: response.data.data, loading: false, isOffline: false, lastUpdated: Date.now() });
+          const { data, totalPages } = response.data;
+
+          set({
+            sellers: data,
+            totalPages,
+            currentPage: page,
+            loading: false,
+            isOffline: false,
+            lastUpdated: Date.now(),
+          });
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
           const hasData = get().sellers.length > 0;

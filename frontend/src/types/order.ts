@@ -21,3 +21,21 @@ export interface Order {
   total: number;    // from totalPrice
   status: OrderStatus;
 }
+
+export interface OrderStore {
+  orders: Order[];
+  totalPages: number;
+  currentPage: number;
+  loading: boolean;
+  isOffline: boolean;
+  lastUpdated: number | null;
+
+  // Fetch all orders (admin)
+  getOrders: (page?: number, limit?: number) => Promise<void>;
+
+  // Change the status of an order (admin) — PATCH /api/order
+  changeOrderStatus: (orderId: string, status: OrderStatus) => Promise<boolean>;
+
+  // Delete an order (admin) — DELETE /api/order
+  deleteOrder: (orderId: string) => Promise<boolean>;
+}

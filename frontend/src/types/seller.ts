@@ -17,12 +17,14 @@ export interface Seller {
 export interface SellerStore {
   // State
   sellers: Seller[];
+  totalPages: number;
+  currentPage: number;
   loading: boolean;
   isOffline: boolean;
   lastUpdated: number | null;
 
   // Actions
-  getAllSellers: () => Promise<void>;
+  getAllSellers: (page?: number, limit?: number, search?: string) => Promise<void>;
   createSeller: (seller: Partial<Seller>) => Promise<boolean>;
   deleteSeller: (id: string) => Promise<boolean>;
   hideSeller: (id: string) => Promise<boolean>;

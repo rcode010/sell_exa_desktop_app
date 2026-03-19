@@ -15,6 +15,8 @@ const ITEMS_PER_PAGE = 10;
 
 const CompaniesPage = () => {
   const companies = useCompanyStore((state) => state.companies);
+  const totalPages = useCompanyStore((state) => state.totalPages);
+  const companiesCount = useCompanyStore((state) => state.companiesCount);
   const loading = useCompanyStore((state) => state.loading);
   const isOffline = useCompanyStore((state) => state.isOffline);
   const getCompanies = useCompanyStore((state) => state.getCompanies);
@@ -41,13 +43,6 @@ const CompaniesPage = () => {
     );
   }, [debouncedSearch, companies]);
 
-  const paginatedCompanies = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredCompanies.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredCompanies, currentPage]);
-
-  const totalPages = Math.ceil(filteredCompanies.length / ITEMS_PER_PAGE);
-
   // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
@@ -55,14 +50,14 @@ const CompaniesPage = () => {
 
   useEffect(() => {
     if (isHydrated && accessToken) {
-      getCompanies();
+      getCompanies(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isHydrated, accessToken]);
+  }, [isHydrated, accessToken, currentPage, debouncedSearch]);
 
   const refresh = async (): Promise<void> => {
     setIsRefreshing(true);
-    await getCompanies();
+    await getCompanies(currentPage, ITEMS_PER_PAGE, debouncedSearch);
     setIsRefreshing(false);
   };
 
@@ -116,7 +111,7 @@ const CompaniesPage = () => {
         <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
           <p className="text-gray-500 text-sm font-medium">Total Companies</p>
           <h3 className="text-3xl font-bold mt-2 text-gray-900">
-            {companies.length}
+            {companiesCount}
           </h3>
         </div>
       </div>
@@ -175,7 +170,7 @@ const CompaniesPage = () => {
               </thead>
 
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedCompanies.map((company) => (
+                {filteredCompanies.map((company) => (
                   <CompanyInstance
                     key={company._id}
                     company={company}
@@ -188,7 +183,7 @@ const CompaniesPage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && !isRefreshing && filteredCompanies.length > 0 && (
+        {!loading && !isRefreshing && companiesCount > 0 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -197,7 +192,16 @@ const CompaniesPage = () => {
         )}
 
         {/* Empty State */}
-        {!loading && !isRefreshing && filteredCompanies.length === 0 && (
+        {!loading && !isRefreshing && filteredCompanies.length === 0 && !search && (
+          <div className="py-12 text-center">
+            <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <p className="text-gray-500">
+              No companies found. Start by adding a new company.
+            </p>
+          </div>
+        )}
+
+        {!loading && !isRefreshing && filteredCompanies.length === 0 && search && (
           <div className="py-12 text-center">
             <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">

@@ -15,21 +15,37 @@ export const useProductStore = create<ProductStore>()(
     (set, get) => ({
       loading: false,
       products: [],
+      totalPages: 1,
+      currentPage: 1,
       isOffline: false,
       lastUpdated: null,
 
-      getProducts: async () => {
+      getProducts: async (page = 1, limit = 10, search = "") => {
         const hasData = get().products.length > 0;
         if (!hasData) set({ loading: true });
 
         try {
-          const response = await axiosInstance.get("/api/product/all");
+          const params = new URLSearchParams({
+            page: String(page),
+            limit: String(limit),
+            ...(search && { searchInput: search }),
+          });
+          const response = await axiosInstance.get(`/api/product/all?${params}`);
 
           if (response.status !== 200) {
             throw new Error("Failed to fetch products");
           }
 
-          set({ products: response.data.data, loading: false, isOffline: false, lastUpdated: Date.now() });
+          const { data, totalPages } = response.data;
+
+          set({
+            products: data,
+            totalPages,
+            currentPage: page,
+            loading: false,
+            isOffline: false,
+            lastUpdated: Date.now(),
+          });
         } catch (error) {
           const err = error as AxiosError<{ message?: string }>;
           const hasData = get().products.length > 0;
