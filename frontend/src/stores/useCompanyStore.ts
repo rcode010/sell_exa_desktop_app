@@ -70,10 +70,15 @@ export const useCompanyStore = create<CompanyStore>()(
           }
 
           // Optimistic update: prepend the new company returned by the server
-          set((state) => ({
-            companies: [response.data.data, ...state.companies],
-            loading: false,
-          }));
+          const newCompany = response.data.data;
+          if (newCompany) {
+            set((state) => ({
+              companies: [newCompany, ...state.companies],
+              loading: false,
+            }));
+          } else {
+            await get().getCompanies(get().currentPage);
+          }
 
           toast.success("Company created successfully!");
           return true;
@@ -109,12 +114,17 @@ export const useCompanyStore = create<CompanyStore>()(
           }
 
           // Optimistic update: swap the updated company in-place
-          set((state) => ({
-            companies: state.companies.map((company) =>
-              company._id === id ? response.data.data : company
-            ),
-            loading: false,
-          }));
+          const updatedCompany = response.data.data;
+          if (updatedCompany) {
+            set((state) => ({
+              companies: state.companies.map((company) =>
+                company._id === id ? updatedCompany : company
+              ),
+              loading: false,
+            }));
+          } else {
+            await get().getCompanies(get().currentPage);
+          }
 
           toast.success("Company updated successfully!");
           return true;
@@ -169,12 +179,17 @@ export const useCompanyStore = create<CompanyStore>()(
           }
 
           // Optimistic update: swap with the toggled company returned by the server
-          set((state) => ({
-            companies: state.companies.map((company) =>
-              company._id === id ? response.data.data : company
-            ),
-            loading: false,
-          }));
+          const toggledCompany = response.data.data;
+          if (toggledCompany) {
+            set((state) => ({
+              companies: state.companies.map((company) =>
+                company._id === id ? toggledCompany : company
+              ),
+              loading: false,
+            }));
+          } else {
+            await get().getCompanies(get().currentPage);
+          }
 
           toast.success("Company visibility updated!");
           return true;

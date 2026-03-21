@@ -59,11 +59,16 @@ export const useModelStore = create<ModelStore>()(
 
           // Optimistic update: append the new model returned by the server
           const newModel = response.data.data as CompanyModel;
-          set((state) => ({
-            models: [...state.models, newModel],
-            modelsCount: state.modelsCount + 1,
-            loading: false,
-          }));
+          if (newModel) {
+            set((state) => ({
+              models: [...state.models, newModel],
+              modelsCount: state.modelsCount + 1,
+              loading: false,
+            }));
+          } else {
+            await get().getModels(companyId);
+            set({ loading: false });
+          }
 
           toast.success(response.data.message || "Model added successfully");
           return true;
@@ -145,12 +150,17 @@ export const useModelStore = create<ModelStore>()(
 
           // Optimistic update: use the toggled model returned by the server
           const updatedModel = response.data.data as CompanyModel;
-          set((state) => ({
-            models: state.models.map((m) =>
-              m._id === modelId ? updatedModel : m
-            ),
-            loading: false,
-          }));
+          if (updatedModel) {
+            set((state) => ({
+              models: state.models.map((m) =>
+                m._id === modelId ? updatedModel : m
+              ),
+              loading: false,
+            }));
+          } else {
+            await get().getModels(companyId);
+            set({ loading: false });
+          }
 
           toast.success(response.data.message || "Model visibility updated");
           return true;

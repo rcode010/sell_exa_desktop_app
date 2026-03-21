@@ -37,7 +37,7 @@ const CompaniesPage = () => {
   const filteredCompanies = companies;
 
   useEffect(() => {
-    const mounted = true;
+    let mounted = true;
     const fetch = async () => {
       setIsFetching(true);
       await getCompanies(currentPage, ITEMS_PER_PAGE, debouncedSearch);
@@ -47,6 +47,9 @@ const CompaniesPage = () => {
     if (isHydrated && accessToken) {
       fetch();
     }
+    return () => {
+      mounted = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHydrated, accessToken, currentPage, debouncedSearch]);
 
