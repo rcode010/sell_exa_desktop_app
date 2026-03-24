@@ -80,11 +80,9 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to create product");
           }
 
-          // Optimistic update: prepend the new product returned by the server
-          set((state) => ({
-            products: [response.data.data, ...state.products],
-            loading: false,
-          }));
+          // Re-fetch the first page to ensure we have the fully populated product and correct pagination
+          await get().getProducts(1, 10);
+          set({ loading: false });
 
           toast.success("Product created successfully!");
           return true;
@@ -111,13 +109,9 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to update product");
           }
 
-          // Optimistic update: swap the updated product in-place
-          set((state) => ({
-            products: state.products.map((p) =>
-              p._id === id ? response.data.data : p
-            ),
-            loading: false,
-          }));
+          // Re-fetch to keep pagination and sorting consistent
+          await get().getProducts(get().currentPage, 10);
+          set({ loading: false });
 
           toast.success("Product updated successfully!");
           return true;
@@ -141,11 +135,9 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to delete product");
           }
 
-          // Optimistic update: remove the deleted product from local state
-          set((state) => ({
-            products: state.products.filter((p) => p._id !== id),
-            loading: false,
-          }));
+          // Re-fetch to keep pagination consistent
+          await get().getProducts(get().currentPage, 10);
+          set({ loading: false });
 
           toast.success("Product deleted successfully!");
           return true;
@@ -169,13 +161,9 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to toggle product visibility");
           }
 
-          // Optimistic update: toggle isHidden on the local product
-          set((state) => ({
-            products: state.products.map((p) =>
-              p._id === id ? { ...p, isHidden: !p.isHidden } : p
-            ),
-            loading: false,
-          }));
+          // Re-fetch to ensure exact state match
+          await get().getProducts(get().currentPage, 10);
+          set({ loading: false });
 
           toast.success(response.data.message || "Product visibility toggled successfully!");
           return true;
