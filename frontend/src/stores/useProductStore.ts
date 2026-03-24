@@ -37,9 +37,12 @@ export const useProductStore = create<ProductStore>()(
           }
 
           const { data, totalPages } = response.data;
+          
+          const rawProducts = Array.isArray(data) ? data : [];
+          const safeProducts = rawProducts.filter((p: Product | null) => p != null && p._id);
 
           set({
-            products: data,
+            products: safeProducts,
             totalPages,
             currentPage: page,
             loading: false,

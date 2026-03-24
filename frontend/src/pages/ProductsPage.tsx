@@ -32,7 +32,9 @@ const ProductsPage = () => {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  const filteredProducts: Product[] = products;
+  const filteredProducts: Product[] = products.filter(
+    (p) => p != null && p.name && typeof p.name === "object"
+  );
 
   // Fetch products on mount or when page/search changes
   useEffect(() => {
