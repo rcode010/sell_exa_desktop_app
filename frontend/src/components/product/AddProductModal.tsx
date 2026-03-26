@@ -56,7 +56,10 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     const fetchSellers = async () => {
       try {
-        await getAllSellers();
+        const { sellers, totalPages } = useSellerStore.getState();
+        if (sellers.length > 0 && totalPages <= 1) return;
+        
+        await getAllSellers(1, 1000);
       } catch (error) {
         console.error("Error fetching sellers:", error);
         toast.error("Failed to load sellers");
@@ -70,7 +73,10 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
-        await getCompanies();
+        const { companies, companiesCount } = useCompanyStore.getState();
+        if (companies.length > 0 && companies.length >= companiesCount) return;
+        
+        await getCompanies(1, 1000);
       } catch (error) {
         console.error("Error fetching companies:", error);
         toast.error("Failed to load companies");
