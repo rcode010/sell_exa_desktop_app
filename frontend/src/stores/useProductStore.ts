@@ -37,7 +37,7 @@ export const useProductStore = create<ProductStore>()(
           }
 
           const { data, totalPages } = response.data;
-          
+
           const rawProducts = Array.isArray(data) ? data : [];
           const safeProducts = rawProducts.filter((p: Product | null) => p != null && p._id);
 
@@ -80,9 +80,16 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to create product");
           }
 
-          // Re-fetch the first page to ensure we have the fully populated product and correct pagination
-          await get().getProducts(1, 10);
-          set({ loading: false });
+          // Optimistic update: prepend the new product returned by the server
+          const newProduct = response.data.data;
+          if (newProduct) {
+            set((state) => ({
+              products: [newProduct, ...state.products],
+              loading: false,
+            }));
+          } else {
+            await get().getProducts(get().currentPage);
+          }
 
           toast.success("Product created successfully!");
           return true;
@@ -109,9 +116,18 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to update product");
           }
 
-          // Re-fetch to keep pagination and sorting consistent
-          await get().getProducts(get().currentPage, 10);
-          set({ loading: false });
+          // Optimistic update: swap the updated product in-place
+          const updatedProduct = response.data.data;
+          if (updatedProduct) {
+            set((state) => ({
+              products: state.products.map((product) =>
+                product._id === id ? updatedProduct : product
+              ),
+              loading: false,
+            }));
+          } else {
+            await get().getProducts(get().currentPage);
+          }
 
           toast.success("Product updated successfully!");
           return true;
@@ -135,9 +151,11 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to delete product");
           }
 
-          // Re-fetch to keep pagination consistent
-          await get().getProducts(get().currentPage, 10);
-          set({ loading: false });
+          // Optimistic update: remove the deleted product from local state
+          set((state) => ({
+            products: state.products.filter((product) => product._id !== id),
+            loading: false,
+          }));
 
           toast.success("Product deleted successfully!");
           return true;
@@ -161,9 +179,18 @@ export const useProductStore = create<ProductStore>()(
             throw new Error("Failed to toggle product visibility");
           }
 
-          // Re-fetch to ensure exact state match
-          await get().getProducts(get().currentPage, 10);
-          set({ loading: false });
+          // Optimistic update: swap with the toggled product returned by the server
+          const toggledProduct = response.data.data;
+          if (toggledProduct) {
+            set((state) => ({
+              products: state.products.map((product) =>
+                product._id === id ? toggledProduct : product
+              ),
+              loading: false,
+            }));
+          } else {
+            await get().getProducts(get().currentPage);
+          }
 
           toast.success(response.data.message || "Product visibility toggled successfully!");
           return true;

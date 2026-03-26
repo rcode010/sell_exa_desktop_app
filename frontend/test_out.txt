@@ -1,0 +1,69 @@
+
+ RUN  v4.0.15 C:/Users/DELL/Desktop/sell_exa_desktop_app/frontend
+
+stdout | src/test/unit/stores/useCompanyStore.test.ts > useCompanyStore > getCompanies > should handle fetch companies error
+Error: Network error
+
+stdout | src/test/unit/stores/useCompanyStore.test.ts > useCompanyStore > createCompany > should handle create company failure
+Error: Creation failed
+
+stdout | src/test/unit/stores/useCompanyStore.test.ts > useCompanyStore > updateCompany > should handle update company error
+Error: Update failed
+
+stdout | src/test/unit/stores/useCompanyStore.test.ts > useCompanyStore > updateCompany > should handle unsuccessful response
+Error: Update company failed
+
+stdout | src/test/unit/stores/useCompanyStore.test.ts > useCompanyStore > delete company > should handle delete company error
+Error: Delete failed
+
+ ❯ src/test/unit/stores/useCompanyStore.test.ts (16 tests | 1 failed) 161ms
+       × should fetch companies successfully 11ms
+       ✓ should handle fetch companies error 3ms
+       ✓ should set loading to true while fetching 107ms
+       ✓ should create company successfully 11ms
+       ✓ should handle create company failure 2ms
+       ✓ should optimistically update companies after successful creation 2ms
+       ✓ should refresh companies if server does not return new company data 1ms
+       ✓ should update company successfully 6ms
+       ✓ should fail if company name is missing 2ms
+       ✓ should handle update company error 2ms
+       ✓ should handle unsuccessful response 2ms
+       ✓ should delete company successfully 2ms
+       ✓ should handle delete company error 2ms
+       ✓ should optimistically remove company after deletion 1ms
+       ✓ should set loading to false after all operations 1ms
+       ✓ should set loading to false even on error 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/test/unit/stores/useCompanyStore.test.ts > useCompanyStore > getCompanies > should fetch companies successfully
+AssertionError: expected "vi.fn()" to be called with arguments: [ '/api/company/' ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   "/api/company/",
++   "/api/company/?page=1&limit=10",
+  ]
+
+
+Number of calls: 1
+
+ ❯ src/test/unit/stores/useCompanyStore.test.ts:37:25
+     35|       expect(useCompanyStore.getState().companies).toEqual(mockCompani…
+     36|       expect(useCompanyStore.getState().loading).toBe(false);
+     37|       expect(axios.get).toHaveBeenCalledWith("/api/company/");
+       |                         ^
+     38|     });
+     39| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  15:22:03
+   Duration  2.23s (transform 154ms, setup 322ms, import 330ms, tests 161ms, environment 1.15s)
+

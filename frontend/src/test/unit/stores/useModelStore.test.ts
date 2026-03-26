@@ -21,8 +21,8 @@ describe("useModelStore", () => {
     it("should fetch models successfully", async () => {
       const companyId = "company-123";
       const mockModels = [
-        { _id: "1", modelName: "Camry", companyId },
-        { _id: "2", modelName: "Corolla", companyId },
+        { _id: "1", name: "Camry", companyId },
+        { _id: "2", name: "Corolla", companyId },
       ];
 
       vi.mocked(axios.get).mockResolvedValueOnce({
@@ -69,13 +69,10 @@ describe("useModelStore", () => {
     it("should create model successfully", async () => {
       const companyId = "company-123";
       const modelName = "Accord";
-      const mockModels = [{ _id: "1", modelName: "Accord", companyId }];
+      const mockModel = { _id: "1", name: "Accord", companyId };
 
       vi.mocked(axios.post).mockResolvedValueOnce({
-        data: { message: "Model added successfully" },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: mockModels },
+        data: { message: "Model added successfully", data: mockModel },
       });
 
       const { createModel } = useModelStore.getState();
@@ -86,18 +83,18 @@ describe("useModelStore", () => {
         `/api/model/${companyId}/models`,
         { modelName: "Accord" }
       );
+      expect(useModelStore.getState().models).toContainEqual(mockModel);
+      expect(axios.get).not.toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith("Model added successfully");
     });
 
     it("should trim model name before sending", async () => {
       const companyId = "company-123";
       const modelName = "  Civic  ";
+      const mockModel = { _id: "2", name: "Civic", companyId };
 
       vi.mocked(axios.post).mockResolvedValueOnce({
-        data: { message: "Success" },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: [] },
+        data: { message: "Success", data: mockModel },
       });
 
       const { createModel } = useModelStore.getState();
@@ -122,12 +119,12 @@ describe("useModelStore", () => {
       expect(toast.error).toHaveBeenCalledWith("Model already exists");
     });
 
-    it("should refresh models after creation", async () => {
+    it("should refresh models if server does not return new model data", async () => {
       const companyId = "company-123";
-      const mockModels = [{ _id: "1", modelName: "New Model", companyId }];
+      const mockModels = [{ _id: "1", name: "New Model", companyId }];
 
       vi.mocked(axios.post).mockResolvedValueOnce({
-        data: { message: "Success" },
+        data: { message: "Success", data: null }, // trigger fallback
       });
       vi.mocked(axios.get).mockResolvedValueOnce({
         data: { data: mockModels },
@@ -147,11 +144,12 @@ describe("useModelStore", () => {
       const modelId = "model-456";
       const newName = "Updated Name";
 
+      useModelStore.setState({
+        models: [{ _id: modelId, name: "Old Name" }]
+      });
+
       vi.mocked(axios.patch).mockResolvedValueOnce({
         data: { message: "Model updated successfully" },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: [] },
       });
 
       const { updateModel } = useModelStore.getState();
@@ -162,6 +160,8 @@ describe("useModelStore", () => {
         `/api/model/${companyId}/models/${modelId}`,
         { newName: "Updated Name" }
       );
+      expect(useModelStore.getState().models[0].name).toBe("Updated Name");
+      expect(axios.get).not.toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith("Model updated successfully");
     });
 
@@ -169,8 +169,9 @@ describe("useModelStore", () => {
       vi.mocked(axios.patch).mockResolvedValueOnce({
         data: { message: "Success" },
       });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: [] },
+
+      useModelStore.setState({
+        models: [{ _id: "model-456", name: "Old Name" }],
       });
 
       const { updateModel } = useModelStore.getState();
@@ -201,11 +202,13 @@ describe("useModelStore", () => {
       const companyId = "company-123";
       const modelId = "model-456";
 
+      useModelStore.setState({
+        models: [{ _id: modelId, name: "Model To Delete" }],
+        modelsCount: 1
+      });
+
       vi.mocked(axios.delete).mockResolvedValueOnce({
         data: { message: "Model deleted successfully" },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: [] },
       });
 
       const { deleteModel } = useModelStore.getState();
@@ -215,6 +218,9 @@ describe("useModelStore", () => {
       expect(axios.delete).toHaveBeenCalledWith(
         `/api/model/${companyId}/models/${modelId}`
       );
+      expect(useModelStore.getState().models).toEqual([]);
+      expect(useModelStore.getState().modelsCount).toBe(0);
+      expect(axios.get).not.toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith("Model deleted successfully");
     });
 
@@ -231,21 +237,25 @@ describe("useModelStore", () => {
       expect(toast.error).toHaveBeenCalledWith("Cannot delete model in use");
     });
 
-    it("should refresh models after deletion", async () => {
+    it("should optimistically remove model after deletion", async () => {
       const companyId = "company-123";
-      const remainingModels = [{ _id: "2", modelName: "Remaining", companyId }];
+      const remainingModels = [{ _id: "2", name: "Remaining" }];
+
+      useModelStore.setState({
+        models: [{ _id: "model-456", name: "Delete me" }, ...remainingModels],
+        modelsCount: 2
+      });
 
       vi.mocked(axios.delete).mockResolvedValueOnce({
         data: { message: "Success" },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: remainingModels },
       });
 
       const { deleteModel } = useModelStore.getState();
       await deleteModel(companyId, "model-456");
 
       expect(useModelStore.getState().models).toEqual(remainingModels);
+      expect(useModelStore.getState().modelsCount).toBe(1);
+      expect(axios.get).not.toHaveBeenCalled();
     });
   });
 

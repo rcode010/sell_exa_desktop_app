@@ -16,11 +16,11 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --ui --coverage",
-    "test:unit": "vitest --ui run --dir src/test/unit",
-    "test:integration": "vitest --ui run --dir src/test/integration",
-    "test:components": "vitest --ui run --dir src/test/components",
-    "test:pages": "vitest --ui run --dir src/test/pages"
+    "test:coverage": "vitest --coverage",
+    "test:unit": "vitest run --dir src/test/unit",
+    "test:integration": "vitest run --dir src/test/integration",
+    "test:components": "vitest run --dir src/test/components",
+    "test:pages": "vitest run --dir src/test/pages"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",

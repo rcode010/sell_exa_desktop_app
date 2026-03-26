@@ -34,7 +34,7 @@ describe("useCompanyStore", () => {
 
       expect(useCompanyStore.getState().companies).toEqual(mockCompanies);
       expect(useCompanyStore.getState().loading).toBe(false);
-      expect(axios.get).toHaveBeenCalledWith("/api/company/");
+      expect(axios.get).toHaveBeenCalledWith("/api/company/?page=1&limit=10");
     });
 
     it("should handle fetch companies error", async () => {
@@ -110,51 +110,36 @@ describe("useCompanyStore", () => {
       expect(toast.error).toHaveBeenCalledWith("Name already exists");
     });
 
-    it("should refresh companies after successful creation", async () => {
+    it("should optimistically update companies after successful creation", async () => {
       const mockFormData = new FormData();
-      const mockCompanies = [{ _id: "1", name: "BMW", models: [] }];
-
-      vi.mocked(axios.post).mockResolvedValueOnce({
-        data: { success: true, data: mockCompanies[0] },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: mockCompanies },
-      });
-
-      const { createCompany } = useCompanyStore.getState();
-      await createCompany(mockFormData);
-
-      expect(axios.get).toHaveBeenCalledWith("/api/company/");
-      expect(useCompanyStore.getState().companies).toEqual(mockCompanies);
-    });
-
-    it("should optimistically update if refresh fails", async () => {
-      const mockFormData = new FormData();
-      const mockCompany = { _id: "1", name: "Ford", models: [], logoLink: null, products: 0, isHidden: false };
-
-      useCompanyStore.setState({
-        companies: [
-          {
-            _id: "1",
-            name: "Old Name",
-            models: [],
-            logoLink: null,
-            products: 0,
-            isHidden: false,
-          },
-        ],
-      });
+      const mockCompany = { _id: "1", name: "BMW", models: [] };
 
       vi.mocked(axios.post).mockResolvedValueOnce({
         data: { success: true, data: mockCompany },
       });
-      vi.mocked(axios.get).mockRejectedValueOnce(new Error("Refresh failed"));
 
       const { createCompany } = useCompanyStore.getState();
       await createCompany(mockFormData);
 
       const state = useCompanyStore.getState();
       expect(state.companies).toContainEqual(mockCompany);
+      expect(axios.get).not.toHaveBeenCalled();
+    });
+
+    it("should refresh companies if server does not return new company data", async () => {
+      const mockFormData = new FormData();
+
+      vi.mocked(axios.post).mockResolvedValueOnce({
+        data: { success: true, data: null },
+      });
+      vi.mocked(axios.get).mockResolvedValueOnce({
+        data: { data: [] },
+      });
+
+      const { createCompany } = useCompanyStore.getState();
+      await createCompany(mockFormData);
+
+      expect(axios.get).toHaveBeenCalled();
     });
   });
 
@@ -165,11 +150,12 @@ describe("useCompanyStore", () => {
 
       const mockUpdated = { _id: "1", name: "Updated Company", models: [], logoLink: null, products: 0, isHidden: false };
 
+      useCompanyStore.setState({
+        companies: [{ _id: "1", name: "Old Company", models: [], logoLink: null, products: 0, isHidden: false }]
+      });
+
       vi.mocked(axios.patch).mockResolvedValueOnce({
         data: { success: true, data: mockUpdated },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: [mockUpdated] },
       });
 
       const { updateCompany } = useCompanyStore.getState();
@@ -179,6 +165,8 @@ describe("useCompanyStore", () => {
       expect(axios.patch).toHaveBeenCalledWith("/api/company/1", mockFormData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      expect(useCompanyStore.getState().companies[0].name).toBe("Updated Company");
+      expect(axios.get).not.toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith(
         "Company updated successfully!"
       );
@@ -227,15 +215,16 @@ describe("useCompanyStore", () => {
     });
   });
 
-  describe("deleteCompany", () => {
+  describe("delete company", () => {
     it("should delete company successfully", async () => {
       const companyId = "1";
 
+      useCompanyStore.setState({
+        companies: [{ _id: companyId, name: "Company 1", models: [], logoLink: null, products: 0, isHidden: false }]
+      });
+
       vi.mocked(axios.delete).mockResolvedValueOnce({
         data: { success: true, data: {} },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: [] },
       });
 
       const { deleteCompany } = useCompanyStore.getState();
@@ -245,6 +234,8 @@ describe("useCompanyStore", () => {
       expect(axios.delete).toHaveBeenCalledWith(
         `/api/company/delete-company/${companyId}`
       );
+      expect(useCompanyStore.getState().companies).toEqual([]);
+      expect(axios.get).not.toHaveBeenCalled();
       expect(toast.success).toHaveBeenCalledWith(
         "Company deleted successfully!"
       );
@@ -263,20 +254,21 @@ describe("useCompanyStore", () => {
       expect(toast.error).toHaveBeenCalledWith("Company not found");
     });
 
-    it("should refresh companies after deletion", async () => {
-      const remainingCompanies = [{ _id: "2", name: "Company 2", models: [] }];
+    it("should optimistically remove company after deletion", async () => {
+      const remainingCompanies = [{ _id: "2", name: "Company 2", models: [], logoLink: null, products: 0, isHidden: false }];
+      useCompanyStore.setState({
+        companies: [{ _id: "1", name: "Company 1", models: [], logoLink: null, products: 0, isHidden: false }, ...remainingCompanies]
+      });
 
       vi.mocked(axios.delete).mockResolvedValueOnce({
         data: { success: true, data: {} },
-      });
-      vi.mocked(axios.get).mockResolvedValueOnce({
-        data: { data: remainingCompanies },
       });
 
       const { deleteCompany } = useCompanyStore.getState();
       await deleteCompany("1");
 
       expect(useCompanyStore.getState().companies).toEqual(remainingCompanies);
+      expect(axios.get).not.toHaveBeenCalled();
     });
   });
 

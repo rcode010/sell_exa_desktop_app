@@ -4,7 +4,6 @@ import axiosInstance from "../lib/axios";
 import { Seller, SellerStore } from "../types/seller";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
-import { PAGINATION } from "../constants/config";
 
 export const useSellerStore = create<SellerStore>()(
   persist(
